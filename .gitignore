@@ -2,6 +2,11 @@
 
 # dependencies
 node_modules/
+.pnpm-store/
+
+# this project uses pnpm - ignore other package managers' lockfiles
+package-lock.json
+yarn.lock
 
 # Expo
 .expo/
@@ -25,6 +30,7 @@ expo-env.d.ts
 npm-debug.*
 yarn-debug.*
 yarn-error.*
+pnpm-debug.*
 
 # macOS
 .DS_Store
