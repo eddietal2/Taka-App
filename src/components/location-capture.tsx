@@ -1,5 +1,5 @@
 import * as Location from 'expo-location';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View, useColorScheme } from 'react-native';
 
 import type { GeoPoint } from '@/api/schemas';
@@ -11,11 +11,78 @@ export type LocationCaptureProps = {
   error?: string;
 };
 
+/**
+ * Builds one short line from the parts Expo returns, e.g.
+ * "Ihumwa, Dodoma, Tanzania". Repeated values are dropped so the line never
+ * reads "Mlimani, Mlimani", and the list is capped so it stays readable.
+ */
+function formatPlace(address: Location.LocationGeocodedAddress): string {
+  const parts = [
+    address.name,
+    address.street,
+    address.district,
+    address.city,
+    address.region,
+    address.country,
+  ];
+  const seen = new Set<string>();
+  const unique: string[] = [];
+
+  for (const part of parts) {
+    const text = part?.trim();
+    if (!text || seen.has(text.toLowerCase())) continue;
+    seen.add(text.toLowerCase());
+    unique.push(text);
+  }
+
+  return unique.slice(0, 3).join(', ');
+}
+
 /** Requests foreground location permission and captures a GPS point. */
 export function LocationCapture({ value, onChange, error }: LocationCaptureProps) {
   const theme = getPalette(useColorScheme());
   const [busy, setBusy] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [place, setPlace] = useState<string | null>(null);
+  const [resolving, setResolving] = useState(false);
+
+  const latitude = value?.latitude;
+  const longitude = value?.longitude;
+
+  // Raw coordinates mean little to most people, so the point is looked up and
+  // the nearest place name is shown alongside them.
+  useEffect(() => {
+    if (latitude === undefined || longitude === undefined) {
+      setPlace(null);
+      setResolving(false);
+      return;
+    }
+
+    let cancelled = false;
+    setResolving(true);
+
+    // Wrapped in an async function so a platform without a geocoder (web) throws
+    // into the catch rather than out of the effect body.
+    const lookup = async () => {
+      try {
+        const results = await Location.reverseGeocodeAsync({ latitude, longitude });
+        if (cancelled) return;
+        const [nearest] = results;
+        setPlace(nearest ? formatPlace(nearest) : null);
+      } catch {
+        // Offline, permission pulled, or no geocoder: coordinates still show.
+        if (!cancelled) setPlace(null);
+      } finally {
+        if (!cancelled) setResolving(false);
+      }
+    };
+
+    void lookup();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [latitude, longitude]);
 
   const capture = async () => {
     setLocalError(null);
@@ -57,11 +124,25 @@ export function LocationCapture({ value, onChange, error }: LocationCaptureProps
             backgroundColor: theme.surface,
           },
         ]}>
-        <Text style={[styles.value, { color: value ? theme.text : theme.textMuted }]}>
-          {value
-            ? `${value.latitude.toFixed(6)}, ${value.longitude.toFixed(6)}`
-            : 'We use your location to route collections to your address.'}
-        </Text>
+        {value ? (
+          <View style={styles.details}>
+            {resolving ? (
+              <Text style={[styles.place, { color: theme.textMuted }]}>
+                Finding the nearby address…
+              </Text>
+            ) : place ? (
+              <Text style={[styles.place, { color: theme.text }]}>{place}</Text>
+            ) : null}
+
+            <Text style={[styles.coords, { color: theme.textMuted }]}>
+              {`${value.latitude.toFixed(6)}, ${value.longitude.toFixed(6)}`}
+            </Text>
+          </View>
+        ) : (
+          <Text style={[styles.value, { color: theme.textMuted }]}>
+            We use your location to route collections to your address.
+          </Text>
+        )}
 
         <Pressable
           onPress={capture}
@@ -69,14 +150,14 @@ export function LocationCapture({ value, onChange, error }: LocationCaptureProps
           accessibilityRole="button"
           style={({ pressed }) => [
             styles.action,
-            { backgroundColor: theme.secondary },
+            { backgroundColor: theme.primary },
             pressed && styles.pressed,
             busy && styles.disabled,
           ]}>
           {busy ? (
-            <ActivityIndicator color={theme.onSecondary} />
+            <ActivityIndicator color={theme.onPrimary} />
           ) : (
-            <Text style={[styles.actionText, { color: theme.onSecondary }]}>
+            <Text style={[styles.actionText, { color: theme.onPrimary }]}>
               {value ? 'Update location' : 'Use my current location'}
             </Text>
           )}
@@ -101,6 +182,16 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     borderWidth: 1,
     borderRadius: radius.md,
+  },
+  details: {
+    gap: spacing.xs,
+  },
+  place: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+  },
+  coords: {
+    fontSize: fontSize.xs,
   },
   value: {
     fontSize: fontSize.sm,

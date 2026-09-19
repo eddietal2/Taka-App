@@ -2,7 +2,7 @@ import { Redirect, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { Button, LocationCapture, Screen, StepHeader } from '@/components';
+import { Button, LocationCapture, LocationMap, Screen, StepHeader } from '@/components';
 import { INTENT_COPY } from '@/constants/registration';
 import { spacing } from '@/constants/theme';
 import { useSignUp } from '@/features/signup/context';
@@ -50,6 +50,8 @@ export default function LocationScreen() {
       />
 
       <View style={styles.form}>
+        <LocationMap value={form.location} error={Boolean(error)} />
+
         <LocationCapture
           value={form.location}
           onChange={(location) => {
