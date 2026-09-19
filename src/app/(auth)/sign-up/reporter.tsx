@@ -5,7 +5,7 @@ import { StyleSheet, View } from 'react-native';
 import { Button, Screen, StepHeader, TextField } from '@/components';
 import { spacing } from '@/constants/theme';
 import { useSignUp } from '@/features/signup/context';
-import { SIGN_UP_STEPS, SIGN_UP_TOTAL_STEPS } from '@/features/signup/steps';
+import { postDetailsRouteFor, SIGN_UP_STEPS, signUpProgress } from '@/features/signup/steps';
 
 type Errors = Partial<Record<'first_name' | 'last_name', string>>;
 
@@ -18,6 +18,8 @@ export default function ReporterDetailsScreen() {
     return <Redirect href="/sign-up" />;
   }
 
+  const progress = signUpProgress(intent, SIGN_UP_STEPS.details);
+
   const handleContinue = () => {
     const next: Errors = {};
     if (form.first_name.trim().length < 2) next.first_name = 'Enter your first name.';
@@ -25,7 +27,7 @@ export default function ReporterDetailsScreen() {
 
     setErrors(next);
     if (Object.keys(next).length > 0) return;
-    router.push('/sign-up/media');
+    router.push(postDetailsRouteFor(intent));
   };
 
   return (
@@ -33,8 +35,8 @@ export default function ReporterDetailsScreen() {
       <StepHeader
         title="Your details"
         subtitle="Reporters help keep Dodoma clean by flagging issues in your area."
-        step={SIGN_UP_STEPS.details}
-        totalSteps={SIGN_UP_TOTAL_STEPS}
+        step={progress.step}
+        totalSteps={progress.totalSteps}
         onBack={() => router.back()}
       />
 

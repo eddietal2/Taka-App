@@ -6,12 +6,13 @@ import { Button, OptionCard, Screen, StepHeader } from '@/components';
 import { INTENT_COPY, USER_INTENTS, type UserIntent } from '@/constants/registration';
 import { spacing } from '@/constants/theme';
 import { useSignUp } from '@/features/signup/context';
-import { SIGN_UP_STEPS, SIGN_UP_TOTAL_STEPS } from '@/features/signup/steps';
+import { SIGN_UP_STEPS, signUpProgress } from '@/features/signup/steps';
 
 export default function ChooseAccountTypeScreen() {
   const router = useRouter();
   const { intent, setIntent } = useSignUp();
   const [selected, setSelected] = useState<UserIntent | null>(intent);
+  const progress = signUpProgress(intent, SIGN_UP_STEPS.intent);
 
   const handleBack = () => {
     if (router.canGoBack()) {
@@ -32,8 +33,8 @@ export default function ChooseAccountTypeScreen() {
       <StepHeader
         title="How will you use Taka?"
         subtitle="Choose the account type that fits you. This decides what we ask for next."
-        step={SIGN_UP_STEPS.intent}
-        totalSteps={SIGN_UP_TOTAL_STEPS}
+        step={progress.step}
+        totalSteps={progress.totalSteps}
         onBack={handleBack}
       />
 

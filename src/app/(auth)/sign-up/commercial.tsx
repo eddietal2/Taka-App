@@ -4,10 +4,10 @@ import { StyleSheet, View } from 'react-native';
 
 import { TAX_ID_PATTERN } from '@/api/schemas';
 import { Button, Screen, SelectField, StepHeader, TextField } from '@/components';
-import { WASTE_TIERS, WASTE_TIER_LABELS } from '@/constants/registration';
+import { WASTE_TIER_LABELS, WASTE_TIERS } from '@/constants/registration';
 import { spacing } from '@/constants/theme';
 import { useSignUp } from '@/features/signup/context';
-import { SIGN_UP_STEPS, SIGN_UP_TOTAL_STEPS } from '@/features/signup/steps';
+import { postDetailsRouteFor, SIGN_UP_STEPS, signUpProgress } from '@/features/signup/steps';
 
 type Errors = Partial<
   Record<'business_name' | 'ward_kata' | 'street_mtaa' | 'waste_tier' | 'tax_id', string>
@@ -27,6 +27,8 @@ export default function CommercialDetailsScreen() {
     return <Redirect href="/sign-up" />;
   }
 
+  const progress = signUpProgress(intent, SIGN_UP_STEPS.details);
+
   const handleContinue = () => {
     const next: Errors = {};
     if (form.business_name.trim().length < 2) next.business_name = 'Enter the business name.';
@@ -37,7 +39,7 @@ export default function CommercialDetailsScreen() {
 
     setErrors(next);
     if (Object.keys(next).length > 0) return;
-    router.push('/sign-up/media');
+    router.push(postDetailsRouteFor(intent));
   };
 
   return (
@@ -45,8 +47,8 @@ export default function CommercialDetailsScreen() {
       <StepHeader
         title="Business details"
         subtitle="Tell us about the business and how much waste we should expect."
-        step={SIGN_UP_STEPS.details}
-        totalSteps={SIGN_UP_TOTAL_STEPS}
+        step={progress.step}
+        totalSteps={progress.totalSteps}
         onBack={() => router.back()}
       />
 

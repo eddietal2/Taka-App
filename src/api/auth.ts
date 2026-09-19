@@ -1,10 +1,7 @@
 import { apiRequest } from '@/api/client';
 import type { CommercialPayload, ReporterPayload, ResidentPayload } from '@/api/schemas';
 
-/**
- * TODO: confirm the OTP endpoint paths with the backend — these follow the
- * `/api/v1/auth/*` convention used by the register endpoints.
- */
+/** OTP endpoints served by taka-server-resident under `/api/v1`. */
 const OTP_REQUEST_PATH = '/api/v1/auth/otp/request';
 const OTP_VERIFY_PATH = '/api/v1/auth/otp/verify';
 

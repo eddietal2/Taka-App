@@ -8,7 +8,7 @@ import { isValidTanzanianNumber, TANZANIA_COUNTRY_CODE, toE164 } from '@/constan
 import { INTENT_COPY } from '@/constants/registration';
 import { fontSize, getPalette, spacing } from '@/constants/theme';
 import { useSignUp } from '@/features/signup/context';
-import { SIGN_UP_STEPS, SIGN_UP_TOTAL_STEPS } from '@/features/signup/steps';
+import { SIGN_UP_STEPS, signUpProgress } from '@/features/signup/steps';
 
 export default function PhoneScreen() {
   const router = useRouter();
@@ -21,6 +21,8 @@ export default function PhoneScreen() {
   if (!intent) {
     return <Redirect href="/sign-up" />;
   }
+
+  const progress = signUpProgress(intent, SIGN_UP_STEPS.phone);
 
   const handleContinue = async () => {
     if (!isValidTanzanianNumber(value)) {
@@ -47,8 +49,8 @@ export default function PhoneScreen() {
       <StepHeader
         title="What's your phone number?"
         subtitle={`We'll text a one-time code to verify it. Signing up as ${INTENT_COPY[intent].title}.`}
-        step={SIGN_UP_STEPS.phone}
-        totalSteps={SIGN_UP_TOTAL_STEPS}
+        step={progress.step}
+        totalSteps={progress.totalSteps}
         onBack={() => router.back()}
       />
 

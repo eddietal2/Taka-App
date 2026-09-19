@@ -4,9 +4,22 @@
  * The base URL is read from `EXPO_PUBLIC_API_URL` so it can differ per
  * environment. Expo inlines `EXPO_PUBLIC_*` variables at build time, so set it
  * in your `.env` (or EAS environment) rather than reading it at runtime.
+ *
+ * The deployed server is the fallback rather than `localhost`: a release build
+ * without the variable, or a dev server started before `.env` existed, would
+ * otherwise bundle `http://localhost:3000` and every request would fail with
+ * "Could not reach Taka" on a device. Trailing slashes are trimmed because each
+ * path already starts with `/`.
  */
+const FALLBACK_API_BASE_URL = 'https://taka-server-resident.vercel.app';
 
-export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
+function resolveApiBaseUrl(): string {
+  const configured = process.env.EXPO_PUBLIC_API_URL?.trim();
+  const baseUrl = configured && configured.length > 0 ? configured : FALLBACK_API_BASE_URL;
+  return baseUrl.replace(/\/+$/, '');
+}
+
+export const API_BASE_URL = resolveApiBaseUrl();
 
 export class ApiError extends Error {
   readonly status: number;

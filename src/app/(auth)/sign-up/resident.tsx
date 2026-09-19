@@ -6,7 +6,7 @@ import { LUKU_METER_PATTERN } from '@/api/schemas';
 import { Button, Screen, StepHeader, TextField } from '@/components';
 import { spacing } from '@/constants/theme';
 import { useSignUp } from '@/features/signup/context';
-import { SIGN_UP_STEPS, SIGN_UP_TOTAL_STEPS } from '@/features/signup/steps';
+import { postDetailsRouteFor, SIGN_UP_STEPS, signUpProgress } from '@/features/signup/steps';
 
 type Errors = Partial<
   Record<'first_name' | 'last_name' | 'ward_kata' | 'street_mtaa' | 'luku_meter', string>
@@ -21,6 +21,8 @@ export default function ResidentDetailsScreen() {
     return <Redirect href="/sign-up" />;
   }
 
+  const progress = signUpProgress(intent, SIGN_UP_STEPS.details);
+
   const handleContinue = () => {
     const next: Errors = {};
     if (form.first_name.trim().length < 2) next.first_name = 'Enter your first name.';
@@ -31,7 +33,7 @@ export default function ResidentDetailsScreen() {
 
     setErrors(next);
     if (Object.keys(next).length > 0) return;
-    router.push('/sign-up/media');
+    router.push(postDetailsRouteFor(intent));
   };
 
   return (
@@ -39,8 +41,8 @@ export default function ResidentDetailsScreen() {
       <StepHeader
         title="Your details"
         subtitle="Tell us who you are and where we should collect from."
-        step={SIGN_UP_STEPS.details}
-        totalSteps={SIGN_UP_TOTAL_STEPS}
+        step={progress.step}
+        totalSteps={progress.totalSteps}
         onBack={() => router.back()}
       />
 

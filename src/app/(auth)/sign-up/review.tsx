@@ -11,7 +11,7 @@ import { fontSize, getPalette, radius, spacing } from '@/constants/theme';
 import { saveToken } from '@/features/auth/session';
 import { buildRegisterPayload } from '@/features/signup/build-payload';
 import { useSignUp } from '@/features/signup/context';
-import { SIGN_UP_STEPS, SIGN_UP_TOTAL_STEPS } from '@/features/signup/steps';
+import { SIGN_UP_STEPS, signUpProgress } from '@/features/signup/steps';
 import type { SignUpForm } from '@/features/signup/types';
 
 type SummaryRow = { label: string; value: string };
@@ -73,6 +73,7 @@ export default function ReviewScreen() {
     return <Redirect href="/sign-up" />;
   }
 
+  const progress = signUpProgress(intent, SIGN_UP_STEPS.review);
   const rows = summaryRows(intent, form, phone);
 
   const handleSubmit = async () => {
@@ -124,8 +125,8 @@ export default function ReviewScreen() {
       <StepHeader
         title="Check everything"
         subtitle="We use these details to set up your Taka account."
-        step={SIGN_UP_STEPS.review}
-        totalSteps={SIGN_UP_TOTAL_STEPS}
+        step={progress.step}
+        totalSteps={progress.totalSteps}
         onBack={() => router.back()}
       />
 

@@ -6,7 +6,7 @@ import { requestOtp, verifyOtp } from '@/api/auth';
 import { Button, Screen, StepHeader, TextField } from '@/components';
 import { fontSize, getPalette, spacing } from '@/constants/theme';
 import { useSignUp } from '@/features/signup/context';
-import { detailsRouteFor, SIGN_UP_STEPS, SIGN_UP_TOTAL_STEPS } from '@/features/signup/steps';
+import { detailsRouteFor, SIGN_UP_STEPS, signUpProgress } from '@/features/signup/steps';
 
 const CODE_LENGTH = 6;
 
@@ -23,6 +23,8 @@ export default function VerifyPhoneScreen() {
   if (!intent || !phone) {
     return <Redirect href="/sign-up" />;
   }
+
+  const progress = signUpProgress(intent, SIGN_UP_STEPS.verify);
 
   const handleVerify = async () => {
     if (code.length !== CODE_LENGTH) {
@@ -65,8 +67,8 @@ export default function VerifyPhoneScreen() {
       <StepHeader
         title="Enter your code"
         subtitle={`We sent a ${CODE_LENGTH}-digit code to ${phone}.`}
-        step={SIGN_UP_STEPS.verify}
-        totalSteps={SIGN_UP_TOTAL_STEPS}
+        step={progress.step}
+        totalSteps={progress.totalSteps}
         onBack={() => router.back()}
       />
 
