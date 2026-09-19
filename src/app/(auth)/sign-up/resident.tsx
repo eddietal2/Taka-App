@@ -2,15 +2,12 @@ import { Redirect, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { LUKU_METER_PATTERN } from '@/api/schemas';
 import { Button, Screen, StepHeader, TextField } from '@/components';
 import { spacing } from '@/constants/theme';
 import { useSignUp } from '@/features/signup/context';
 import { postDetailsRouteFor, SIGN_UP_STEPS, signUpProgress } from '@/features/signup/steps';
 
-type Errors = Partial<
-  Record<'first_name' | 'last_name' | 'ward_kata' | 'street_mtaa' | 'luku_meter', string>
->;
+type Errors = Partial<Record<'first_name' | 'last_name' | 'ward_kata' | 'street_mtaa', string>>;
 
 export default function ResidentDetailsScreen() {
   const router = useRouter();
@@ -29,7 +26,6 @@ export default function ResidentDetailsScreen() {
     if (form.last_name.trim().length < 2) next.last_name = 'Enter your last name.';
     if (form.ward_kata.trim().length < 2) next.ward_kata = 'Enter your ward (kata).';
     if (form.street_mtaa.trim().length < 2) next.street_mtaa = 'Enter your street (mtaa).';
-    if (!LUKU_METER_PATTERN.test(form.luku_meter)) next.luku_meter = 'LUKU meters are 11 digits.';
 
     setErrors(next);
     if (Object.keys(next).length > 0) return;
@@ -91,19 +87,8 @@ export default function ResidentDetailsScreen() {
           onChangeText={(value) => updateForm({ unit_number: value })}
           placeholder="Room 4"
           hint="Optional — apartment, house or room."
-          returnKeyType="next"
-        />
-        <TextField
-          label="LUKU meter number"
-          value={form.luku_meter}
-          onChangeText={(value) => updateForm({ luku_meter: value.replace(/\D/g, '') })}
-          placeholder="14100000000"
-          keyboardType="number-pad"
-          maxLength={11}
-          hint="11 digits, printed on your meter."
           returnKeyType="done"
           onSubmitEditing={handleContinue}
-          error={errors.luku_meter}
         />
 
         <Button label="Continue" onPress={handleContinue} fullWidth size="lg" />

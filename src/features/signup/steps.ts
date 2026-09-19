@@ -1,34 +1,43 @@
 import { INTENT_COPY, type UserIntent } from '@/constants/registration';
 
-/** Total steps in the longest flow (the success screen is excluded). */
-export const SIGN_UP_TOTAL_STEPS = 7;
+/** Total steps when nothing is skipped (the success screen is excluded). */
+export const SIGN_UP_TOTAL_STEPS = 8;
 
 export const SIGN_UP_STEPS = {
   intent: 1,
   phone: 2,
   verify: 3,
   details: 4,
-  location: 5,
-  photo: 6,
-  review: 7,
+  luku: 5,
+  location: 6,
+  photo: 7,
+  review: 8,
 } as const;
 
 /**
- * Screen position and total for `step`.
- *
- * Reporters never pin a location, so their run is one step shorter and the
- * numbers after `location` shift down by one to keep the counter gapless. A
+ * Steps an account type never visits. Reporters skip both the meter and the
+ * pin; commercial accounts have no meter, so only the pin remains.
+ */
+function skippedSteps(intent: UserIntent): readonly number[] {
+  if (intent === 'REPORTER') return [SIGN_UP_STEPS.luku, SIGN_UP_STEPS.location];
+  if (intent === 'COMMERCIAL') return [SIGN_UP_STEPS.luku];
+  return [];
+}
+
+/**
+ * Screen position and total for `step`, with skipped steps closed up so the
+ * counter never jumps (a reporter's photo step reads 5 of 6, not 7 of 8). A
  * `null` intent (before an account type is chosen) keeps the full count.
  */
 export function signUpProgress(
   intent: UserIntent | null,
   step: number
 ): { step: number; totalSteps: number } {
-  const skipsLocation = intent !== null && !INTENT_COPY[intent].needsLocation;
+  const skipped = intent ? skippedSteps(intent) : [];
 
   return {
-    step: skipsLocation && step > SIGN_UP_STEPS.location ? step - 1 : step,
-    totalSteps: skipsLocation ? SIGN_UP_TOTAL_STEPS - 1 : SIGN_UP_TOTAL_STEPS,
+    step: step - skipped.filter((skippedStep) => skippedStep < step).length,
+    totalSteps: SIGN_UP_TOTAL_STEPS - skipped.length,
   };
 }
 
@@ -45,7 +54,13 @@ export function detailsRouteFor(intent: UserIntent): IntentDetailsRoute {
   return INTENT_DETAILS_ROUTES[intent];
 }
 
-/** First screen after the details form: pin a location only where it is needed. */
-export function postDetailsRouteFor(intent: UserIntent): '/sign-up/location' | '/sign-up/photo' {
+/**
+ * First screen after the details form: residents give their meter number,
+ * commercial accounts pin a location, reporters only need a photo.
+ */
+export function postDetailsRouteFor(
+  intent: UserIntent
+): '/sign-up/luku' | '/sign-up/location' | '/sign-up/photo' {
+  if (intent === 'RESIDENT') return '/sign-up/luku';
   return INTENT_COPY[intent].needsLocation ? '/sign-up/location' : '/sign-up/photo';
 }
