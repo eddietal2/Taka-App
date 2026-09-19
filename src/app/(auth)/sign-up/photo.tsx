@@ -5,11 +5,13 @@ import { StyleSheet, View } from 'react-native';
 import { Button, PhotoPicker, Screen, StepHeader } from '@/components';
 import { INTENT_COPY } from '@/constants/registration';
 import { spacing } from '@/constants/theme';
+import { useI18n } from '@/features/i18n/context';
 import { useSignUp } from '@/features/signup/context';
 import { SIGN_UP_STEPS, signUpProgress } from '@/features/signup/steps';
 
 export default function PhotoScreen() {
   const router = useRouter();
+  const { t } = useI18n();
   const { intent, phoneVerified, verificationToken, form, updateForm } = useSignUp();
   const [error, setError] = useState<string | undefined>();
 
@@ -24,8 +26,8 @@ export default function PhotoScreen() {
   const handleContinue = () => {
     const image = isCommercial ? form.business_logo : form.profile_picture;
     const missingMessage = isCommercial
-      ? 'Add your business logo to continue.'
-      : 'Add a profile picture to continue.';
+      ? t('signUp.photo.missingBusiness')
+      : t('signUp.photo.missingProfile');
 
     if (!image) {
       setError(missingMessage);
@@ -39,11 +41,11 @@ export default function PhotoScreen() {
   return (
     <Screen>
       <StepHeader
-        title={isCommercial ? 'Add your business logo' : 'Add a profile picture'}
+        title={isCommercial ? t('signUp.photo.titleBusiness') : t('signUp.photo.titleProfile')}
         subtitle={
           isCommercial
-            ? 'This is what residents see on your listing.'
-            : 'This is how your community will recognise you.'
+            ? t('signUp.photo.subtitleBusiness')
+            : t('signUp.photo.subtitleProfile')
         }
         step={progress.step}
         totalSteps={progress.totalSteps}
@@ -53,7 +55,7 @@ export default function PhotoScreen() {
       <View style={styles.form}>
         {isCommercial ? (
           <PhotoPicker
-            label={copy.imageLabel}
+            label={t(copy.imageLabelKey)}
             value={form.business_logo}
             onChange={(url) => {
               setError(undefined);
@@ -65,7 +67,7 @@ export default function PhotoScreen() {
           />
         ) : (
           <PhotoPicker
-            label={copy.imageLabel}
+            label={t(copy.imageLabelKey)}
             value={form.profile_picture}
             onChange={(url) => {
               setError(undefined);
@@ -77,7 +79,7 @@ export default function PhotoScreen() {
           />
         )}
 
-        <Button label="Continue" onPress={handleContinue} fullWidth size="lg" />
+        <Button label={t('common.continue')} onPress={handleContinue} fullWidth size="lg" />
       </View>
     </Screen>
   );

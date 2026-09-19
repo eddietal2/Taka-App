@@ -6,9 +6,10 @@ import { registerCommercial, registerReporter, registerResident } from '@/api/au
 import { ApiError } from '@/api/client';
 import type { GeoPoint } from '@/api/schemas';
 import { Button, Checkbox, Screen, StepHeader } from '@/components';
-import { INTENT_COPY, WASTE_TIER_LABELS, type UserIntent } from '@/constants/registration';
+import { INTENT_COPY, WASTE_TIER_LABEL_KEYS, type UserIntent } from '@/constants/registration';
 import { fontSize, getPalette, radius, spacing } from '@/constants/theme';
 import { saveToken } from '@/features/auth/session';
+import { useI18n, type Translator } from '@/features/i18n/context';
 import { buildRegisterPayload } from '@/features/signup/build-payload';
 import { useSignUp } from '@/features/signup/context';
 import { SIGN_UP_STEPS, signUpProgress } from '@/features/signup/steps';
@@ -20,43 +21,54 @@ function formatLocation(point: GeoPoint | null): string {
   return point ? `${point.latitude.toFixed(5)}, ${point.longitude.toFixed(5)}` : '—';
 }
 
-function summaryRows(intent: UserIntent, form: SignUpForm, phone: string): SummaryRow[] {
+function summaryRows(
+  intent: UserIntent,
+  form: SignUpForm,
+  phone: string,
+  t: Translator
+): SummaryRow[] {
   const rows: SummaryRow[] = [
-    { label: 'Account type', value: INTENT_COPY[intent].title },
-    { label: 'Phone', value: phone },
+    { label: t('signUp.review.accountType'), value: t(INTENT_COPY[intent].titleKey) },
+    { label: t('signUp.review.phone'), value: phone },
   ];
 
   if (intent === 'COMMERCIAL') {
     rows.push(
-      { label: 'Business', value: form.business_name || '—' },
-      { label: 'Ward / Kata', value: form.ward_kata || '—' },
-      { label: 'Street / Mtaa', value: form.street_mtaa || '—' },
+      { label: t('signUp.review.business'), value: form.business_name || '—' },
+      { label: t('signUp.details.ward'), value: form.ward_kata || '—' },
+      { label: t('signUp.details.street'), value: form.street_mtaa || '—' },
       {
-        label: 'Waste tier',
-        value: form.waste_tier ? WASTE_TIER_LABELS[form.waste_tier] : '—',
+        label: t('signUp.details.wasteTier'),
+        value: form.waste_tier ? t(WASTE_TIER_LABEL_KEYS[form.waste_tier]) : '—',
       },
-      { label: 'TIN', value: form.tax_id || '—' },
-      { label: 'Location', value: formatLocation(form.location) },
-      { label: 'Logo', value: form.business_logo ? 'Uploaded' : '—' }
+      { label: t('signUp.details.taxId'), value: form.tax_id || '—' },
+      { label: t('signUp.review.location'), value: formatLocation(form.location) },
+      {
+        label: t('signUp.review.logo'),
+        value: form.business_logo ? t('common.uploaded') : '—',
+      }
     );
     return rows;
   }
 
-  rows.push({ label: 'Name', value: `${form.first_name} ${form.last_name}`.trim() || '—' });
+  rows.push({
+    label: t('signUp.review.name'),
+    value: `${form.first_name} ${form.last_name}`.trim() || '—',
+  });
 
   if (intent === 'RESIDENT') {
     rows.push(
-      { label: 'Ward / Kata', value: form.ward_kata || '—' },
-      { label: 'Street / Mtaa', value: form.street_mtaa || '—' },
-      { label: 'Unit', value: form.unit_number || '—' },
-      { label: 'LUKU meter', value: form.luku_meter || '—' },
-      { label: 'Location', value: formatLocation(form.location) }
+      { label: t('signUp.details.ward'), value: form.ward_kata || '—' },
+      { label: t('signUp.details.street'), value: form.street_mtaa || '—' },
+      { label: t('signUp.review.unit'), value: form.unit_number || '—' },
+      { label: t('signUp.review.luku'), value: form.luku_meter || '—' },
+      { label: t('signUp.review.location'), value: formatLocation(form.location) }
     );
   }
 
   rows.push({
-    label: INTENT_COPY[intent].imageLabel,
-    value: form.profile_picture ? 'Uploaded' : '—',
+    label: t(INTENT_COPY[intent].imageLabelKey),
+    value: form.profile_picture ? t('common.uploaded') : '—',
   });
   return rows;
 }
@@ -64,6 +76,7 @@ function summaryRows(intent: UserIntent, form: SignUpForm, phone: string): Summa
 export default function ReviewScreen() {
   const router = useRouter();
   const theme = getPalette(useColorScheme());
+  const { t } = useI18n();
   const { intent, phone, phoneVerified, verificationToken, form } = useSignUp();
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -74,7 +87,7 @@ export default function ReviewScreen() {
   }
 
   const progress = signUpProgress(intent, SIGN_UP_STEPS.review);
-  const rows = summaryRows(intent, form, phone);
+  const rows = summaryRows(intent, form, phone, t);
 
   const handleSubmit = async () => {
     const result = buildRegisterPayload(intent, phone, form);
@@ -84,7 +97,7 @@ export default function ReviewScreen() {
     }
 
     if (!acceptedTerms) {
-      setErrors({ terms: 'Please accept the terms to continue.' });
+      setErrors({ terms: t('signUp.review.termsError') });
       return;
     }
 
@@ -112,7 +125,7 @@ export default function ReviewScreen() {
         setErrors(cause.fieldErrors);
       } else {
         setErrors({
-          form: cause instanceof Error ? cause.message : 'Registration failed. Please try again.',
+          form: cause instanceof Error ? cause.message : t('signUp.review.failed'),
         });
       }
     } finally {
@@ -123,8 +136,8 @@ export default function ReviewScreen() {
   return (
     <Screen>
       <StepHeader
-        title="Check everything"
-        subtitle="We use these details to set up your Taka account."
+        title={t('signUp.review.title')}
+        subtitle={t('signUp.review.subtitle')}
         step={progress.step}
         totalSteps={progress.totalSteps}
         onBack={() => router.back()}
@@ -143,7 +156,7 @@ export default function ReviewScreen() {
         checked={acceptedTerms}
         onChange={setAcceptedTerms}
         error={errors.terms}>
-        I agree to the Terms of Service and Privacy Policy.
+        {t('signUp.review.terms')}
       </Checkbox>
 
       {errors.form ? (
@@ -151,7 +164,7 @@ export default function ReviewScreen() {
       ) : null}
 
       <Button
-        label="Create account"
+        label={t('signUp.review.submit')}
         onPress={handleSubmit}
         loading={submitting}
         fullWidth

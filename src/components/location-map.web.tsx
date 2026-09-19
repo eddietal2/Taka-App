@@ -2,6 +2,7 @@ import { StyleSheet, Text, View, useColorScheme } from 'react-native';
 
 import type { LocationMapProps } from '@/components/location-map.types';
 import { fontSize, getPalette, radius, spacing } from '@/constants/theme';
+import { useI18n } from '@/features/i18n/context';
 
 /**
  * Web counterpart of `location-map.tsx`.
@@ -11,6 +12,7 @@ import { fontSize, getPalette, radius, spacing } from '@/constants/theme';
  */
 export function LocationMap({ value, error, height = 220 }: LocationMapProps) {
   const theme = getPalette(useColorScheme());
+  const { t } = useI18n();
 
   return (
     <View
@@ -25,7 +27,7 @@ export function LocationMap({ value, error, height = 220 }: LocationMapProps) {
       <Text style={[styles.text, { color: value ? theme.text : theme.textMuted }]}>
         {value
           ? `${value.latitude.toFixed(6)}, ${value.longitude.toFixed(6)}`
-          : 'The map is available in the mobile app.'}
+          : t('signUp.location.mapUnavailable')}
       </Text>
     </View>
   );

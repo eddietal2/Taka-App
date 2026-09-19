@@ -4,6 +4,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View, useColorScheme } 
 
 import type { GeoPoint } from '@/api/schemas';
 import { fontSize, getPalette, radius, spacing } from '@/constants/theme';
+import { useI18n } from '@/features/i18n/context';
 
 export type LocationCaptureProps = {
   value: GeoPoint | null;
@@ -41,6 +42,7 @@ function formatPlace(address: Location.LocationGeocodedAddress): string {
 /** Requests foreground location permission and captures a GPS point. */
 export function LocationCapture({ value, onChange, error }: LocationCaptureProps) {
   const theme = getPalette(useColorScheme());
+  const { t } = useI18n();
   const [busy, setBusy] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
   const [place, setPlace] = useState<string | null>(null);
@@ -91,7 +93,7 @@ export function LocationCapture({ value, onChange, error }: LocationCaptureProps
     try {
       const permission = await Location.requestForegroundPermissionsAsync();
       if (!permission.granted) {
-        setLocalError('Location access is required. Enable it in Settings and try again.');
+        setLocalError(t('signUp.location.permission'));
         return;
       }
 
@@ -104,7 +106,7 @@ export function LocationCapture({ value, onChange, error }: LocationCaptureProps
         longitude: position.coords.longitude,
       });
     } catch {
-      setLocalError('Could not get your location. Make sure GPS is on and try again.');
+      setLocalError(t('signUp.location.failed'));
     } finally {
       setBusy(false);
     }
@@ -114,7 +116,7 @@ export function LocationCapture({ value, onChange, error }: LocationCaptureProps
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.label, { color: theme.text }]}>Location</Text>
+      <Text style={[styles.label, { color: theme.text }]}>{t('signUp.location.captureLabel')}</Text>
 
       <View
         style={[
@@ -128,7 +130,7 @@ export function LocationCapture({ value, onChange, error }: LocationCaptureProps
           <View style={styles.details}>
             {resolving ? (
               <Text style={[styles.place, { color: theme.textMuted }]}>
-                Finding the nearby address…
+                {t('signUp.location.resolving')}
               </Text>
             ) : place ? (
               <Text style={[styles.place, { color: theme.text }]}>{place}</Text>
@@ -140,7 +142,7 @@ export function LocationCapture({ value, onChange, error }: LocationCaptureProps
           </View>
         ) : (
           <Text style={[styles.value, { color: theme.textMuted }]}>
-            We use your location to route collections to your address.
+            {t('signUp.location.empty')}
           </Text>
         )}
 
@@ -158,7 +160,7 @@ export function LocationCapture({ value, onChange, error }: LocationCaptureProps
             <ActivityIndicator color={theme.onPrimary} />
           ) : (
             <Text style={[styles.actionText, { color: theme.onPrimary }]}>
-              {value ? 'Update location' : 'Use my current location'}
+              {value ? t('signUp.location.update') : t('signUp.location.capture')}
             </Text>
           )}
         </Pressable>

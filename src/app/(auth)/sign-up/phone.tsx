@@ -12,12 +12,14 @@ import {
 } from '@/constants/phone';
 import { INTENT_COPY } from '@/constants/registration';
 import { fontSize, getPalette, spacing } from '@/constants/theme';
+import { useI18n } from '@/features/i18n/context';
 import { useSignUp } from '@/features/signup/context';
 import { SIGN_UP_STEPS, signUpProgress } from '@/features/signup/steps';
 
 export default function PhoneScreen() {
   const router = useRouter();
   const theme = getPalette(useColorScheme());
+  const { t } = useI18n();
   const { intent, setPhone } = useSignUp();
   const [value, setValue] = useState('');
   const [error, setError] = useState<string | undefined>();
@@ -28,6 +30,7 @@ export default function PhoneScreen() {
   }
 
   const progress = signUpProgress(intent, SIGN_UP_STEPS.phone);
+  const intentTitle = t(INTENT_COPY[intent].titleKey);
 
   // The field is digits-only so `maxLength` counts exactly the digits that
   // matter — separators such as spaces would otherwise eat into that budget and
@@ -39,7 +42,7 @@ export default function PhoneScreen() {
 
   const handleContinue = async () => {
     if (!isValidTanzanianNumber(value)) {
-      setError('Enter a valid Tanzanian mobile number.');
+      setError(t('common.invalidPhone'));
       return;
     }
 
@@ -51,7 +54,8 @@ export default function PhoneScreen() {
       setPhone(phone);
       router.push('/sign-up/verify');
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Could not send the code. Try again.');
+      // Server messages arrive in English; only the fallback is translated.
+      setError(cause instanceof Error ? cause.message : t('signUp.phone.failed'));
     } finally {
       setSubmitting(false);
     }
@@ -60,8 +64,8 @@ export default function PhoneScreen() {
   return (
     <Screen>
       <StepHeader
-        title="What's your phone number?"
-        subtitle={`We'll text a one-time code to verify it. Signing up as ${INTENT_COPY[intent].title}.`}
+        title={t('signUp.phone.title')}
+        subtitle={t('signUp.phone.subtitle', { intent: intentTitle })}
         step={progress.step}
         totalSteps={progress.totalSteps}
         onBack={() => router.back()}
@@ -69,7 +73,7 @@ export default function PhoneScreen() {
 
       <View style={styles.form}>
         <TextField
-          label="Phone number"
+          label={t('signUp.phone.label')}
           value={value}
           onChangeText={handleChange}
           prefix={TANZANIA_COUNTRY_CODE}
@@ -83,12 +87,10 @@ export default function PhoneScreen() {
           error={error}
         />
 
-        <Text style={[styles.note, { color: theme.textMuted }]}>
-          You can also start with 0, e.g. 0712345678.
-        </Text>
+        <Text style={[styles.note, { color: theme.textMuted }]}>{t('signUp.phone.note')}</Text>
 
         <Button
-          label="Send code"
+          label={t('signUp.phone.submit')}
           onPress={handleContinue}
           loading={submitting}
           fullWidth

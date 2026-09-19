@@ -4,8 +4,9 @@ import { StyleSheet, View } from 'react-native';
 
 import { TAX_ID_PATTERN } from '@/api/schemas';
 import { Button, Screen, SelectField, StepHeader, TextField } from '@/components';
-import { WASTE_TIER_LABELS, WASTE_TIERS } from '@/constants/registration';
+import { WASTE_TIER_LABEL_KEYS, WASTE_TIERS } from '@/constants/registration';
 import { spacing } from '@/constants/theme';
+import { useI18n } from '@/features/i18n/context';
 import { useSignUp } from '@/features/signup/context';
 import { postDetailsRouteFor, SIGN_UP_STEPS, signUpProgress } from '@/features/signup/steps';
 
@@ -13,13 +14,9 @@ type Errors = Partial<
   Record<'business_name' | 'ward_kata' | 'street_mtaa' | 'waste_tier' | 'tax_id', string>
 >;
 
-const WASTE_TIER_OPTIONS = WASTE_TIERS.map((tier) => ({
-  value: tier,
-  label: WASTE_TIER_LABELS[tier],
-}));
-
 export default function CommercialDetailsScreen() {
   const router = useRouter();
+  const { t } = useI18n();
   const { intent, phoneVerified, form, updateForm } = useSignUp();
   const [errors, setErrors] = useState<Errors>({});
 
@@ -28,14 +25,20 @@ export default function CommercialDetailsScreen() {
   }
 
   const progress = signUpProgress(intent, SIGN_UP_STEPS.details);
+  const wasteTierOptions = WASTE_TIERS.map((tier) => ({
+    value: tier,
+    label: t(WASTE_TIER_LABEL_KEYS[tier]),
+  }));
 
   const handleContinue = () => {
     const next: Errors = {};
-    if (form.business_name.trim().length < 2) next.business_name = 'Enter the business name.';
-    if (form.ward_kata.trim().length < 2) next.ward_kata = 'Enter your ward (kata).';
-    if (form.street_mtaa.trim().length < 2) next.street_mtaa = 'Enter your street (mtaa).';
-    if (!form.waste_tier) next.waste_tier = 'Choose a waste tier.';
-    if (!TAX_ID_PATTERN.test(form.tax_id)) next.tax_id = 'Use the 123-456-789 format.';
+    if (form.business_name.trim().length < 2) {
+      next.business_name = t('signUp.details.businessNameError');
+    }
+    if (form.ward_kata.trim().length < 2) next.ward_kata = t('signUp.details.wardError');
+    if (form.street_mtaa.trim().length < 2) next.street_mtaa = t('signUp.details.streetError');
+    if (!form.waste_tier) next.waste_tier = t('signUp.details.wasteTierError');
+    if (!TAX_ID_PATTERN.test(form.tax_id)) next.tax_id = t('signUp.details.taxIdError');
 
     setErrors(next);
     if (Object.keys(next).length > 0) return;
@@ -45,8 +48,8 @@ export default function CommercialDetailsScreen() {
   return (
     <Screen>
       <StepHeader
-        title="Business details"
-        subtitle="Tell us about the business and how much waste we should expect."
+        title={t('signUp.commercial.title')}
+        subtitle={t('signUp.commercial.subtitle')}
         step={progress.step}
         totalSteps={progress.totalSteps}
         onBack={() => router.back()}
@@ -54,7 +57,7 @@ export default function CommercialDetailsScreen() {
 
       <View style={styles.form}>
         <TextField
-          label="Business name"
+          label={t('signUp.details.businessName')}
           value={form.business_name}
           onChangeText={(value) => updateForm({ business_name: value })}
           placeholder="Dodoma Fresh Grocers Ltd"
@@ -64,7 +67,7 @@ export default function CommercialDetailsScreen() {
           error={errors.business_name}
         />
         <TextField
-          label="Ward / Kata"
+          label={t('signUp.details.ward')}
           value={form.ward_kata}
           onChangeText={(value) => updateForm({ ward_kata: value })}
           placeholder="Nzuguni"
@@ -72,7 +75,7 @@ export default function CommercialDetailsScreen() {
           error={errors.ward_kata}
         />
         <TextField
-          label="Street / Mtaa"
+          label={t('signUp.details.street')}
           value={form.street_mtaa}
           onChangeText={(value) => updateForm({ street_mtaa: value })}
           placeholder="Sokoni Area"
@@ -81,28 +84,28 @@ export default function CommercialDetailsScreen() {
         />
 
         <SelectField
-          label="Waste tier"
+          label={t('signUp.details.wasteTier')}
           value={form.waste_tier}
-          options={WASTE_TIER_OPTIONS}
+          options={wasteTierOptions}
           onChange={(value) => updateForm({ waste_tier: value })}
-          placeholder="Choose a tier"
+          placeholder={t('signUp.details.wasteTierPlaceholder')}
           error={errors.waste_tier}
         />
 
         <TextField
-          label="TIN / Tax ID"
+          label={t('signUp.details.taxId')}
           value={form.tax_id}
           onChangeText={(value) => updateForm({ tax_id: value })}
           placeholder="100-234-567"
           keyboardType="number-pad"
           maxLength={11}
-          hint="Format: 123-456-789."
+          hint={t('signUp.details.taxIdHint')}
           returnKeyType="done"
           onSubmitEditing={handleContinue}
           error={errors.tax_id}
         />
 
-        <Button label="Continue" onPress={handleContinue} fullWidth size="lg" />
+        <Button label={t('common.continue')} onPress={handleContinue} fullWidth size="lg" />
       </View>
     </Screen>
   );

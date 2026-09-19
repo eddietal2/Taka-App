@@ -5,6 +5,7 @@ import { StyleSheet, View } from 'react-native';
 import { LUKU_METER_PATTERN } from '@/api/schemas';
 import { Button, Screen, StepHeader, TextField } from '@/components';
 import { spacing } from '@/constants/theme';
+import { useI18n } from '@/features/i18n/context';
 import { useSignUp } from '@/features/signup/context';
 import { SIGN_UP_STEPS, signUpProgress } from '@/features/signup/steps';
 
@@ -16,6 +17,7 @@ const LUKU_LENGTH = 11;
  */
 export default function LukuScreen() {
   const router = useRouter();
+  const { t } = useI18n();
   const { intent, phoneVerified, form, updateForm } = useSignUp();
   const [error, setError] = useState<string | undefined>();
 
@@ -27,7 +29,7 @@ export default function LukuScreen() {
 
   const handleContinue = () => {
     if (!LUKU_METER_PATTERN.test(form.luku_meter)) {
-      setError(`Enter the ${LUKU_LENGTH}-digit number printed on your meter.`);
+      setError(t('signUp.luku.error', { digits: LUKU_LENGTH }));
       return;
     }
 
@@ -38,8 +40,8 @@ export default function LukuScreen() {
   return (
     <Screen>
       <StepHeader
-        title="Your LUKU meter"
-        subtitle="We link your household to its meter so collections are billed to the right place."
+        title={t('signUp.luku.title')}
+        subtitle={t('signUp.luku.subtitle')}
         step={progress.step}
         totalSteps={progress.totalSteps}
         onBack={() => router.back()}
@@ -47,7 +49,7 @@ export default function LukuScreen() {
 
       <View style={styles.form}>
         <TextField
-          label="LUKU meter number"
+          label={t('signUp.luku.label')}
           value={form.luku_meter}
           onChangeText={(value) => {
             setError(undefined);
@@ -56,13 +58,13 @@ export default function LukuScreen() {
           placeholder="14100000000"
           keyboardType="number-pad"
           maxLength={LUKU_LENGTH}
-          hint="11 digits, printed on your meter."
+          hint={t('signUp.luku.hint')}
           returnKeyType="done"
           onSubmitEditing={handleContinue}
           error={error}
         />
 
-        <Button label="Continue" onPress={handleContinue} fullWidth size="lg" />
+        <Button label={t('common.continue')} onPress={handleContinue} fullWidth size="lg" />
       </View>
     </Screen>
   );

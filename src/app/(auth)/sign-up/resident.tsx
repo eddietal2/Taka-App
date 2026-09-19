@@ -4,6 +4,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { Button, Screen, StepHeader, TextField } from '@/components';
 import { spacing } from '@/constants/theme';
+import { useI18n } from '@/features/i18n/context';
 import { useSignUp } from '@/features/signup/context';
 import { postDetailsRouteFor, SIGN_UP_STEPS, signUpProgress } from '@/features/signup/steps';
 
@@ -11,6 +12,7 @@ type Errors = Partial<Record<'first_name' | 'last_name' | 'ward_kata' | 'street_
 
 export default function ResidentDetailsScreen() {
   const router = useRouter();
+  const { t } = useI18n();
   const { intent, phoneVerified, form, updateForm } = useSignUp();
   const [errors, setErrors] = useState<Errors>({});
 
@@ -22,10 +24,10 @@ export default function ResidentDetailsScreen() {
 
   const handleContinue = () => {
     const next: Errors = {};
-    if (form.first_name.trim().length < 2) next.first_name = 'Enter your first name.';
-    if (form.last_name.trim().length < 2) next.last_name = 'Enter your last name.';
-    if (form.ward_kata.trim().length < 2) next.ward_kata = 'Enter your ward (kata).';
-    if (form.street_mtaa.trim().length < 2) next.street_mtaa = 'Enter your street (mtaa).';
+    if (form.first_name.trim().length < 2) next.first_name = t('signUp.details.firstNameError');
+    if (form.last_name.trim().length < 2) next.last_name = t('signUp.details.lastNameError');
+    if (form.ward_kata.trim().length < 2) next.ward_kata = t('signUp.details.wardError');
+    if (form.street_mtaa.trim().length < 2) next.street_mtaa = t('signUp.details.streetError');
 
     setErrors(next);
     if (Object.keys(next).length > 0) return;
@@ -35,8 +37,8 @@ export default function ResidentDetailsScreen() {
   return (
     <Screen>
       <StepHeader
-        title="Your details"
-        subtitle="Tell us who you are and where we should collect from."
+        title={t('signUp.resident.title')}
+        subtitle={t('signUp.resident.subtitle')}
         step={progress.step}
         totalSteps={progress.totalSteps}
         onBack={() => router.back()}
@@ -44,7 +46,7 @@ export default function ResidentDetailsScreen() {
 
       <View style={styles.form}>
         <TextField
-          label="First name"
+          label={t('signUp.details.firstName')}
           value={form.first_name}
           onChangeText={(value) => updateForm({ first_name: value })}
           placeholder="Juma"
@@ -55,7 +57,7 @@ export default function ResidentDetailsScreen() {
           error={errors.first_name}
         />
         <TextField
-          label="Last name"
+          label={t('signUp.details.lastName')}
           value={form.last_name}
           onChangeText={(value) => updateForm({ last_name: value })}
           placeholder="Hassan"
@@ -66,7 +68,7 @@ export default function ResidentDetailsScreen() {
           error={errors.last_name}
         />
         <TextField
-          label="Ward / Kata"
+          label={t('signUp.details.ward')}
           value={form.ward_kata}
           onChangeText={(value) => updateForm({ ward_kata: value })}
           placeholder="Ihumwa"
@@ -74,7 +76,7 @@ export default function ResidentDetailsScreen() {
           error={errors.ward_kata}
         />
         <TextField
-          label="Street / Mtaa"
+          label={t('signUp.details.street')}
           value={form.street_mtaa}
           onChangeText={(value) => updateForm({ street_mtaa: value })}
           placeholder="Mlimani"
@@ -82,16 +84,16 @@ export default function ResidentDetailsScreen() {
           error={errors.street_mtaa}
         />
         <TextField
-          label="Unit number"
+          label={t('signUp.details.unitNumber')}
           value={form.unit_number}
           onChangeText={(value) => updateForm({ unit_number: value })}
-          placeholder="Room 4"
-          hint="Optional — apartment, house or room."
+          placeholder={t('signUp.details.unitPlaceholder')}
+          hint={t('signUp.details.unitHint')}
           returnKeyType="done"
           onSubmitEditing={handleContinue}
         />
 
-        <Button label="Continue" onPress={handleContinue} fullWidth size="lg" />
+        <Button label={t('common.continue')} onPress={handleContinue} fullWidth size="lg" />
       </View>
     </Screen>
   );

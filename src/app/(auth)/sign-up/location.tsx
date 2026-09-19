@@ -5,11 +5,13 @@ import { StyleSheet, View } from 'react-native';
 import { Button, LocationCapture, LocationMap, Screen, StepHeader } from '@/components';
 import { INTENT_COPY } from '@/constants/registration';
 import { spacing } from '@/constants/theme';
+import { useI18n } from '@/features/i18n/context';
 import { useSignUp } from '@/features/signup/context';
 import { SIGN_UP_STEPS, signUpProgress } from '@/features/signup/steps';
 
 export default function LocationScreen() {
   const router = useRouter();
+  const { t } = useI18n();
   const { intent, phoneVerified, form, updateForm } = useSignUp();
   const [error, setError] = useState<string | undefined>();
 
@@ -27,7 +29,7 @@ export default function LocationScreen() {
 
   const handleContinue = () => {
     if (!form.location) {
-      setError('Add your location to continue.');
+      setError(t('signUp.location.missing'));
       return;
     }
 
@@ -38,11 +40,11 @@ export default function LocationScreen() {
   return (
     <Screen>
       <StepHeader
-        title="Pin your location"
+        title={t('signUp.location.title')}
         subtitle={
           isCommercial
-            ? 'Drop a pin on your premises so we know where to collect.'
-            : 'Drop a pin on your address so we know where to collect.'
+            ? t('signUp.location.subtitleBusiness')
+            : t('signUp.location.subtitleHome')
         }
         step={progress.step}
         totalSteps={progress.totalSteps}
@@ -61,7 +63,7 @@ export default function LocationScreen() {
           error={error}
         />
 
-        <Button label="Continue" onPress={handleContinue} fullWidth size="lg" />
+        <Button label={t('common.continue')} onPress={handleContinue} fullWidth size="lg" />
       </View>
     </Screen>
   );

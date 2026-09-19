@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View, useColorScheme } from 'react-native';
 
 import { fontSize, getPalette, radius, spacing } from '@/constants/theme';
+import { useI18n } from '@/features/i18n/context';
 
 export type SelectOption<T extends string> = {
   value: T;
@@ -25,14 +26,16 @@ export function SelectField<T extends string>({
   value,
   options,
   onChange,
-  placeholder = 'Select…',
+  placeholder,
   error,
   hint,
   disabled = false,
 }: SelectFieldProps<T>) {
   const theme = getPalette(useColorScheme());
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const selected = options.find((option) => option.value === value);
+  const placeholderText = placeholder ?? t('common.selectPlaceholder');
 
   return (
     <View style={styles.container}>
@@ -53,7 +56,7 @@ export function SelectField<T extends string>({
           disabled && styles.disabled,
         ]}>
         <Text style={[styles.value, { color: selected ? theme.text : theme.textMuted }]}>
-          {selected ? selected.label : placeholder}
+          {selected ? selected.label : placeholderText}
         </Text>
         <Text style={[styles.chevron, { color: theme.textMuted }]}>▾</Text>
       </Pressable>
@@ -71,7 +74,9 @@ export function SelectField<T extends string>({
         onRequestClose={() => setOpen(false)}>
         <Pressable style={styles.backdrop} onPress={() => setOpen(false)}>
           <Pressable style={[styles.sheet, { backgroundColor: theme.background }]} onPress={() => {}}>
-            <Text style={[styles.sheetTitle, { color: theme.text }]}>{label ?? 'Select'}</Text>
+            <Text style={[styles.sheetTitle, { color: theme.text }]}>
+              {label ?? t('common.select')}
+            </Text>
             {options.map((option) => {
               const isSelected = option.value === value;
               return (

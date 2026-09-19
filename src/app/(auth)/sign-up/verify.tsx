@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native'
 import { requestOtp, verifyOtp } from '@/api/auth';
 import { Button, Screen, StepHeader, TextField } from '@/components';
 import { fontSize, getPalette, spacing } from '@/constants/theme';
+import { useI18n } from '@/features/i18n/context';
 import { useSignUp } from '@/features/signup/context';
 import { detailsRouteFor, SIGN_UP_STEPS, signUpProgress } from '@/features/signup/steps';
 
@@ -13,6 +14,7 @@ const CODE_LENGTH = 6;
 export default function VerifyPhoneScreen() {
   const router = useRouter();
   const theme = getPalette(useColorScheme());
+  const { t } = useI18n();
   const { intent, phone, setVerified } = useSignUp();
   const [code, setCode] = useState('');
   const [error, setError] = useState<string | undefined>();
@@ -28,7 +30,7 @@ export default function VerifyPhoneScreen() {
 
   const handleVerify = async () => {
     if (code.length !== CODE_LENGTH) {
-      setError(`Enter the ${CODE_LENGTH}-digit code.`);
+      setError(t('signUp.verify.enterDigits', { digits: CODE_LENGTH }));
       return;
     }
 
@@ -41,7 +43,8 @@ export default function VerifyPhoneScreen() {
       setVerified(response.verification_token ?? null);
       router.push(detailsRouteFor(intent));
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'That code did not work. Try again.');
+      // Server messages arrive in English; only the fallback is translated.
+      setError(cause instanceof Error ? cause.message : t('signUp.verify.incorrect'));
     } finally {
       setSubmitting(false);
     }
@@ -54,9 +57,9 @@ export default function VerifyPhoneScreen() {
 
     try {
       await requestOtp(phone);
-      setMessage('A new code is on its way.');
+      setMessage(t('signUp.verify.resent'));
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Could not resend the code.');
+      setError(cause instanceof Error ? cause.message : t('signUp.verify.resendFailed'));
     } finally {
       setResending(false);
     }
@@ -65,8 +68,8 @@ export default function VerifyPhoneScreen() {
   return (
     <Screen>
       <StepHeader
-        title="Enter your code"
-        subtitle={`We sent a ${CODE_LENGTH}-digit code to ${phone}.`}
+        title={t('signUp.verify.title')}
+        subtitle={t('signUp.verify.subtitle', { digits: CODE_LENGTH, phone })}
         step={progress.step}
         totalSteps={progress.totalSteps}
         onBack={() => router.back()}
@@ -74,7 +77,7 @@ export default function VerifyPhoneScreen() {
 
       <View style={styles.form}>
         <TextField
-          label="Verification code"
+          label={t('signUp.verify.label')}
           value={code}
           onChangeText={(value) => setCode(value.replace(/\D/g, ''))}
           placeholder="000000"
@@ -91,7 +94,13 @@ export default function VerifyPhoneScreen() {
           <Text style={[styles.message, { color: theme.textMuted }]}>{message}</Text>
         ) : null}
 
-        <Button label="Verify" onPress={handleVerify} loading={submitting} fullWidth size="lg" />
+        <Button
+          label={t('signUp.verify.submit')}
+          onPress={handleVerify}
+          loading={submitting}
+          fullWidth
+          size="lg"
+        />
 
         <Pressable
           onPress={handleResend}
@@ -100,7 +109,7 @@ export default function VerifyPhoneScreen() {
           hitSlop={spacing.sm}
           style={styles.resend}>
           <Text style={[styles.resendText, { color: theme.primary }]}>
-            {resending ? 'Sending…' : 'Resend code'}
+            {resending ? t('signUp.verify.resending') : t('signUp.verify.resend')}
           </Text>
         </Pressable>
       </View>

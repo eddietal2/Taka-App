@@ -3,10 +3,12 @@ import { StyleSheet, Text, View, useColorScheme } from 'react-native';
 
 import { Button, Screen } from '@/components';
 import { fontSize, getPalette, spacing } from '@/constants/theme';
+import { useI18n } from '@/features/i18n/context';
 
 export default function SignUpSuccessScreen() {
   const router = useRouter();
   const theme = getPalette(useColorScheme());
+  const { t } = useI18n();
   const params = useLocalSearchParams();
   const pendingApproval = params.pending === '1';
 
@@ -23,16 +25,16 @@ export default function SignUpSuccessScreen() {
         </View>
 
         <Text style={[styles.title, { color: theme.text }]}>
-          {pendingApproval ? 'Almost there' : 'You are all set'}
+          {pendingApproval ? t('signUp.success.pendingTitle') : t('signUp.success.title')}
         </Text>
 
         <Text style={[styles.subtitle, { color: theme.textMuted }]}>
           {pendingApproval
-            ? 'We received your registration. Our team will review it and you will be notified once your account is approved.'
-            : 'Your Taka account has been created. Log in to get started.'}
+            ? t('signUp.success.pendingSubtitle')
+            : t('signUp.success.subtitle')}
         </Text>
 
-        <Button label="Done" onPress={handleDone} fullWidth size="lg" />
+        <Button label={t('common.done')} onPress={handleDone} fullWidth size="lg" />
       </View>
     </Screen>
   );

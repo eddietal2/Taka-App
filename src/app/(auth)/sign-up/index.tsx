@@ -5,11 +5,13 @@ import { StyleSheet, View } from 'react-native';
 import { Button, OptionCard, Screen, StepHeader } from '@/components';
 import { INTENT_COPY, USER_INTENTS, type UserIntent } from '@/constants/registration';
 import { spacing } from '@/constants/theme';
+import { useI18n } from '@/features/i18n/context';
 import { useSignUp } from '@/features/signup/context';
 import { SIGN_UP_STEPS, signUpProgress } from '@/features/signup/steps';
 
 export default function ChooseAccountTypeScreen() {
   const router = useRouter();
+  const { t } = useI18n();
   const { intent, setIntent } = useSignUp();
   const [selected, setSelected] = useState<UserIntent | null>(intent);
   const progress = signUpProgress(intent, SIGN_UP_STEPS.intent);
@@ -31,8 +33,8 @@ export default function ChooseAccountTypeScreen() {
   return (
     <Screen>
       <StepHeader
-        title="How will you use Taka?"
-        subtitle="Choose the account type that fits you. This decides what we ask for next."
+        title={t('signUp.intent.title')}
+        subtitle={t('signUp.intent.subtitle')}
         step={progress.step}
         totalSteps={progress.totalSteps}
         onBack={handleBack}
@@ -42,8 +44,8 @@ export default function ChooseAccountTypeScreen() {
         {USER_INTENTS.map((value) => (
           <OptionCard
             key={value}
-            title={INTENT_COPY[value].title}
-            description={INTENT_COPY[value].description}
+            title={t(INTENT_COPY[value].titleKey)}
+            description={t(INTENT_COPY[value].descriptionKey)}
             selected={selected === value}
             onPress={() => setSelected(value)}
           />
@@ -51,7 +53,7 @@ export default function ChooseAccountTypeScreen() {
       </View>
 
       <Button
-        label="Continue"
+        label={t('common.continue')}
         onPress={handleContinue}
         disabled={!selected}
         fullWidth

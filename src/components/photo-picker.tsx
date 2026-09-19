@@ -5,6 +5,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View, useColorScheme } 
 
 import { uploadImage, type UploadPurpose } from '@/api/uploads';
 import { fontSize, getPalette, radius, spacing } from '@/constants/theme';
+import { useI18n } from '@/features/i18n/context';
 
 /**
  * A profile picture and a business logo are both avatars, so the editor is
@@ -36,6 +37,7 @@ export type PhotoPickerProps = {
  */
 export function PhotoPicker({ label, value, onChange, purpose, token, error }: PhotoPickerProps) {
   const theme = getPalette(useColorScheme());
+  const { t } = useI18n();
   const [busy, setBusy] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
 
@@ -51,8 +53,8 @@ export function PhotoPicker({ label, value, onChange, purpose, token, error }: P
       if (!permission.granted) {
         setLocalError(
           source === 'camera'
-            ? 'Camera access is required. Enable it in Settings and try again.'
-            : 'Photo access is required. Enable it in Settings and try again.'
+            ? t('signUp.photo.cameraPermission')
+            : t('signUp.photo.libraryPermission')
         );
         return;
       }
@@ -70,7 +72,7 @@ export function PhotoPicker({ label, value, onChange, purpose, token, error }: P
       const publicUrl = await uploadImage(asset.uri, purpose, token, asset.width);
       onChange(publicUrl);
     } catch (cause) {
-      setLocalError(cause instanceof Error ? cause.message : 'Upload failed. Please try again.');
+      setLocalError(cause instanceof Error ? cause.message : t('signUp.photo.uploadFailed'));
     } finally {
       setBusy(false);
     }
@@ -88,7 +90,9 @@ export function PhotoPicker({ label, value, onChange, purpose, token, error }: P
           {value ? (
             <Image source={{ uri: value }} style={styles.previewImage} contentFit="cover" />
           ) : (
-            <Text style={[styles.placeholder, { color: theme.textMuted }]}>No image</Text>
+            <Text style={[styles.placeholder, { color: theme.textMuted }]}>
+              {t('signUp.photo.noImage')}
+            </Text>
           )}
 
           {busy ? (
@@ -110,7 +114,7 @@ export function PhotoPicker({ label, value, onChange, purpose, token, error }: P
               busy && styles.disabled,
             ]}>
             <Text style={[styles.actionText, { color: theme.text }]}>
-              {value ? 'Change photo' : 'Choose photo'}
+              {value ? t('signUp.photo.change') : t('signUp.photo.choose')}
             </Text>
           </Pressable>
 
@@ -124,7 +128,9 @@ export function PhotoPicker({ label, value, onChange, purpose, token, error }: P
               pressed && styles.pressed,
               busy && styles.disabled,
             ]}>
-            <Text style={[styles.actionText, { color: theme.text }]}>Take photo</Text>
+            <Text style={[styles.actionText, { color: theme.text }]}>
+              {t('signUp.photo.take')}
+            </Text>
           </Pressable>
 
           {value ? (
@@ -133,7 +139,9 @@ export function PhotoPicker({ label, value, onChange, purpose, token, error }: P
               disabled={busy}
               accessibilityRole="button"
               style={({ pressed }) => [styles.removeAction, pressed && styles.pressed]}>
-              <Text style={[styles.actionText, { color: theme.danger }]}>Remove</Text>
+              <Text style={[styles.actionText, { color: theme.danger }]}>
+                {t('signUp.photo.remove')}
+              </Text>
             </Pressable>
           ) : null}
         </View>

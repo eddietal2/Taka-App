@@ -4,6 +4,7 @@ import MapView, { Marker, type Region } from 'react-native-maps';
 
 import type { LocationMapProps } from '@/components/location-map.types';
 import { fontSize, getPalette, radius, spacing } from '@/constants/theme';
+import { useI18n } from '@/features/i18n/context';
 
 /**
  * Every span is widened by this factor, which is a 15% zoom-out: a larger
@@ -47,6 +48,7 @@ function regionFor(point: { latitude: number; longitude: number }): Region {
  */
 export function LocationMap({ value, error, height = 220 }: LocationMapProps) {
   const theme = getPalette(useColorScheme());
+  const { t } = useI18n();
   const mapRef = useRef<MapView>(null);
   const [drifted, setDrifted] = useState(false);
 
@@ -86,8 +88,10 @@ export function LocationMap({ value, error, height = 220 }: LocationMapProps) {
         toolbarEnabled={false}
         accessibilityLabel={
           value
-            ? `Map centred on ${value.latitude.toFixed(5)}, ${value.longitude.toFixed(5)}`
-            : 'Map of Tanzania'
+            ? t('signUp.location.mapCentered', {
+                coordinates: `${value.latitude.toFixed(5)}, ${value.longitude.toFixed(5)}`,
+              })
+            : t('signUp.location.mapTanzania')
         }>
         {value ? <Marker coordinate={value} /> : null}
       </MapView>
@@ -96,13 +100,15 @@ export function LocationMap({ value, error, height = 220 }: LocationMapProps) {
         <Pressable
           onPress={recentre}
           accessibilityRole="button"
-          accessibilityLabel="Move the map back to your location"
+          accessibilityLabel={t('signUp.location.recentreLabel')}
           style={({ pressed }) => [
             styles.recentre,
             { backgroundColor: theme.surface, borderColor: theme.border },
             pressed && styles.pressed,
           ]}>
-          <Text style={[styles.recentreText, { color: theme.text }]}>Recentre</Text>
+          <Text style={[styles.recentreText, { color: theme.text }]}>
+            {t('signUp.location.recentre')}
+          </Text>
         </Pressable>
       ) : null}
     </View>

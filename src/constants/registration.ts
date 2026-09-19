@@ -2,6 +2,8 @@
  * Registration domain constants shared by the sign-up flow and the API layer.
  */
 
+import type { TranslationKey } from '@/features/i18n/translations';
+
 export const USER_INTENTS = ['RESIDENT', 'REPORTER', 'COMMERCIAL'] as const;
 export type UserIntent = (typeof USER_INTENTS)[number];
 
@@ -12,36 +14,41 @@ export type UserIntent = (typeof USER_INTENTS)[number];
 export const WASTE_TIERS = ['HIGH_VOLUME_DAILY'] as const;
 export type WasteTier = (typeof WASTE_TIERS)[number];
 
-export const WASTE_TIER_LABELS: Record<WasteTier, string> = {
-  HIGH_VOLUME_DAILY: 'High volume — daily collection',
+export const WASTE_TIER_LABEL_KEYS: Record<WasteTier, TranslationKey> = {
+  HIGH_VOLUME_DAILY: 'wasteTier.highVolumeDaily',
 };
 
+/**
+ * Presentation copy for each account type, held as translation keys rather than
+ * text so one map serves every language. `needsLocation` stays a plain flag
+ * because it drives routing, not wording.
+ */
 export type IntentCopy = {
-  title: string;
-  description: string;
-  /** Label for the image captured in the media step. */
-  imageLabel: string;
+  titleKey: TranslationKey;
+  descriptionKey: TranslationKey;
+  /** Label for the image captured in the photo step. */
+  imageLabelKey: TranslationKey;
   /** Whether this intent needs a GPS location. */
   needsLocation: boolean;
 };
 
 export const INTENT_COPY: Record<UserIntent, IntentCopy> = {
   RESIDENT: {
-    title: 'Resident',
-    description: 'A household using Taka for waste collection.',
-    imageLabel: 'Profile picture',
+    titleKey: 'intent.resident.title',
+    descriptionKey: 'intent.resident.description',
+    imageLabelKey: 'intent.resident.imageLabel',
     needsLocation: true,
   },
   REPORTER: {
-    title: 'Reporter',
-    description: 'Report issues and illegal dumping in your area.',
-    imageLabel: 'Profile picture',
+    titleKey: 'intent.reporter.title',
+    descriptionKey: 'intent.reporter.description',
+    imageLabelKey: 'intent.reporter.imageLabel',
     needsLocation: false,
   },
   COMMERCIAL: {
-    title: 'Commercial',
-    description: 'A business or institution with scheduled collections.',
-    imageLabel: 'Business logo',
+    titleKey: 'intent.commercial.title',
+    descriptionKey: 'intent.commercial.description',
+    imageLabelKey: 'intent.commercial.imageLabel',
     needsLocation: true,
   },
 };

@@ -6,6 +6,7 @@ export * from './location-map.types';
 export * from './option-card';
 export * from './photo-picker';
 export * from './screen';
+export * from './segmented-control';
 export * from './select-field';
 export * from './step-header';
 export * from './text-field';
