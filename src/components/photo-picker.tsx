@@ -6,6 +6,19 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View, useColorScheme } 
 import { uploadImage, type UploadPurpose } from '@/api/uploads';
 import { fontSize, getPalette, radius, spacing } from '@/constants/theme';
 
+/**
+ * A profile picture and a business logo are both avatars, so the editor is
+ * locked to a square. iOS always crops square; Android honours `aspect`.
+ */
+const CROP_ASPECT: [number, number] = [1, 1];
+
+const PICKER_OPTIONS: ImagePicker.ImagePickerOptions = {
+  mediaTypes: ['images'],
+  allowsEditing: true,
+  aspect: CROP_ASPECT,
+  quality: 1,
+};
+
 export type PhotoPickerProps = {
   label: string;
   /** Public URL of the uploaded image, or null when nothing is chosen yet. */
@@ -17,7 +30,10 @@ export type PhotoPickerProps = {
   error?: string;
 };
 
-/** Picks or captures an image, uploads it to S3 and reports the public URL. */
+/**
+ * Picks or captures an image, hands it to the OS editor to be cropped square,
+ * then compresses it, uploads to S3 and reports the public URL.
+ */
 export function PhotoPicker({ label, value, onChange, purpose, token, error }: PhotoPickerProps) {
   const theme = getPalette(useColorScheme());
   const [busy, setBusy] = useState(false);
@@ -43,14 +59,15 @@ export function PhotoPicker({ label, value, onChange, purpose, token, error }: P
 
       const result =
         source === 'camera'
-          ? await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 1 })
-          : await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 1 });
+          ? await ImagePicker.launchCameraAsync(PICKER_OPTIONS)
+          : await ImagePicker.launchImageLibraryAsync(PICKER_OPTIONS);
 
       const asset = result.canceled ? undefined : result.assets[0];
       if (!asset) return;
 
       setBusy(true);
-      const publicUrl = await uploadImage(asset.uri, purpose, token);
+      // The picked width lets the compressor skip upscaling a small image.
+      const publicUrl = await uploadImage(asset.uri, purpose, token, asset.width);
       onChange(publicUrl);
     } catch (cause) {
       setLocalError(cause instanceof Error ? cause.message : 'Upload failed. Please try again.');

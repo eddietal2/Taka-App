@@ -27,10 +27,22 @@ export function presignUpload(purpose: UploadPurpose, token?: string | null) {
   });
 }
 
-/** Resizes and re-encodes the image so uploads stay small. */
-export async function compressImage(uri: string): Promise<string> {
+/**
+ * Resizes and re-encodes the image so uploads stay small.
+ *
+ * `sourceWidth` is the source image's width when the caller knows it. Without
+ * it the image is always scaled to `MAX_IMAGE_WIDTH`.
+ */
+export async function compressImage(uri: string, sourceWidth?: number): Promise<string> {
   const context = ImageManipulator.manipulate(uri);
-  context.resize({ width: MAX_IMAGE_WIDTH });
+
+  // Only ever shrink. `resize` sets the width unconditionally, so a logo that is
+  // already smaller would be blown up — blurring it and making the upload
+  // larger than the original file.
+  if (sourceWidth === undefined || sourceWidth > MAX_IMAGE_WIDTH) {
+    context.resize({ width: MAX_IMAGE_WIDTH });
+  }
+
   const rendered = await context.renderAsync();
   const image = await rendered.saveAsync({ compress: JPEG_QUALITY, format: SaveFormat.JPEG });
   return image.uri;
@@ -58,9 +70,10 @@ export async function putFileToS3(uploadUrl: string, fileUri: string): Promise<v
 export async function uploadImage(
   uri: string,
   purpose: UploadPurpose,
-  token?: string | null
+  token?: string | null,
+  sourceWidth?: number
 ): Promise<string> {
-  const compressedUri = await compressImage(uri);
+  const compressedUri = await compressImage(uri, sourceWidth);
   const { uploadUrl, publicUrl } = await presignUpload(purpose, token);
   await putFileToS3(uploadUrl, compressedUri);
   return publicUrl;
