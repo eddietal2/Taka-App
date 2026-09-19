@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View, useColorScheme } from 'react-native';
 
 import { fontSize, getPalette, radius, spacing } from '@/constants/theme';
+import { useI18n } from '@/features/i18n/context';
 
 export type StepHeaderProps = {
   title: string;
@@ -14,6 +15,7 @@ export type StepHeaderProps = {
 /** Back affordance, progress bar and titles shared by each sign-up step. */
 export function StepHeader({ title, subtitle, step, totalSteps, onBack }: StepHeaderProps) {
   const theme = getPalette(useColorScheme());
+  const { t } = useI18n();
   const progress = Math.min(Math.max(step / totalSteps, 0), 1);
 
   return (
@@ -23,15 +25,15 @@ export function StepHeader({ title, subtitle, step, totalSteps, onBack }: StepHe
           <Pressable
             onPress={onBack}
             accessibilityRole="button"
-            accessibilityLabel="Go back"
+            accessibilityLabel={t('common.goBack')}
             hitSlop={spacing.sm}>
-            <Text style={[styles.back, { color: theme.textMuted }]}>Back</Text>
+            <Text style={[styles.back, { color: theme.textMuted }]}>{t('common.back')}</Text>
           </Pressable>
         ) : (
           <View />
         )}
         <Text style={[styles.counter, { color: theme.textMuted }]}>
-          {`STEP ${step} OF ${totalSteps}`}
+          {t('common.stepCounter', { step, total: totalSteps })}
         </Text>
       </View>
 
