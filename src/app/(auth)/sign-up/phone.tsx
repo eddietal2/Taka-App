@@ -4,7 +4,12 @@ import { StyleSheet, Text, useColorScheme, View } from 'react-native';
 
 import { requestOtp } from '@/api/auth';
 import { Button, Screen, StepHeader, TextField } from '@/components';
-import { isValidTanzanianNumber, TANZANIA_COUNTRY_CODE, toE164 } from '@/constants/phone';
+import {
+  isValidTanzanianNumber,
+  TANZANIA_COUNTRY_CODE,
+  TANZANIA_MAX_NATIONAL_DIGITS,
+  toE164,
+} from '@/constants/phone';
 import { INTENT_COPY } from '@/constants/registration';
 import { fontSize, getPalette, spacing } from '@/constants/theme';
 import { useSignUp } from '@/features/signup/context';
@@ -23,6 +28,14 @@ export default function PhoneScreen() {
   }
 
   const progress = signUpProgress(intent, SIGN_UP_STEPS.phone);
+
+  // The field is digits-only so `maxLength` counts exactly the digits that
+  // matter — separators such as spaces would otherwise eat into that budget and
+  // stop the user halfway through their number.
+  const handleChange = (next: string) => {
+    setError(undefined);
+    setValue(next.replace(/\D/g, ''));
+  };
 
   const handleContinue = async () => {
     if (!isValidTanzanianNumber(value)) {
@@ -58,9 +71,10 @@ export default function PhoneScreen() {
         <TextField
           label="Phone number"
           value={value}
-          onChangeText={setValue}
+          onChangeText={handleChange}
           prefix={TANZANIA_COUNTRY_CODE}
-          placeholder="712 345 678"
+          placeholder="712345678"
+          maxLength={TANZANIA_MAX_NATIONAL_DIGITS}
           keyboardType="phone-pad"
           autoComplete="tel"
           textContentType="telephoneNumber"
@@ -70,7 +84,7 @@ export default function PhoneScreen() {
         />
 
         <Text style={[styles.note, { color: theme.textMuted }]}>
-          You can also start with 0, e.g. 0712 345 678.
+          You can also start with 0, e.g. 0712345678.
         </Text>
 
         <Button

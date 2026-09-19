@@ -12,6 +12,13 @@ export const TANZANIA_COUNTRY_CODE = '+255';
 export const TANZANIA_NATIONAL_PATTERN = /^[67]\d{8}$/;
 
 /**
+ * Longest national number the input accepts: the 9 digits above, plus the trunk
+ * `0` many people type first. The field renders `+255` as a fixed prefix, so the
+ * country code is never part of what the user types.
+ */
+export const TANZANIA_MAX_NATIONAL_DIGITS = 10;
+
+/**
  * Normalises user input to the 9-digit national number.
  * Accepts `0712 345 678`, `712 345 678`, `+255 712 345 678` and `255712345678`.
  */
