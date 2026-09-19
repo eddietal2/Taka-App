@@ -31,11 +31,15 @@ function interpolate(template: string, params?: TranslationParams): string {
 /**
  * Holds the active language for the whole app.
  *
- * The choice lives in memory only, so it resets on a reload; persisting it
- * alongside the auth token would be the next step if it needs to stick.
+ * Swahili is the default because the app is aimed at Tanzanian households; the
+ * login screen offers a switcher for anyone who prefers English.
+ *
+ * The choice lives in memory only, so it resets to Swahili on a reload;
+ * persisting it alongside the auth token would be the next step if it needs to
+ * stick.
  */
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguage] = useState<Language>('sw');
 
   const t = useCallback(
     (key: TranslationKey, params?: TranslationParams) =>

@@ -42,47 +42,51 @@ export default function LoginScreen() {
   };
 
   return (
-    <Screen centered>
-      <SegmentedControl
-        options={LANGUAGE_OPTIONS}
-        value={language}
-        onChange={setLanguage}
-        accessibilityLabel={t('login.languageLabel')}
-        style={styles.language}
-      />
-
-      <View style={styles.header}>
-        <Image
-          source={require('@/assets/images/logo.png')}
-          style={styles.logo}
-          contentFit="contain"
+    <Screen>
+      {/* Pinned above the centred block so it reads as a page-level control. */}
+      <View style={styles.languageRow}>
+        <SegmentedControl
+          options={LANGUAGE_OPTIONS}
+          value={language}
+          onChange={setLanguage}
+          accessibilityLabel={t('login.languageLabel')}
         />
-        <Text style={[styles.title, { color: theme.text }]}>{t('login.title')}</Text>
-        <Text style={[styles.subtitle, { color: theme.textMuted }]}>{t('login.subtitle')}</Text>
       </View>
 
-      <View style={styles.form}>
-        <TextField
-          label={t('login.phoneLabel')}
-          value={phone}
-          onChangeText={setPhone}
-          prefix={TANZANIA_COUNTRY_CODE}
-          placeholder="712 345 678"
-          keyboardType="phone-pad"
-          autoComplete="tel"
-          textContentType="telephoneNumber"
-          returnKeyType="done"
-          onSubmitEditing={handleSubmit}
-          error={errors.phone ? t(errors.phone) : undefined}
-        />
+      <View style={styles.main}>
+        <View style={styles.header}>
+          <Image
+            source={require('@/assets/images/logo.png')}
+            style={styles.logo}
+            contentFit="contain"
+          />
+          <Text style={[styles.title, { color: theme.text }]}>{t('login.title')}</Text>
+          <Text style={[styles.subtitle, { color: theme.textMuted }]}>{t('login.subtitle')}</Text>
+        </View>
 
-        <Button
-          label={t('common.continue')}
-          onPress={handleSubmit}
-          loading={submitting}
-          fullWidth
-          size="lg"
-        />
+        <View style={styles.form}>
+          <TextField
+            label={t('login.phoneLabel')}
+            value={phone}
+            onChangeText={setPhone}
+            prefix={TANZANIA_COUNTRY_CODE}
+            placeholder="712 345 678"
+            keyboardType="phone-pad"
+            autoComplete="tel"
+            textContentType="telephoneNumber"
+            returnKeyType="done"
+            onSubmitEditing={handleSubmit}
+            error={errors.phone ? t(errors.phone) : undefined}
+          />
+
+          <Button
+            label={t('common.continue')}
+            onPress={handleSubmit}
+            loading={submitting}
+            fullWidth
+            size="lg"
+          />
+        </View>
       </View>
 
       <View style={styles.footer}>
@@ -98,8 +102,17 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  language: {
-    alignSelf: 'flex-end',
+  languageRow: {
+    alignItems: 'flex-end',
+  },
+  /**
+   * Grows into the free space so the header and form stay vertically centred
+   * while the switcher sits at the top and the footer at the bottom.
+   */
+  main: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    gap: spacing.lg,
   },
   header: {
     alignItems: 'center',
