@@ -156,6 +156,8 @@ export default function ReviewScreen() {
         loading={submitting}
         fullWidth
         size="lg"
+        color={theme.primary}
+        textColor={theme.onPrimary}
       />
     </Screen>
   );
