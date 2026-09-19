@@ -1,15 +1,17 @@
 import type { ComponentProps, ReactNode } from 'react';
 import {
-    ActivityIndicator,
-    Pressable,
-    StyleSheet,
-    Text,
-    View,
-    type ColorValue,
-    type StyleProp,
-    type TextStyle,
-    type ViewStyle,
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  type ColorValue,
+  type StyleProp,
+  type TextStyle,
+  type ViewStyle,
 } from 'react-native';
+
+import { palette } from '@/constants/theme';
 
 export const BUTTON_VARIANTS = ['solid', 'outline', 'ghost'] as const;
 export type ButtonVariant = (typeof BUTTON_VARIANTS)[number];
@@ -17,8 +19,12 @@ export type ButtonVariant = (typeof BUTTON_VARIANTS)[number];
 export const BUTTON_SIZES = ['sm', 'md', 'lg'] as const;
 export type ButtonSize = (typeof BUTTON_SIZES)[number];
 
-const DEFAULT_COLOR = '#2563EB';
-const SOLID_LABEL_COLOR = '#FFFFFF';
+/**
+ * The brand's default button colour is `secondary` — most actions use it.
+ * Pass `color` (for example `theme.primary`) to opt into a different accent.
+ */
+const DEFAULT_COLOR = palette.light.secondary;
+const SOLID_LABEL_COLOR = palette.light.onSecondary;
 
 type SizeTokens = {
   container: ViewStyle;
@@ -65,7 +71,10 @@ export type ButtonProps = Omit<
   variant?: ButtonVariant;
   /** Size preset. Defaults to `md`. */
   size?: ButtonSize;
-  /** Accent color used for the background (solid) or border/text (outline & ghost). */
+  /**
+   * Accent color used for the background (solid) or border/text (outline & ghost).
+   * Defaults to the brand `secondary` color; pass `theme.primary` for primary actions.
+   */
   color?: ColorValue;
   /** Explicit label and spinner color, overriding the color derived from `variant`. */
   textColor?: ColorValue;
