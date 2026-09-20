@@ -117,6 +117,12 @@ const en = {
     'Drop a pin on your premises so we know where to collect.',
   'signUp.location.subtitleHome': 'Drop a pin on your address so we know where to collect.',
   'signUp.location.missing': 'Add your location to continue.',
+  'signUp.location.confirmTitleHome': 'Confirm your pickup address',
+  'signUp.location.confirmMessageHome':
+    'You are at the location shown on the map. Confirm this is the address where your household waste is collected.',
+  'signUp.location.confirmTitleBusiness': 'Confirm your premises',
+  'signUp.location.confirmMessageBusiness':
+    'You are at the location shown on the map. Confirm this is the premises your business waste is collected from.',
   'signUp.location.captureLabel': 'Location',
   'signUp.location.empty': 'We use your location to route collections to your address.',
   'signUp.location.resolving': 'Finding the nearby address…',
@@ -135,8 +141,6 @@ const en = {
   'signUp.photo.titleProfile': 'Add a profile picture',
   'signUp.photo.subtitleBusiness': 'This is what residents see on your listing.',
   'signUp.photo.subtitleProfile': 'This is how your community will recognise you.',
-  'signUp.photo.missingBusiness': 'Add your business logo to continue.',
-  'signUp.photo.missingProfile': 'Add a profile picture to continue.',
   'signUp.photo.choose': 'Choose photo',
   'signUp.photo.change': 'Change photo',
   'signUp.photo.take': 'Take photo',
@@ -281,6 +285,12 @@ const sw: Record<TranslationKey, string> = {
     'Weka alama kwenye eneo lako ili tujue wapi pa kukusanya.',
   'signUp.location.subtitleHome': 'Weka alama kwenye anwani yako ili tujue wapi pa kukusanya.',
   'signUp.location.missing': 'Ongeza eneo lako ili kuendelea.',
+  'signUp.location.confirmTitleHome': 'Thibitisha anwani yako ya ukusanyaji',
+  'signUp.location.confirmMessageHome':
+    'Uko kwenye eneo lililoonyeshwa kwenye ramani. Thibitisha kuwa hii ni anwani inayokusanyiwa taka za nyumbani kwako.',
+  'signUp.location.confirmTitleBusiness': 'Thibitisha eneo la biashara yako',
+  'signUp.location.confirmMessageBusiness':
+    'Uko kwenye eneo lililoonyeshwa kwenye ramani. Thibitisha kuwa hili ni eneo linalokusanyiwa taka za biashara yako.',
   'signUp.location.captureLabel': 'Eneo',
   'signUp.location.empty': 'Tunatumia eneo lako kupanga ukusanyaji kwa anwani yako.',
   'signUp.location.resolving': 'Tunatafuta anwani ya karibu…',
@@ -300,8 +310,6 @@ const sw: Record<TranslationKey, string> = {
   'signUp.photo.titleProfile': 'Ongeza picha ya wasifu',
   'signUp.photo.subtitleBusiness': 'Hivi ndivyo wakazi wanaona kwenye orodha yako.',
   'signUp.photo.subtitleProfile': 'Hivi ndivyo jamii yako itakavyokutambua.',
-  'signUp.photo.missingBusiness': 'Ongeza nembo ya biashara ili kuendelea.',
-  'signUp.photo.missingProfile': 'Ongeza picha ya wasifu ili kuendelea.',
   'signUp.photo.choose': 'Chagua picha',
   'signUp.photo.change': 'Badilisha picha',
   'signUp.photo.take': 'Piga picha',

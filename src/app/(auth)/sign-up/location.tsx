@@ -1,6 +1,6 @@
 import { Redirect, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 
 import { Button, LocationCapture, LocationMap, Screen, StepHeader } from '@/components';
 import { INTENT_COPY } from '@/constants/registration';
@@ -27,6 +27,8 @@ export default function LocationScreen() {
   const progress = signUpProgress(intent, SIGN_UP_STEPS.location);
   const isCommercial = intent === 'COMMERCIAL';
 
+  const goToPhoto = () => router.push('/sign-up/photo');
+
   const handleContinue = () => {
     if (!form.location) {
       setError(t('signUp.location.missing'));
@@ -34,7 +36,22 @@ export default function LocationScreen() {
     }
 
     setError(undefined);
-    router.push('/sign-up/photo');
+
+    // The pin is whatever the device reported, which may be somewhere the user
+    // happens to be rather than the address collections should go to, so make
+    // them confirm it. The copy differs for a household and a business.
+    Alert.alert(
+      t(isCommercial ? 'signUp.location.confirmTitleBusiness' : 'signUp.location.confirmTitleHome'),
+      t(
+        isCommercial
+          ? 'signUp.location.confirmMessageBusiness'
+          : 'signUp.location.confirmMessageHome'
+      ),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('common.ok'), onPress: goToPhoto },
+      ]
+    );
   };
 
   return (
@@ -65,7 +82,6 @@ export default function LocationScreen() {
           }}
           error={error}
         />
-
       </View>
     </Screen>
   );

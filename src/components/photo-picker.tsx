@@ -1,7 +1,7 @@
 import { Asset } from 'expo-asset';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
-import { useState } from 'react';
+import { useImperativeHandle, useState, type Ref } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -35,6 +35,12 @@ const PICKER_OPTIONS: ImagePicker.ImagePickerOptions = {
   quality: 1,
 };
 
+/** Imperative handle so a screen can trigger the Skip flow from its own action. */
+export type PhotoPickerHandle = {
+  /** Confirms, stores the fallback image and advances via `onSkip`. */
+  skip: () => void;
+};
+
 export type PhotoPickerProps = {
   label: string;
   /** Public URL of the uploaded image, or null when nothing is chosen yet. */
@@ -45,10 +51,17 @@ export type PhotoPickerProps = {
   token?: string | null;
   error?: string;
   /**
-   * Called once a confirmed skip has stored the default avatar, so the screen
+   * Stand-in shown while nothing is chosen, and the value stored when the user
+   * skips. A bundled asset (`require(...)`) is uploaded on skip so the stored
+   * value is a URL; a string URI is used as-is. Defaults to the bundled avatar.
+   */
+  fallback?: number | string;
+  /**
+   * Called once a confirmed skip has stored the fallback image, so the screen
    * can move on to the next step.
    */
   onSkip?: () => void;
+  ref?: Ref<PhotoPickerHandle>;
 };
 
 /**
@@ -63,12 +76,16 @@ export function PhotoPicker({
   purpose,
   token,
   error,
+  fallback,
   onSkip,
+  ref,
 }: PhotoPickerProps) {
   const theme = getPalette(useColorScheme());
   const { t } = useI18n();
   const [busy, setBusy] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
+
+  const fallbackSource = fallback ?? DEFAULT_AVATAR;
 
   const pick = async (source: 'library' | 'camera') => {
     setLocalError(null);
@@ -115,10 +132,19 @@ export function PhotoPicker({
    */
   const applySkip = async () => {
     setLocalError(null);
+
+    // A URI fallback is already a usable image reference, so there is nothing to
+    // upload — only a bundled asset has to be pushed to S3 first.
+    if (typeof fallbackSource === 'string') {
+      onChange(fallbackSource);
+      onSkip?.();
+      return;
+    }
+
     setBusy(true);
 
     try {
-      const asset = Asset.fromModule(DEFAULT_AVATAR);
+      const asset = Asset.fromModule(fallbackSource);
       await asset.downloadAsync();
       const publicUrl = await uploadImage(asset.localUri ?? asset.uri, purpose, token);
       onChange(publicUrl);
@@ -140,6 +166,10 @@ export function PhotoPicker({
     ]);
   };
 
+  // Lets a screen run the same Skip flow from its own action, such as Continue
+  // being tapped with nothing chosen.
+  useImperativeHandle(ref, () => ({ skip: confirmSkip }), [confirmSkip]);
+
   const message = localError ?? error;
 
   return (
@@ -151,7 +181,7 @@ export function PhotoPicker({
         {value ? (
           <Image source={{ uri: value }} style={styles.image} contentFit="cover" />
         ) : (
-          <Image source={DEFAULT_AVATAR} style={styles.defaultIcon} contentFit="contain" />
+          <Image source={fallbackSource} style={styles.defaultIcon} contentFit="contain" />
         )}
 
         {busy ? (
