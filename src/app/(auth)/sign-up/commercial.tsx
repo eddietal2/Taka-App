@@ -60,7 +60,7 @@ export default function CommercialDetailsScreen() {
       next.business_name = t('signUp.details.businessNameError');
     }
     if (form.ward_kata.trim().length < 2) next.ward_kata = t('signUp.details.wardError');
-    if (form.street_mtaa.trim().length < 2) next.street_mtaa = t('signUp.details.streetError');
+    // The street is optional for now, so an empty value is accepted.
     if (!form.waste_tier) next.waste_tier = t('signUp.details.wasteTierError');
     if (!TAX_ID_PATTERN.test(form.tax_id)) next.tax_id = t('signUp.details.taxIdError');
 
@@ -108,6 +108,7 @@ export default function CommercialDetailsScreen() {
           onChangeText={(value) => updateForm({ street_mtaa: value })}
           placeholder="Sokoni Area"
           returnKeyType="next"
+          hint={t('signUp.details.streetHint')}
           error={errors.street_mtaa}
         />
 

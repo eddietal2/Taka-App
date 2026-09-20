@@ -55,17 +55,18 @@ export function lookupLuku(
 }
 
 /**
- * Pins the captured GPS point (and, when available, the reverse-geocoded ward
- * and street) to the meter's reference number, so collections are routed to the
- * address on file.
+ * Pins the captured GPS point to the meter's reference number, so collections
+ * are routed to the address on file.
+ *
+ * Coordinates only: the ward and street are attached at registration, from the
+ * words the resident typed. A reverse-geocoded street is often the ward's name
+ * repeated, so it must not be written here.
  */
 export function attachLukuLocation(
   body: {
     phone: string;
     luku_meter: string;
     location: GeoPoint;
-    ward_kata?: string;
-    street_mtaa?: string;
   },
   token?: string | null
 ) {

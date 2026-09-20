@@ -8,7 +8,7 @@ import { INTENT_COPY } from '@/constants/registration';
 import { spacing } from '@/constants/theme';
 import { useI18n } from '@/features/i18n/context';
 import { useSignUp } from '@/features/signup/context';
-import { resolveWardStreet } from '@/features/signup/geocode';
+import { resolveWard } from '@/features/signup/geocode';
 import { detailsRouteFor, SIGN_UP_STEPS, signUpProgress } from '@/features/signup/steps';
 
 /**
@@ -52,17 +52,13 @@ export default function LocationScreen() {
     // Resolve the ward so it can be pre-filled on the details step. Best-effort:
     // the coordinates are still worth keeping when the geocoder has nothing.
     //
-    // The street is deliberately *not* pre-filled. Reverse-geocoded street names
-    // are frequently wrong — an unnamed road, a highway, a neighbouring locality
-    // — so auto-filling one misleads the resident more often than it helps. It is
-    // still recorded against the meter for routing, just not put in the form.
+    // Only the ward is taken from the pin. A reverse-geocoded street is often
+    // wrong — an unnamed road, a highway, or the ward's own name echoed back — so
+    // the street is left for the resident to type. Both are written onto the
+    // meter's record at registration, from those typed values.
     let wardKata = form.ward_kata;
-    let streetMtaa: string | null = null;
-    const address = await resolveWardStreet(form.location);
-    if (address) {
-      if (wardKata.trim().length === 0 && address.wardKata) wardKata = address.wardKata;
-      streetMtaa = address.streetMtaa;
-    }
+    const resolvedWard = await resolveWard(form.location);
+    if (wardKata.trim().length === 0 && resolvedWard) wardKata = resolvedWard;
 
     // The meter reference is what future collections are matched against, so the
     // point is persisted against it before the user moves on. A business may not
@@ -70,13 +66,7 @@ export default function LocationScreen() {
     if (form.luku_meter) {
       try {
         await attachLukuLocation(
-          {
-            phone,
-            luku_meter: form.luku_meter,
-            location: form.location,
-            ...(wardKata.trim().length > 0 ? { ward_kata: wardKata } : {}),
-            ...(streetMtaa && streetMtaa.trim().length > 0 ? { street_mtaa: streetMtaa } : {}),
-          },
+          { phone, luku_meter: form.luku_meter, location: form.location },
           verificationToken
         );
       } catch (cause) {

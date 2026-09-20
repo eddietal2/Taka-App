@@ -17,6 +17,11 @@ const phoneSchema = z
   .regex(TANZANIA_PHONE_PATTERN, 'Use the +255XXXXXXXXX format.');
 const nameSchema = z.string().trim().min(2, 'Too short.').max(60, 'Too long.');
 const localitySchema = z.string().trim().min(2, 'Required.').max(80, 'Too long.');
+/**
+ * Street / mtaa. Optional for now: not everyone knows theirs, and the details
+ * step no longer requires one, so an empty value has to validate.
+ */
+const streetSchema = z.string().trim().max(80, 'Too long.');
 const imageUrlSchema = z.string().trim().min(1, 'Required.');
 
 export const residentPayloadSchema = z.object({
@@ -25,7 +30,7 @@ export const residentPayloadSchema = z.object({
   first_name: nameSchema,
   last_name: nameSchema,
   ward_kata: localitySchema,
-  street_mtaa: localitySchema,
+  street_mtaa: streetSchema,
   luku_meter: z.string().regex(LUKU_METER_PATTERN, 'LUKU meters are 11 digits.'),
   location: geoPointSchema,
   unit_number: z.string().trim().max(60, 'Too long.'),
@@ -45,7 +50,7 @@ export const commercialPayloadSchema = z.object({
   intent: z.literal('COMMERCIAL'),
   business_name: z.string().trim().min(2, 'Required.').max(120, 'Too long.'),
   ward_kata: localitySchema,
-  street_mtaa: localitySchema,
+  street_mtaa: streetSchema,
   location: geoPointSchema,
   /**
    * A business may share or lack a meter, so this is optional — but when the

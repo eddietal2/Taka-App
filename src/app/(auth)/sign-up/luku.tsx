@@ -147,15 +147,17 @@ export default function LukuScreen() {
         />
 
         {resolved && owner ? (
-          <View
-            style={[
-              styles.result,
-              { borderColor: theme.border, backgroundColor: theme.surface },
-            ]}>
-            <Text style={[styles.resultLabel, { color: theme.textMuted }]}>
+          // Confirmation card: the meter is on the utility's books, so it is
+          // styled as a success rather than as neutral information.
+          <View style={[styles.result, { backgroundColor: theme.primary }]}>
+            <View style={[styles.resultBadge, { backgroundColor: theme.onPrimary }]}>
+              <Text style={[styles.resultBadgeText, { color: theme.primary }]}>✓</Text>
+            </View>
+
+            <Text style={[styles.resultLabel, { color: theme.onPrimary }]}>
               {t('signUp.luku.owner')}
             </Text>
-            <Text style={[styles.resultValue, { color: theme.text }]}>{owner}</Text>
+            <Text style={[styles.resultValue, { color: theme.onPrimary }]}>{owner}</Text>
           </View>
         ) : null}
 
@@ -171,16 +173,35 @@ const styles = StyleSheet.create({
   },
   result: {
     padding: spacing.md,
-    borderWidth: 1,
     borderRadius: radius.md,
     gap: spacing.xs,
   },
+  resultBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.xs,
+  },
+  resultBadgeText: {
+    // An explicit line height keeps the glyph centred on Android, where a bare
+    // Text is aligned to the font's baseline box rather than its visual centre.
+    fontSize: fontSize.md,
+    lineHeight: 20,
+    fontWeight: '700',
+  },
   resultLabel: {
     fontSize: fontSize.xs,
+    fontWeight: '600',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+    // Tones the label down against the solid primary without a second colour.
+    opacity: 0.85,
   },
   resultValue: {
-    fontSize: fontSize.md,
-    fontWeight: '600',
+    fontSize: fontSize.lg,
+    fontWeight: '700',
   },
   notice: {
     fontSize: fontSize.sm,

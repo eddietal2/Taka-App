@@ -31,7 +31,7 @@ export default function ResidentDetailsScreen() {
     if (form.first_name.trim().length < 2) next.first_name = t('signUp.details.firstNameError');
     if (form.last_name.trim().length < 2) next.last_name = t('signUp.details.lastNameError');
     if (form.ward_kata.trim().length < 2) next.ward_kata = t('signUp.details.wardError');
-    if (form.street_mtaa.trim().length < 2) next.street_mtaa = t('signUp.details.streetError');
+    // The street is optional for now, so an empty value is accepted.
 
     setErrors(next);
     if (Object.keys(next).length > 0) return;
@@ -89,6 +89,7 @@ export default function ResidentDetailsScreen() {
           onChangeText={(value) => updateForm({ street_mtaa: value })}
           placeholder="Mlimani"
           returnKeyType="next"
+          hint={t('signUp.details.streetHint')}
           error={errors.street_mtaa}
         />
         <TextField
