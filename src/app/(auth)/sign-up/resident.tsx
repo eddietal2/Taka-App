@@ -21,8 +21,9 @@ export default function ResidentDetailsScreen() {
   }
 
   const progress = signUpProgress(intent, SIGN_UP_STEPS.details);
-  // The location step runs before this one, so the ward and street are usually
-  // already filled in from the pin; the hint explains where they came from.
+  // The location step runs before this one, so the ward is usually already
+  // filled in from the pin; the hint explains where it came from. The street is
+  // never pre-filled — a reverse-geocoded street name is often wrong.
   const prefillHint = form.location ? t('signUp.details.fromMapHint') : undefined;
 
   const handleContinue = () => {
@@ -89,7 +90,6 @@ export default function ResidentDetailsScreen() {
           placeholder="Mlimani"
           returnKeyType="next"
           error={errors.street_mtaa}
-          hint={prefillHint}
         />
         <TextField
           label={t('signUp.details.unitNumber')}

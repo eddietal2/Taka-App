@@ -49,15 +49,19 @@ export default function LocationScreen() {
     setError(undefined);
     setSaving(true);
 
-    // Resolve the ward and street first so they can be saved with the pin and
-    // pre-filled on the details step. Best-effort: the coordinates are still
-    // worth keeping when the geocoder has nothing.
+    // Resolve the ward so it can be pre-filled on the details step. Best-effort:
+    // the coordinates are still worth keeping when the geocoder has nothing.
+    //
+    // The street is deliberately *not* pre-filled. Reverse-geocoded street names
+    // are frequently wrong — an unnamed road, a highway, a neighbouring locality
+    // — so auto-filling one misleads the resident more often than it helps. It is
+    // still recorded against the meter for routing, just not put in the form.
     let wardKata = form.ward_kata;
-    let streetMtaa = form.street_mtaa;
+    let streetMtaa: string | null = null;
     const address = await resolveWardStreet(form.location);
     if (address) {
       if (wardKata.trim().length === 0 && address.wardKata) wardKata = address.wardKata;
-      if (streetMtaa.trim().length === 0 && address.streetMtaa) streetMtaa = address.streetMtaa;
+      streetMtaa = address.streetMtaa;
     }
 
     // The meter reference is what future collections are matched against, so the
@@ -71,7 +75,7 @@ export default function LocationScreen() {
             luku_meter: form.luku_meter,
             location: form.location,
             ...(wardKata.trim().length > 0 ? { ward_kata: wardKata } : {}),
-            ...(streetMtaa.trim().length > 0 ? { street_mtaa: streetMtaa } : {}),
+            ...(streetMtaa && streetMtaa.trim().length > 0 ? { street_mtaa: streetMtaa } : {}),
           },
           verificationToken
         );
@@ -83,7 +87,7 @@ export default function LocationScreen() {
       }
     }
 
-    updateForm({ ward_kata: wardKata, street_mtaa: streetMtaa });
+    updateForm({ ward_kata: wardKata });
     setSaving(false);
 
     // The pin is whatever the device reported, which may be somewhere the user

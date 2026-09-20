@@ -57,16 +57,13 @@ export default function LukuScreen() {
       );
 
       // An address already pinned to this meter is reused instead of asked for a
-      // second time: it pre-fills the details step and seeds the location map.
+      // second time: it seeds the location map and pre-fills the ward. The street
+      // is left for the resident to type — a geocoded street name is often wrong.
       updateForm({
         luku_owner_name: result.owner_name,
         location: result.location ?? form.location,
         ward_kata:
           result.ward_kata && form.ward_kata.trim().length === 0 ? result.ward_kata : form.ward_kata,
-        street_mtaa:
-          result.street_mtaa && form.street_mtaa.trim().length === 0
-            ? result.street_mtaa
-            : form.street_mtaa,
       });
 
       if (result.status === 'rejected') {
