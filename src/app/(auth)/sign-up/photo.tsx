@@ -23,6 +23,8 @@ export default function PhotoScreen() {
   const isCommercial = intent === 'COMMERCIAL';
   const progress = signUpProgress(intent, SIGN_UP_STEPS.photo);
 
+  const goToReview = () => router.push('/sign-up/review');
+
   const handleContinue = () => {
     const image = isCommercial ? form.business_logo : form.profile_picture;
     const missingMessage = isCommercial
@@ -35,7 +37,7 @@ export default function PhotoScreen() {
     }
 
     setError(undefined);
-    router.push('/sign-up/review');
+    goToReview();
   };
 
   return (
@@ -67,6 +69,7 @@ export default function PhotoScreen() {
             purpose="business_logo"
             token={verificationToken}
             error={error}
+            onSkip={goToReview}
           />
         ) : (
           <PhotoPicker
@@ -79,6 +82,7 @@ export default function PhotoScreen() {
             purpose="profile_picture"
             token={verificationToken}
             error={error}
+            onSkip={goToReview}
           />
         )}
       </View>

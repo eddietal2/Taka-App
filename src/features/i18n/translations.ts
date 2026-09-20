@@ -28,6 +28,8 @@ const en = {
   'common.back': 'Back',
   'common.goBack': 'Go back',
   'common.stepCounter': 'STEP {step} OF {total}',
+  'common.ok': 'Ok',
+  'common.cancel': 'Cancel',
   'common.invalidPhone': 'Enter a valid Tanzanian mobile number.',
   'login.languageLabel': 'Language',
   'login.themeDark': 'Switch to dark mode',
@@ -138,6 +140,9 @@ const en = {
   'signUp.photo.take': 'Take photo',
   'signUp.photo.remove': 'Remove',
   'signUp.photo.skip': 'Skip',
+  'signUp.photo.skipTitle': 'Skip without a photo?',
+  'signUp.photo.skipMessage':
+    'Your account will use a default image. You can add your own later.',
   'signUp.photo.cameraPermission':
     'Camera access is required. Enable it in Settings and try again.',
   'signUp.photo.libraryPermission':
@@ -177,6 +182,8 @@ const sw: Record<TranslationKey, string> = {
   'common.back': 'Rudi',
   'common.goBack': 'Rudi nyuma',
   'common.stepCounter': 'HATUA {step} YA {total}',
+  'common.ok': 'Sawa',
+  'common.cancel': 'Ghairi',
   'common.invalidPhone': 'Ingiza namba sahihi ya simu ya Tanzania.',
   'login.languageLabel': 'Lugha',
   'login.themeDark': 'Badilisha kwenda hali ya giza',
@@ -288,6 +295,9 @@ const sw: Record<TranslationKey, string> = {
   'signUp.photo.take': 'Piga picha',
   'signUp.photo.remove': 'Ondoa',
   'signUp.photo.skip': 'Ruka',
+  'signUp.photo.skipTitle': 'Ruka bila picha?',
+  'signUp.photo.skipMessage':
+    'Akaunti yako itatumia picha ya kawaida. Unaweza kuongeza yako baadaye.',
   'signUp.photo.cameraPermission':
     'Ruhusa ya kamera inahitajika. Iwashe kwenye Mipangilio na ujaribu tena.',
   'signUp.photo.libraryPermission':

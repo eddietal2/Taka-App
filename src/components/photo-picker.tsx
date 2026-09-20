@@ -2,7 +2,15 @@ import { Asset } from 'expo-asset';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View, useColorScheme } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  useColorScheme,
+} from 'react-native';
 
 import { uploadImage, type UploadPurpose } from '@/api/uploads';
 import { fontSize, getPalette, radius, spacing } from '@/constants/theme';
@@ -36,6 +44,11 @@ export type PhotoPickerProps = {
   /** Verification token from the OTP step, when the API requires one. */
   token?: string | null;
   error?: string;
+  /**
+   * Called once a confirmed skip has stored the default avatar, so the screen
+   * can move on to the next step.
+   */
+  onSkip?: () => void;
 };
 
 /**
@@ -43,7 +56,15 @@ export type PhotoPickerProps = {
  * then compresses it, uploads to S3 and reports the public URL. The preview sits
  * on its own row at the full width of the parent, square so it matches the crop.
  */
-export function PhotoPicker({ label, value, onChange, purpose, token, error }: PhotoPickerProps) {
+export function PhotoPicker({
+  label,
+  value,
+  onChange,
+  purpose,
+  token,
+  error,
+  onSkip,
+}: PhotoPickerProps) {
   const theme = getPalette(useColorScheme());
   const { t } = useI18n();
   const [busy, setBusy] = useState(false);
@@ -92,7 +113,7 @@ export function PhotoPicker({ label, value, onChange, purpose, token, error }: P
    * downloaded to the cache first because in development Metro serves it over
    * HTTP, which the uploader cannot read.
    */
-  const skip = async () => {
+  const applySkip = async () => {
     setLocalError(null);
     setBusy(true);
 
@@ -101,11 +122,22 @@ export function PhotoPicker({ label, value, onChange, purpose, token, error }: P
       await asset.downloadAsync();
       const publicUrl = await uploadImage(asset.localUri ?? asset.uri, purpose, token);
       onChange(publicUrl);
+      // Only advance once the default image is actually stored, otherwise the
+      // next step would be left without a picture.
+      onSkip?.();
     } catch (cause) {
       setLocalError(cause instanceof Error ? cause.message : t('signUp.photo.uploadFailed'));
     } finally {
       setBusy(false);
     }
+  };
+
+  /** Skipping settles for the default image, so confirm before storing it. */
+  const confirmSkip = () => {
+    Alert.alert(t('signUp.photo.skipTitle'), t('signUp.photo.skipMessage'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('common.ok'), onPress: () => void applySkip() },
+    ]);
   };
 
   const message = localError ?? error;
@@ -172,7 +204,7 @@ export function PhotoPicker({ label, value, onChange, purpose, token, error }: P
           </Pressable>
         ) : (
           <Pressable
-            onPress={skip}
+            onPress={confirmSkip}
             disabled={busy}
             accessibilityRole="button"
             style={({ pressed }) => [styles.plainAction, pressed && styles.pressed]}>
