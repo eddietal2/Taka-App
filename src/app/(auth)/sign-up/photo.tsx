@@ -39,7 +39,10 @@ export default function PhotoScreen() {
   };
 
   return (
-    <Screen>
+    <Screen
+      footer={
+        <Button label={t('common.continue')} onPress={handleContinue} fullWidth size="lg" />
+      }>
       <StepHeader
         title={isCommercial ? t('signUp.photo.titleBusiness') : t('signUp.photo.titleProfile')}
         subtitle={
@@ -79,7 +82,6 @@ export default function PhotoScreen() {
           />
         )}
 
-        <Button label={t('common.continue')} onPress={handleContinue} fullWidth size="lg" />
       </View>
     </Screen>
   );

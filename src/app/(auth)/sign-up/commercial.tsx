@@ -46,7 +46,10 @@ export default function CommercialDetailsScreen() {
   };
 
   return (
-    <Screen>
+    <Screen
+      footer={
+        <Button label={t('common.continue')} onPress={handleContinue} fullWidth size="lg" />
+      }>
       <StepHeader
         title={t('signUp.commercial.title')}
         subtitle={t('signUp.commercial.subtitle')}
@@ -105,7 +108,6 @@ export default function CommercialDetailsScreen() {
           error={errors.tax_id}
         />
 
-        <Button label={t('common.continue')} onPress={handleContinue} fullWidth size="lg" />
       </View>
     </Screen>
   );

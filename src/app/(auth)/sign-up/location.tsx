@@ -38,7 +38,10 @@ export default function LocationScreen() {
   };
 
   return (
-    <Screen>
+    <Screen
+      footer={
+        <Button label={t('common.continue')} onPress={handleContinue} fullWidth size="lg" />
+      }>
       <StepHeader
         title={t('signUp.location.title')}
         subtitle={
@@ -52,7 +55,7 @@ export default function LocationScreen() {
       />
 
       <View style={styles.form}>
-        <LocationMap value={form.location} error={Boolean(error)} />
+        <LocationMap value={form.location} error={Boolean(error)} style={styles.map} />
 
         <LocationCapture
           value={form.location}
@@ -63,7 +66,6 @@ export default function LocationScreen() {
           error={error}
         />
 
-        <Button label={t('common.continue')} onPress={handleContinue} fullWidth size="lg" />
       </View>
     </Screen>
   );
@@ -71,6 +73,13 @@ export default function LocationScreen() {
 
 const styles = StyleSheet.create({
   form: {
+    flexGrow: 1,
     gap: spacing.lg,
+  },
+  map: {
+    // Takes the height the capture card leaves over, but never shrinks below
+    // its default — the page scrolls instead.
+    flexGrow: 1,
+    flexShrink: 0,
   },
 });

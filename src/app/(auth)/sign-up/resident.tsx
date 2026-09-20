@@ -35,7 +35,10 @@ export default function ResidentDetailsScreen() {
   };
 
   return (
-    <Screen>
+    <Screen
+      footer={
+        <Button label={t('common.continue')} onPress={handleContinue} fullWidth size="lg" />
+      }>
       <StepHeader
         title={t('signUp.resident.title')}
         subtitle={t('signUp.resident.subtitle')}
@@ -93,7 +96,6 @@ export default function ResidentDetailsScreen() {
           onSubmitEditing={handleContinue}
         />
 
-        <Button label={t('common.continue')} onPress={handleContinue} fullWidth size="lg" />
       </View>
     </Screen>
   );

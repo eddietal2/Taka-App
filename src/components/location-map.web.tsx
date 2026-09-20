@@ -10,7 +10,7 @@ import { useI18n } from '@/features/i18n/context';
  * react-native-maps has no web build, so Metro serves this file to the browser
  * and the coordinates stand in for the map instead of breaking the bundle.
  */
-export function LocationMap({ value, error, height = 220 }: LocationMapProps) {
+export function LocationMap({ value, error, height = 220, style }: LocationMapProps) {
   const theme = getPalette(useColorScheme());
   const { t } = useI18n();
 
@@ -23,6 +23,7 @@ export function LocationMap({ value, error, height = 220 }: LocationMapProps) {
           borderColor: error ? theme.danger : theme.border,
           backgroundColor: theme.surface,
         },
+        style,
       ]}>
       <Text style={[styles.text, { color: value ? theme.text : theme.textMuted }]}>
         {value

@@ -38,7 +38,10 @@ export default function LukuScreen() {
   };
 
   return (
-    <Screen>
+    <Screen
+      footer={
+        <Button label={t('common.continue')} onPress={handleContinue} fullWidth size="lg" />
+      }>
       <StepHeader
         title={t('signUp.luku.title')}
         subtitle={t('signUp.luku.subtitle')}
@@ -64,7 +67,6 @@ export default function LukuScreen() {
           error={error}
         />
 
-        <Button label={t('common.continue')} onPress={handleContinue} fullWidth size="lg" />
       </View>
     </Screen>
   );

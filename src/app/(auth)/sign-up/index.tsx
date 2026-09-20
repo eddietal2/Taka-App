@@ -31,7 +31,16 @@ export default function ChooseAccountTypeScreen() {
   };
 
   return (
-    <Screen>
+    <Screen
+      footer={
+        <Button
+          label={t('common.continue')}
+          onPress={handleContinue}
+          disabled={!selected}
+          fullWidth
+          size="lg"
+        />
+      }>
       <StepHeader
         title={t('signUp.intent.title')}
         subtitle={t('signUp.intent.subtitle')}
@@ -51,14 +60,6 @@ export default function ChooseAccountTypeScreen() {
           />
         ))}
       </View>
-
-      <Button
-        label={t('common.continue')}
-        onPress={handleContinue}
-        disabled={!selected}
-        fullWidth
-        size="lg"
-      />
     </Screen>
   );
 }

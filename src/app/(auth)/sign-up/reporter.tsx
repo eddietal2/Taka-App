@@ -33,7 +33,10 @@ export default function ReporterDetailsScreen() {
   };
 
   return (
-    <Screen>
+    <Screen
+      footer={
+        <Button label={t('common.continue')} onPress={handleContinue} fullWidth size="lg" />
+      }>
       <StepHeader
         title={t('signUp.reporter.title')}
         subtitle={t('signUp.reporter.subtitle')}
@@ -67,7 +70,6 @@ export default function ReporterDetailsScreen() {
           error={errors.last_name}
         />
 
-        <Button label={t('common.continue')} onPress={handleContinue} fullWidth size="lg" />
       </View>
     </Screen>
   );

@@ -46,7 +46,7 @@ function regionFor(point: { latitude: number; longitude: number }): Region {
  * tilt are left off, so the frame cannot end up sideways with no obvious way to
  * level it again.
  */
-export function LocationMap({ value, error, height = 220 }: LocationMapProps) {
+export function LocationMap({ value, error, height = 220, style }: LocationMapProps) {
   const theme = getPalette(useColorScheme());
   const { t } = useI18n();
   const mapRef = useRef<MapView>(null);
@@ -79,7 +79,12 @@ export function LocationMap({ value, error, height = 220 }: LocationMapProps) {
   };
 
   return (
-    <View style={[styles.frame, { height, borderColor: error ? theme.danger : theme.border }]}>
+    <View
+      style={[
+        styles.frame,
+        { height, borderColor: error ? theme.danger : theme.border },
+        style,
+      ]}>
       <MapView
         ref={mapRef}
         style={StyleSheet.absoluteFill}

@@ -66,7 +66,16 @@ export default function VerifyPhoneScreen() {
   };
 
   return (
-    <Screen>
+    <Screen
+      footer={
+        <Button
+          label={t('signUp.verify.submit')}
+          onPress={handleVerify}
+          loading={submitting}
+          fullWidth
+          size="lg"
+        />
+      }>
       <StepHeader
         title={t('signUp.verify.title')}
         subtitle={t('signUp.verify.subtitle', { digits: CODE_LENGTH, phone })}
@@ -93,14 +102,6 @@ export default function VerifyPhoneScreen() {
         {message ? (
           <Text style={[styles.message, { color: theme.textMuted }]}>{message}</Text>
         ) : null}
-
-        <Button
-          label={t('signUp.verify.submit')}
-          onPress={handleVerify}
-          loading={submitting}
-          fullWidth
-          size="lg"
-        />
 
         <Pressable
           onPress={handleResend}

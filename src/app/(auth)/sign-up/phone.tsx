@@ -62,7 +62,16 @@ export default function PhoneScreen() {
   };
 
   return (
-    <Screen>
+    <Screen
+      footer={
+        <Button
+          label={t('signUp.phone.submit')}
+          onPress={handleContinue}
+          loading={submitting}
+          fullWidth
+          size="lg"
+        />
+      }>
       <StepHeader
         title={t('signUp.phone.title')}
         subtitle={t('signUp.phone.subtitle', { intent: intentTitle })}
@@ -88,14 +97,6 @@ export default function PhoneScreen() {
         />
 
         <Text style={[styles.note, { color: theme.textMuted }]}>{t('signUp.phone.note')}</Text>
-
-        <Button
-          label={t('signUp.phone.submit')}
-          onPress={handleContinue}
-          loading={submitting}
-          fullWidth
-          size="lg"
-        />
       </View>
     </Screen>
   );

@@ -134,7 +134,18 @@ export default function ReviewScreen() {
   };
 
   return (
-    <Screen>
+    <Screen
+      footer={
+        <Button
+          label={t('signUp.review.submit')}
+          onPress={handleSubmit}
+          loading={submitting}
+          fullWidth
+          size="lg"
+          color={theme.primary}
+          textColor={theme.onPrimary}
+        />
+      }>
       <StepHeader
         title={t('signUp.review.title')}
         subtitle={t('signUp.review.subtitle')}
@@ -162,16 +173,6 @@ export default function ReviewScreen() {
       {errors.form ? (
         <Text style={[styles.formError, { color: theme.danger }]}>{errors.form}</Text>
       ) : null}
-
-      <Button
-        label={t('signUp.review.submit')}
-        onPress={handleSubmit}
-        loading={submitting}
-        fullWidth
-        size="lg"
-        color={theme.primary}
-        textColor={theme.onPrimary}
-      />
     </Screen>
   );
 }

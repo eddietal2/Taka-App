@@ -1,3 +1,5 @@
+import type { StyleProp, ViewStyle } from 'react-native';
+
 import type { GeoPoint } from '@/api/schemas';
 
 /**
@@ -11,4 +13,9 @@ export type LocationMapProps = {
   error?: boolean;
   /** Frame height; the map always fills the width of its parent. */
   height?: number;
+  /**
+   * Merged into the frame last, so a caller can pass `{ flexGrow: 1 }` to let
+   * the map take up the space its parent leaves over.
+   */
+  style?: StyleProp<ViewStyle>;
 };
