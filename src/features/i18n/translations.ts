@@ -159,7 +159,9 @@ const en = {
   'signUp.review.luku': 'LUKU meter',
   'signUp.review.location': 'Location',
   'signUp.review.logo': 'Logo',
-  'signUp.review.terms': 'I agree to the Terms of Service and Privacy Policy.',
+  'signUp.review.termsPrefix': 'I agree to the ',
+  'signUp.review.termsAnd': ' and ',
+  'signUp.review.termsSuffix': '.',
   'signUp.review.termsError': 'Please accept the terms to continue.',
   'signUp.review.submit': 'Create account',
   'signUp.review.failed': 'Registration failed. Please try again.',
@@ -169,6 +171,12 @@ const en = {
   'signUp.success.pendingSubtitle':
     'We received your registration. Our team will review it and you will be notified once your account is approved.',
   'signUp.success.subtitle': 'Your Taka account has been created. Log in to get started.',
+
+  'legal.termsTitle': 'Terms of Service',
+  'legal.privacyTitle': 'Privacy Policy',
+  'legal.updatedLabel': 'Last updated {date}',
+  'legal.placeholderNotice':
+    'Placeholder wording — replace with your reviewed legal copy before launch.',
 } as const;
 
 export type TranslationKey = keyof typeof en;
@@ -314,7 +322,9 @@ const sw: Record<TranslationKey, string> = {
   'signUp.review.luku': 'Mita ya LUKU',
   'signUp.review.location': 'Eneo',
   'signUp.review.logo': 'Nembo',
-  'signUp.review.terms': 'Nakubali Masharti ya Huduma na Sera ya Faragha.',
+  'signUp.review.termsPrefix': 'Nakubali ',
+  'signUp.review.termsAnd': ' na ',
+  'signUp.review.termsSuffix': '.',
   'signUp.review.termsError': 'Tafadhali kubali masharti ili kuendelea.',
   'signUp.review.submit': 'Fungua akaunti',
   'signUp.review.failed': 'Usajili umeshindwa. Tafadhali jaribu tena.',
@@ -324,6 +334,12 @@ const sw: Record<TranslationKey, string> = {
   'signUp.success.pendingSubtitle':
     'Tumepokea usajili wako. Timu yetu itauhakiki na utajulishwa mara akaunti yako itakapoidhinishwa.',
   'signUp.success.subtitle': 'Akaunti yako ya Taka imefunguliwa. Ingia ili kuanza.',
+
+  'legal.termsTitle': 'Masharti ya Huduma',
+  'legal.privacyTitle': 'Sera ya Faragha',
+  'legal.updatedLabel': 'Imesasishwa {date}',
+  'legal.placeholderNotice':
+    'Maandishi ya muda. Yabadilishe na nakala yako ya kisheria kabla ya kuzindua.',
 };
 
 export const TRANSLATIONS: Record<Language, Record<TranslationKey, string>> = { en, sw };

@@ -140,6 +140,7 @@ export default function ReviewScreen() {
           label={t('signUp.review.submit')}
           onPress={handleSubmit}
           loading={submitting}
+          disabled={!acceptedTerms}
           fullWidth
           size="lg"
           color={theme.primary}
@@ -163,11 +164,22 @@ export default function ReviewScreen() {
         ))}
       </View>
 
-      <Checkbox
-        checked={acceptedTerms}
-        onChange={setAcceptedTerms}
-        error={errors.terms}>
-        {t('signUp.review.terms')}
+      <Checkbox checked={acceptedTerms} onChange={setAcceptedTerms} error={errors.terms}>
+        <Text>{t('signUp.review.termsPrefix')}</Text>
+        <Text
+          accessibilityRole="link"
+          onPress={() => router.push('/terms')}
+          style={[styles.termsLink, { color: theme.primary }]}>
+          {t('legal.termsTitle')}
+        </Text>
+        <Text>{t('signUp.review.termsAnd')}</Text>
+        <Text
+          accessibilityRole="link"
+          onPress={() => router.push('/privacy')}
+          style={[styles.termsLink, { color: theme.primary }]}>
+          {t('legal.privacyTitle')}
+        </Text>
+        <Text>{t('signUp.review.termsSuffix')}</Text>
       </Checkbox>
 
       {errors.form ? (
@@ -202,5 +214,8 @@ const styles = StyleSheet.create({
   },
   formError: {
     fontSize: fontSize.sm,
+  },
+  termsLink: {
+    fontWeight: '600',
   },
 });
