@@ -73,6 +73,42 @@ function summaryRows(
   return rows;
 }
 
+/**
+ * Turns a field key from the payload builder or the API into a readable label.
+ * Unknown keys fall through to `undefined` so the raw message still shows.
+ */
+function fieldLabel(key: string, intent: UserIntent, t: Translator): string | undefined {
+  switch (key) {
+    case 'phone':
+      return t('signUp.review.phone');
+    case 'first_name':
+      return t('signUp.details.firstName');
+    case 'last_name':
+      return t('signUp.details.lastName');
+    case 'ward_kata':
+      return t('signUp.details.ward');
+    case 'street_mtaa':
+      return t('signUp.details.street');
+    case 'unit_number':
+      return t('signUp.details.unitNumber');
+    case 'luku_meter':
+      return t('signUp.review.luku');
+    case 'business_name':
+      return t('signUp.review.business');
+    case 'waste_tier':
+      return t('signUp.details.wasteTier');
+    case 'tax_id':
+      return t('signUp.details.taxId');
+    case 'location':
+      return t('signUp.review.location');
+    case 'profile_picture':
+    case 'business_logo':
+      return t(INTENT_COPY[intent].imageLabelKey);
+    default:
+      return undefined;
+  }
+}
+
 export default function ReviewScreen() {
   const router = useRouter();
   const theme = getPalette(useColorScheme());
@@ -88,6 +124,14 @@ export default function ReviewScreen() {
 
   const progress = signUpProgress(intent, SIGN_UP_STEPS.review);
   const rows = summaryRows(intent, form, phone, t);
+
+  // `form` and `terms` are rendered in their own places. Everything else is a
+  // field-level message from the payload builder or the API, and has to be shown
+  // here — otherwise the rejection is stored and never displayed, which makes
+  // the button look like it did nothing at all.
+  const fieldErrors = Object.entries(errors).filter(
+    ([key]) => key !== 'form' && key !== 'terms'
+  );
 
   const handleSubmit = async () => {
     const result = buildRegisterPayload(intent, phone, form);
@@ -182,6 +226,20 @@ export default function ReviewScreen() {
         <Text>{t('signUp.review.termsSuffix')}</Text>
       </Checkbox>
 
+      {fieldErrors.length > 0 ? (
+        <View
+          style={[styles.errorBox, { borderColor: theme.danger, backgroundColor: theme.surface }]}>
+          {fieldErrors.map(([key, message]) => {
+            const label = fieldLabel(key, intent, t);
+            return (
+              <Text key={key} style={[styles.formError, { color: theme.danger }]}>
+                {label ? `${label}: ${message}` : message}
+              </Text>
+            );
+          })}
+        </View>
+      ) : null}
+
       {errors.form ? (
         <Text style={[styles.formError, { color: theme.danger }]}>{errors.form}</Text>
       ) : null}
@@ -214,6 +272,12 @@ const styles = StyleSheet.create({
   },
   formError: {
     fontSize: fontSize.sm,
+  },
+  errorBox: {
+    padding: spacing.md,
+    borderWidth: 1,
+    borderRadius: radius.md,
+    gap: spacing.xs,
   },
   termsLink: {
     fontWeight: '600',
