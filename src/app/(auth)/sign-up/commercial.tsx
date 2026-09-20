@@ -14,6 +14,26 @@ type Errors = Partial<
   Record<'business_name' | 'ward_kata' | 'street_mtaa' | 'waste_tier' | 'tax_id', string>
 >;
 
+const TAX_ID_DIGITS = 9;
+/** 9 digits plus the two separators. */
+const TAX_ID_MAX_LENGTH = TAX_ID_DIGITS + 2;
+
+/**
+ * Formats digits into the TIN pattern as they are typed, e.g. `100234567`
+ * becomes `100-234-567`.
+ *
+ * The dashes are added for the user because the field opens a numeric keypad,
+ * which has no dash key — typing the separators by hand was impossible, so the
+ * pattern could never be satisfied.
+ */
+function formatTaxId(input: string): string {
+  const digits = input.replace(/\D/g, '').slice(0, TAX_ID_DIGITS);
+
+  return [digits.slice(0, 3), digits.slice(3, 6), digits.slice(6, 9)]
+    .filter((part) => part.length > 0)
+    .join('-');
+}
+
 export default function CommercialDetailsScreen() {
   const router = useRouter();
   const { t } = useI18n();
@@ -98,16 +118,15 @@ export default function CommercialDetailsScreen() {
         <TextField
           label={t('signUp.details.taxId')}
           value={form.tax_id}
-          onChangeText={(value) => updateForm({ tax_id: value })}
+          onChangeText={(value) => updateForm({ tax_id: formatTaxId(value) })}
           placeholder="100-234-567"
           keyboardType="number-pad"
-          maxLength={11}
+          maxLength={TAX_ID_MAX_LENGTH}
           hint={t('signUp.details.taxIdHint')}
           returnKeyType="done"
           onSubmitEditing={handleContinue}
           error={errors.tax_id}
         />
-
       </View>
     </Screen>
   );

@@ -9,12 +9,22 @@ export type UserIntent = (typeof USER_INTENTS)[number];
 
 /**
  * Waste tiers accepted by the commercial registration endpoint.
- * TODO: replace with the full list supplied by the backend.
+ *
+ * Mirrored in taka-server-resident/src/schemas/auth.ts, which validates the
+ * value with `z.enum`, so the two lists have to be changed together or the
+ * register call is rejected. The column is a plain string, so adding a tier
+ * needs no migration.
  */
-export const WASTE_TIERS = ['HIGH_VOLUME_DAILY'] as const;
+export const WASTE_TIERS = [
+  'LOW_VOLUME_WEEKLY',
+  'MEDIUM_VOLUME_TWICE_WEEKLY',
+  'HIGH_VOLUME_DAILY',
+] as const;
 export type WasteTier = (typeof WASTE_TIERS)[number];
 
 export const WASTE_TIER_LABEL_KEYS: Record<WasteTier, TranslationKey> = {
+  LOW_VOLUME_WEEKLY: 'wasteTier.lowVolumeWeekly',
+  MEDIUM_VOLUME_TWICE_WEEKLY: 'wasteTier.mediumVolumeTwiceWeekly',
   HIGH_VOLUME_DAILY: 'wasteTier.highVolumeDaily',
 };
 

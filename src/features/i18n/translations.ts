@@ -49,6 +49,8 @@ const en = {
   'intent.commercial.title': 'Commercial',
   'intent.commercial.description': 'A business or institution with scheduled collections.',
   'intent.commercial.imageLabel': 'Business logo',
+  'wasteTier.lowVolumeWeekly': 'Low volume — weekly collection',
+  'wasteTier.mediumVolumeTwiceWeekly': 'Medium volume — twice weekly',
   'wasteTier.highVolumeDaily': 'High volume — daily collection',
 
   'signUp.intent.title': 'How will you use Taka?',
@@ -211,6 +213,8 @@ const sw: Record<TranslationKey, string> = {
   'intent.commercial.title': 'Biashara',
   'intent.commercial.description': 'Biashara au taasisi inayokusanyiwa taka kwa ratiba.',
   'intent.commercial.imageLabel': 'Nembo ya biashara',
+  'wasteTier.lowVolumeWeekly': 'Kiasi kidogo — ukusanyaji wa wiki',
+  'wasteTier.mediumVolumeTwiceWeekly': 'Kiasi cha kati — mara mbili kwa wiki',
   'wasteTier.highVolumeDaily': 'Kiasi kikubwa — ukusanyaji wa kila siku',
 
   'signUp.intent.title': 'Utatumia Taka vipi?',
