@@ -68,6 +68,8 @@ export type SessionUser = {
   first_name?: string;
   last_name?: string;
   business_name?: string;
+  /** Profile picture for residents and reporters, logo for commercial accounts. */
+  picture_url?: string;
 };
 
 export type LoginResponse = {

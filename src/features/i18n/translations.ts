@@ -199,6 +199,7 @@ const en = {
   'login.pendingApproval': 'Your account is awaiting approval.',
 
   'home.greeting': 'Hello, {name}',
+  'home.logout': 'Log out',
 } as const;
 
 export type TranslationKey = keyof typeof en;
@@ -384,6 +385,7 @@ const sw: Record<TranslationKey, string> = {
   'login.pendingApproval': 'Akaunti yako inasubiri kuidhinishwa.',
 
   'home.greeting': 'Habari, {name}',
+  'home.logout': 'Toka',
 };
 
 export const TRANSLATIONS: Record<Language, Record<TranslationKey, string>> = { en, sw };
