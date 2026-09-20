@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { Redirect, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { Alert, StyleSheet, Text, useColorScheme, View } from 'react-native';
 
 import type { SessionUser } from '@/api/auth';
 import { Button, Screen } from '@/components';
@@ -47,8 +47,17 @@ export default function HomeScreen() {
 
   const handleLogout = async () => {
     await clearSession();
-    // `replace`, so Back cannot walk into a screen that expects a session.
-    router.replace('/login');
+    // `replace`, so Back cannot walk into a screen that expects a session. The
+    // flag tells the login screen that a sign-out just happened.
+    router.replace({ pathname: '/login', params: { loggedOut: '1' } });
+  };
+
+  /** Getting back in needs a fresh code, so confirm before clearing the session. */
+  const confirmLogout = () => {
+    Alert.alert(t('home.logoutTitle'), t('home.logoutMessage'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('home.logout'), onPress: () => void handleLogout() },
+    ]);
   };
 
   return (
@@ -69,7 +78,7 @@ export default function HomeScreen() {
 
           <Button
             label={t('home.logout')}
-            onPress={() => void handleLogout()}
+            onPress={confirmLogout}
             variant="outline"
             color={theme.danger}
             fullWidth

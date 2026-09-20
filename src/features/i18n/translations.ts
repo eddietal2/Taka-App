@@ -197,9 +197,12 @@ const en = {
   'login.resendFailed': 'Could not resend the code.',
   'login.notRegistered': 'No account found for this number. Sign up instead.',
   'login.pendingApproval': 'Your account is awaiting approval.',
+  'login.loggedOut': 'Successfully logged out',
 
   'home.greeting': 'Hello, {name}',
   'home.logout': 'Log out',
+  'home.logoutTitle': 'Log out?',
+  'home.logoutMessage': 'You will need your phone number and a new code to sign back in.',
 } as const;
 
 export type TranslationKey = keyof typeof en;
@@ -383,9 +386,13 @@ const sw: Record<TranslationKey, string> = {
   'login.resendFailed': 'Imeshindwa kutuma msimbo tena.',
   'login.notRegistered': 'Hakuna akaunti kwa namba hii. Jisajili badala yake.',
   'login.pendingApproval': 'Akaunti yako inasubiri kuidhinishwa.',
+  'login.loggedOut': 'Umetoka kwa mafanikio',
 
   'home.greeting': 'Habari, {name}',
   'home.logout': 'Toka',
+  'home.logoutTitle': 'Toka kwenye akaunti?',
+  'home.logoutMessage':
+    'Utahitaji namba yako ya simu na msimbo mpya ili kuingia tena.',
 };
 
 export const TRANSLATIONS: Record<Language, Record<TranslationKey, string>> = { en, sw };
