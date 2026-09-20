@@ -1,10 +1,16 @@
 import { Image } from 'expo-image';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
 
+import { requestOtp } from '@/api/auth';
 import { Button, Screen, SegmentedControl, TextField, ThemeToggle } from '@/components';
-import { isValidTanzanianNumber, TANZANIA_COUNTRY_CODE } from '@/constants/phone';
+import {
+  isValidTanzanianNumber,
+  TANZANIA_COUNTRY_CODE,
+  TANZANIA_MAX_NATIONAL_DIGITS,
+  toE164,
+} from '@/constants/phone';
 import { fontSize, getPalette, spacing } from '@/constants/theme';
 import { useI18n } from '@/features/i18n/context';
 import { LANGUAGE_LABELS, LANGUAGES, type TranslationKey } from '@/features/i18n/translations';
@@ -18,11 +24,20 @@ type FieldErrors = {
 };
 
 export default function LoginScreen() {
+  const router = useRouter();
   const theme = getPalette(useColorScheme());
   const { language, setLanguage, t } = useI18n();
   const [phone, setPhone] = useState('');
   const [errors, setErrors] = useState<FieldErrors>({});
+  const [error, setError] = useState<string | undefined>();
   const [submitting, setSubmitting] = useState(false);
+
+  // Digits only, so `maxLength` counts the digits that matter rather than any
+  // spaces the keypad can insert.
+  const handleChange = (next: string) => {
+    setError(undefined);
+    setPhone(next.replace(/\D/g, ''));
+  };
 
   const handleSubmit = async () => {
     const nextErrors: FieldErrors = {};
@@ -30,12 +45,19 @@ export default function LoginScreen() {
       nextErrors.phone = 'common.invalidPhone';
     }
     setErrors(nextErrors);
+    setError(undefined);
     if (Object.keys(nextErrors).length > 0) return;
 
     setSubmitting(true);
     try {
-      // TODO: send a one-time code to the number in E.164 form, then route to the
-      // verification step: router.push('/verify').
+      // The verification screen owns the sign-in itself: it needs the number to
+      // send the code to, and to identify the account afterwards.
+      const e164 = toE164(phone);
+      await requestOtp(e164);
+      router.push({ pathname: '/verify', params: { phone: e164 } });
+    } catch (cause) {
+      // Server copy arrives in English; only the fallback is translated.
+      setError(cause instanceof Error ? cause.message : t('login.sendFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -69,9 +91,10 @@ export default function LoginScreen() {
           <TextField
             label={t('login.phoneLabel')}
             value={phone}
-            onChangeText={setPhone}
+            onChangeText={handleChange}
             prefix={TANZANIA_COUNTRY_CODE}
-            placeholder="712 345 678"
+            placeholder="712345678"
+            maxLength={TANZANIA_MAX_NATIONAL_DIGITS}
             keyboardType="phone-pad"
             autoComplete="tel"
             textContentType="telephoneNumber"
@@ -79,6 +102,10 @@ export default function LoginScreen() {
             onSubmitEditing={handleSubmit}
             error={errors.phone ? t(errors.phone) : undefined}
           />
+
+          {error ? (
+            <Text style={[styles.apiError, { color: theme.danger }]}>{error}</Text>
+          ) : null}
 
           <Button
             label={t('common.continue')}
@@ -138,6 +165,9 @@ const styles = StyleSheet.create({
   },
   form: {
     gap: spacing.md,
+  },
+  apiError: {
+    fontSize: fontSize.sm,
   },
   link: {
     fontSize: fontSize.sm,

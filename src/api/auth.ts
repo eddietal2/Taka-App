@@ -1,5 +1,6 @@
 import { apiRequest } from '@/api/client';
 import type { CommercialPayload, ReporterPayload, ResidentPayload } from '@/api/schemas';
+import type { UserIntent } from '@/constants/registration';
 
 /** OTP endpoints served by taka-server-resident under `/api/v1`. */
 const OTP_REQUEST_PATH = '/api/v1/auth/otp/request';
@@ -55,5 +56,38 @@ export function registerCommercial(payload: CommercialPayload, token?: string | 
     method: 'POST',
     body: payload,
     token,
+  });
+}
+
+/** The signed-in account, as it is stored locally and shown in the app. */
+export type SessionUser = {
+  id: string;
+  phone: string;
+  intent: UserIntent;
+  status: string;
+  first_name?: string;
+  last_name?: string;
+  business_name?: string;
+};
+
+export type LoginResponse = {
+  /** Absent when the account exists but has not been approved yet. */
+  token?: string;
+  status?: string;
+  user?: SessionUser;
+};
+
+/**
+ * Exchanges the short-lived verification token for a session, for an account
+ * that already exists.
+ *
+ * The token goes in the Authorization header rather than the body: the server
+ * reads the phone number from it, so a caller cannot request a session for a
+ * number they have not just verified.
+ */
+export function login(verificationToken: string) {
+  return apiRequest<LoginResponse>('/api/v1/auth/login', {
+    method: 'POST',
+    token: verificationToken,
   });
 }

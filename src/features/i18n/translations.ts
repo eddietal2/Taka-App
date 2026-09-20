@@ -183,6 +183,22 @@ const en = {
   'legal.updatedLabel': 'Last updated {date}',
   'legal.placeholderNotice':
     'Placeholder wording — replace with your reviewed legal copy before launch.',
+
+  'login.sendFailed': 'Could not send the code. Try again.',
+  'login.codeTitle': 'Enter your code',
+  'login.codeSubtitle': 'We sent a {digits}-digit code to {phone}.',
+  'login.codeLabel': 'Verification code',
+  'login.verify': 'Verify',
+  'login.codeLength': 'Enter the {digits}-digit code.',
+  'login.codeRejected': 'That code did not work. Try again.',
+  'login.resend': 'Resend code',
+  'login.resending': 'Sending…',
+  'login.resent': 'A new code is on its way.',
+  'login.resendFailed': 'Could not resend the code.',
+  'login.notRegistered': 'No account found for this number. Sign up instead.',
+  'login.pendingApproval': 'Your account is awaiting approval.',
+
+  'home.greeting': 'Hello, {name}',
 } as const;
 
 export type TranslationKey = keyof typeof en;
@@ -352,6 +368,22 @@ const sw: Record<TranslationKey, string> = {
   'legal.updatedLabel': 'Imesasishwa {date}',
   'legal.placeholderNotice':
     'Maandishi ya muda. Yabadilishe na nakala yako ya kisheria kabla ya kuzindua.',
+
+  'login.sendFailed': 'Imeshindwa kutuma msimbo. Jaribu tena.',
+  'login.codeTitle': 'Ingiza msimbo wako',
+  'login.codeSubtitle': 'Tumetuma msimbo wa tarakimu {digits} kwa {phone}.',
+  'login.codeLabel': 'Msimbo wa uthibitisho',
+  'login.verify': 'Thibitisha',
+  'login.codeLength': 'Ingiza msimbo wa tarakimu {digits}.',
+  'login.codeRejected': 'Msimbo huo haukufanya kazi. Jaribu tena.',
+  'login.resend': 'Tuma msimbo tena',
+  'login.resending': 'Inatuma…',
+  'login.resent': 'Msimbo mpya unakuja.',
+  'login.resendFailed': 'Imeshindwa kutuma msimbo tena.',
+  'login.notRegistered': 'Hakuna akaunti kwa namba hii. Jisajili badala yake.',
+  'login.pendingApproval': 'Akaunti yako inasubiri kuidhinishwa.',
+
+  'home.greeting': 'Habari, {name}',
 };
 
 export const TRANSLATIONS: Record<Language, Record<TranslationKey, string>> = { en, sw };
