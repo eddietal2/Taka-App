@@ -7,7 +7,7 @@ import { Button, Screen, StepHeader, TextField } from '@/components';
 import { fontSize, getPalette, spacing } from '@/constants/theme';
 import { useI18n } from '@/features/i18n/context';
 import { useSignUp } from '@/features/signup/context';
-import { detailsRouteFor, SIGN_UP_STEPS, signUpProgress } from '@/features/signup/steps';
+import { postVerifyRouteFor, SIGN_UP_STEPS, signUpProgress } from '@/features/signup/steps';
 
 const CODE_LENGTH = 6;
 
@@ -41,7 +41,7 @@ export default function VerifyPhoneScreen() {
     try {
       const response = await verifyOtp(phone, code);
       setVerified(response.verification_token ?? null);
-      router.push(detailsRouteFor(intent));
+      router.push(postVerifyRouteFor(intent));
     } catch (cause) {
       // Server messages arrive in English; only the fallback is translated.
       setError(cause instanceof Error ? cause.message : t('signUp.verify.incorrect'));

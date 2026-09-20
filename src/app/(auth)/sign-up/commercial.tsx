@@ -45,6 +45,9 @@ export default function CommercialDetailsScreen() {
   }
 
   const progress = signUpProgress(intent, SIGN_UP_STEPS.details);
+  // The location step runs before this one, so the ward and street are usually
+  // already filled in from the pin; the hint explains where they came from.
+  const prefillHint = form.location ? t('signUp.details.fromMapHint') : undefined;
   const wasteTierOptions = WASTE_TIERS.map((tier) => ({
     value: tier,
     label: t(WASTE_TIER_LABEL_KEYS[tier]),
@@ -96,6 +99,7 @@ export default function CommercialDetailsScreen() {
           placeholder="Nzuguni"
           returnKeyType="next"
           error={errors.ward_kata}
+          hint={prefillHint}
         />
         <TextField
           label={t('signUp.details.street')}
@@ -104,6 +108,7 @@ export default function CommercialDetailsScreen() {
           placeholder="Sokoni Area"
           returnKeyType="next"
           error={errors.street_mtaa}
+          hint={prefillHint}
         />
 
         <SelectField

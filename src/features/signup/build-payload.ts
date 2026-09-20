@@ -1,10 +1,10 @@
 import type { ZodError } from 'zod';
 
 import {
-    commercialPayloadSchema,
-    reporterPayloadSchema,
-    residentPayloadSchema,
-    type RegisterPayload,
+  commercialPayloadSchema,
+  reporterPayloadSchema,
+  residentPayloadSchema,
+  type RegisterPayload,
 } from '@/api/schemas';
 import type { UserIntent } from '@/constants/registration';
 import type { SignUpForm } from '@/features/signup/types';
@@ -76,6 +76,9 @@ export function buildRegisterPayload(
             ward_kata: form.ward_kata,
             street_mtaa: form.street_mtaa,
             location: form.location,
+            // Optional on the schema: a business without a meter omits it rather
+            // than sending an empty string the pattern would reject.
+            luku_meter: form.luku_meter || undefined,
             waste_tier: form.waste_tier,
             tax_id: form.tax_id,
             business_logo: form.business_logo,

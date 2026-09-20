@@ -21,6 +21,9 @@ export default function ResidentDetailsScreen() {
   }
 
   const progress = signUpProgress(intent, SIGN_UP_STEPS.details);
+  // The location step runs before this one, so the ward and street are usually
+  // already filled in from the pin; the hint explains where they came from.
+  const prefillHint = form.location ? t('signUp.details.fromMapHint') : undefined;
 
   const handleContinue = () => {
     const next: Errors = {};
@@ -77,6 +80,7 @@ export default function ResidentDetailsScreen() {
           placeholder="Ihumwa"
           returnKeyType="next"
           error={errors.ward_kata}
+          hint={prefillHint}
         />
         <TextField
           label={t('signUp.details.street')}
@@ -85,6 +89,7 @@ export default function ResidentDetailsScreen() {
           placeholder="Mlimani"
           returnKeyType="next"
           error={errors.street_mtaa}
+          hint={prefillHint}
         />
         <TextField
           label={t('signUp.details.unitNumber')}

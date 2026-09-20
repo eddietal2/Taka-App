@@ -13,6 +13,8 @@ export type SignUpForm = {
   ward_kata: string;
   street_mtaa: string;
   luku_meter: string;
+  /** Registered owner returned by the meter lookup, shown for confirmation. */
+  luku_owner_name: string | null;
   unit_number: string;
   waste_tier: WasteTier | '';
   tax_id: string;
@@ -30,6 +32,7 @@ export const EMPTY_SIGN_UP_FORM: SignUpForm = {
   ward_kata: '',
   street_mtaa: '',
   luku_meter: '',
+  luku_owner_name: null,
   unit_number: '',
   waste_tier: '',
   tax_id: '',

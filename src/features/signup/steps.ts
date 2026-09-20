@@ -1,26 +1,31 @@
-import { INTENT_COPY, type UserIntent } from '@/constants/registration';
+import type { UserIntent } from '@/constants/registration';
 
 /** Total steps when nothing is skipped (the success screen is excluded). */
 export const SIGN_UP_TOTAL_STEPS = 8;
 
+/**
+ * Order of the flow: the meter is resolved first, the pin is then dropped on
+ * that meter's address, and only afterwards are the personal details collected —
+ * so the ward and street can be pre-filled from the pin rather than typed twice.
+ */
 export const SIGN_UP_STEPS = {
   intent: 1,
   phone: 2,
   verify: 3,
-  details: 4,
-  luku: 5,
-  location: 6,
+  luku: 4,
+  location: 5,
+  details: 6,
   photo: 7,
   review: 8,
 } as const;
 
 /**
- * Steps an account type never visits. Reporters skip both the meter and the
- * pin; commercial accounts have no meter, so only the pin remains.
+ * Steps an account type never visits. Reporters have no meter and pin nothing,
+ * so both middle steps are dropped; residents and commercial accounts walk the
+ * same path.
  */
 function skippedSteps(intent: UserIntent): readonly number[] {
   if (intent === 'REPORTER') return [SIGN_UP_STEPS.luku, SIGN_UP_STEPS.location];
-  if (intent === 'COMMERCIAL') return [SIGN_UP_STEPS.luku];
   return [];
 }
 
@@ -41,7 +46,7 @@ export function signUpProgress(
   };
 }
 
-/** The type-specific "first page" for each account type. */
+/** The type-specific details page for each account type. */
 export const INTENT_DETAILS_ROUTES = {
   RESIDENT: '/sign-up/resident',
   REPORTER: '/sign-up/reporter',
@@ -55,12 +60,15 @@ export function detailsRouteFor(intent: UserIntent): IntentDetailsRoute {
 }
 
 /**
- * First screen after the details form: residents give their meter number,
- * commercial accounts pin a location, reporters only need a photo.
+ * Screen that follows phone verification. Residents and commercial accounts
+ * resolve their LUKU meter first; reporters have none and go straight to the
+ * details form.
  */
-export function postDetailsRouteFor(
-  intent: UserIntent
-): '/sign-up/luku' | '/sign-up/location' | '/sign-up/photo' {
-  if (intent === 'RESIDENT') return '/sign-up/luku';
-  return INTENT_COPY[intent].needsLocation ? '/sign-up/location' : '/sign-up/photo';
+export function postVerifyRouteFor(intent: UserIntent): '/sign-up/luku' | '/sign-up/reporter' {
+  return intent === 'REPORTER' ? '/sign-up/reporter' : '/sign-up/luku';
+}
+
+/** First screen after the details form: every account type adds an image next. */
+export function postDetailsRouteFor(_intent: UserIntent): '/sign-up/photo' {
+  return '/sign-up/photo';
 }

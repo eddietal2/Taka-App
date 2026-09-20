@@ -95,6 +95,7 @@ const en = {
   'signUp.details.businessNameError': 'Enter the business name.',
   'signUp.details.wasteTierError': 'Choose a waste tier.',
   'signUp.details.taxIdError': 'Use the 123-456-789 format.',
+  'signUp.details.fromMapHint': 'Pre-filled from your pinned location — edit if needed.',
 
   'signUp.resident.title': 'Your details',
   'signUp.resident.subtitle': 'Tell us who you are and where we should collect from.',
@@ -111,6 +112,12 @@ const en = {
   'signUp.luku.label': 'LUKU meter number',
   'signUp.luku.hint': '11 digits, printed on your meter.',
   'signUp.luku.error': 'Enter the {digits}-digit number printed on your meter.',
+  'signUp.luku.lookup': 'Find meter',
+  'signUp.luku.owner': 'Registered to',
+  'signUp.luku.notFound': 'That meter was not found. Check the 11 digits and try again.',
+  'signUp.luku.unconfirmed':
+    "We couldn't reach the utility to confirm this meter. You can continue and we'll verify it later.",
+  'signUp.luku.failed': 'Could not check that meter. Try again.',
 
   'signUp.location.title': 'Pin your location',
   'signUp.location.subtitleBusiness':
@@ -131,6 +138,7 @@ const en = {
   'signUp.location.permission':
     'Location access is required. Enable it in Settings and try again.',
   'signUp.location.failed': 'Could not get your location. Make sure GPS is on and try again.',
+  'signUp.location.attachFailed': 'Could not save your location. Please try again.',
   'signUp.location.mapTanzania': 'Map of Tanzania',
   'signUp.location.mapCentered': 'Map centred on {coordinates}',
   'signUp.location.mapUnavailable': 'The map is available in the mobile app.',
@@ -165,6 +173,7 @@ const en = {
   'signUp.review.luku': 'LUKU meter',
   'signUp.review.location': 'Location',
   'signUp.review.logo': 'Logo',
+  'signUp.review.lukuOwner': 'Meter registered to',
   'signUp.review.termsPrefix': 'I agree to the ',
   'signUp.review.termsAnd': ' and ',
   'signUp.review.termsSuffix': '.',
@@ -283,6 +292,7 @@ const sw: Record<TranslationKey, string> = {
   'signUp.details.businessNameError': 'Ingiza jina la biashara.',
   'signUp.details.wasteTierError': 'Chagua aina ya taka.',
   'signUp.details.taxIdError': 'Tumia muundo 123-456-789.',
+  'signUp.details.fromMapHint': 'Imejazwa kutoka eneo lako — badilisha ikiwa inahitajika.',
 
   'signUp.resident.title': 'Taarifa zako',
   'signUp.resident.subtitle': 'Tuambie wewe ni nani na tutakusanyie taka wapi.',
@@ -299,6 +309,12 @@ const sw: Record<TranslationKey, string> = {
   'signUp.luku.label': 'Namba ya mita ya LUKU',
   'signUp.luku.hint': 'Tarakimu 11, zimeandikwa kwenye mita yako.',
   'signUp.luku.error': 'Ingiza namba ya tarakimu {digits} iliyoandikwa kwenye mita yako.',
+  'signUp.luku.lookup': 'Tafuta mita',
+  'signUp.luku.owner': 'Imesajiliwa kwa',
+  'signUp.luku.notFound': 'Mita hiyo haijapatikana. Angalia tarakimu 11 na ujaribu tena.',
+  'signUp.luku.unconfirmed':
+    'Hatukuweza kufikia mtoa huduma kuthibitisha mita hii. Unaweza kuendelea na tutaithibitisha baadaye.',
+  'signUp.luku.failed': 'Imeshindwa kuangalia mita hiyo. Jaribu tena.',
 
   'signUp.location.title': 'Weka eneo lako',
   'signUp.location.subtitleBusiness':
@@ -320,6 +336,7 @@ const sw: Record<TranslationKey, string> = {
     'Ruhusa ya eneo inahitajika. Iwashe kwenye Mipangilio na ujaribu tena.',
   'signUp.location.failed':
     'Imeshindwa kupata eneo lako. Hakikisha GPS imewashwa na ujaribu tena.',
+  'signUp.location.attachFailed': 'Imeshindwa kuhifadhi eneo lako. Tafadhali jaribu tena.',
   'signUp.location.mapTanzania': 'Ramani ya Tanzania',
   'signUp.location.mapCentered': 'Ramani imeelekea {coordinates}',
   'signUp.location.mapUnavailable': 'Ramani inapatikana kwenye app ya simu.',
@@ -354,6 +371,7 @@ const sw: Record<TranslationKey, string> = {
   'signUp.review.luku': 'Mita ya LUKU',
   'signUp.review.location': 'Eneo',
   'signUp.review.logo': 'Nembo',
+  'signUp.review.lukuOwner': 'Mita imesajiliwa kwa',
   'signUp.review.termsPrefix': 'Nakubali ',
   'signUp.review.termsAnd': ' na ',
   'signUp.review.termsSuffix': '.',

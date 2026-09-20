@@ -2,40 +2,89 @@ import { Redirect, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 
+import { attachLukuLocation } from '@/api/luku';
 import { Button, LocationCapture, LocationMap, Screen, StepHeader } from '@/components';
 import { INTENT_COPY } from '@/constants/registration';
 import { spacing } from '@/constants/theme';
 import { useI18n } from '@/features/i18n/context';
 import { useSignUp } from '@/features/signup/context';
-import { SIGN_UP_STEPS, signUpProgress } from '@/features/signup/steps';
+import { resolveWardStreet } from '@/features/signup/geocode';
+import { detailsRouteFor, SIGN_UP_STEPS, signUpProgress } from '@/features/signup/steps';
 
+/**
+ * Third step of sign-up: the GPS point that is tied to the LUKU reference number
+ * resolved on the previous step, so collections route to the address on file.
+ *
+ * When the meter already had a location, the previous step copies that point
+ * into the form, so the map opens on it and the resident only has to confirm
+ * rather than stand at the premises to capture it again.
+ *
+ * Reporters never pin a location, so this step is not part of their flow.
+ */
 export default function LocationScreen() {
   const router = useRouter();
   const { t } = useI18n();
-  const { intent, phoneVerified, form, updateForm } = useSignUp();
+  const { intent, phone, phoneVerified, verificationToken, form, updateForm } = useSignUp();
   const [error, setError] = useState<string | undefined>();
+  const [saving, setSaving] = useState(false);
 
   if (!intent || !phoneVerified) {
     return <Redirect href="/sign-up" />;
   }
 
-  // Reporters never pin a location, so this step is not part of their flow.
   if (!INTENT_COPY[intent].needsLocation) {
     return <Redirect href="/sign-up/photo" />;
   }
 
   const progress = signUpProgress(intent, SIGN_UP_STEPS.location);
   const isCommercial = intent === 'COMMERCIAL';
+  const nextRoute = detailsRouteFor(intent);
 
-  const goToPhoto = () => router.push('/sign-up/photo');
-
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (!form.location) {
       setError(t('signUp.location.missing'));
       return;
     }
 
     setError(undefined);
+    setSaving(true);
+
+    // Resolve the ward and street first so they can be saved with the pin and
+    // pre-filled on the details step. Best-effort: the coordinates are still
+    // worth keeping when the geocoder has nothing.
+    let wardKata = form.ward_kata;
+    let streetMtaa = form.street_mtaa;
+    const address = await resolveWardStreet(form.location);
+    if (address) {
+      if (wardKata.trim().length === 0 && address.wardKata) wardKata = address.wardKata;
+      if (streetMtaa.trim().length === 0 && address.streetMtaa) streetMtaa = address.streetMtaa;
+    }
+
+    // The meter reference is what future collections are matched against, so the
+    // point is persisted against it before the user moves on. A business may not
+    // have a meter, in which case only the profile carries the location.
+    if (form.luku_meter) {
+      try {
+        await attachLukuLocation(
+          {
+            phone,
+            luku_meter: form.luku_meter,
+            location: form.location,
+            ...(wardKata.trim().length > 0 ? { ward_kata: wardKata } : {}),
+            ...(streetMtaa.trim().length > 0 ? { street_mtaa: streetMtaa } : {}),
+          },
+          verificationToken
+        );
+      } catch (cause) {
+        setSaving(false);
+        // Server messages arrive in English; only the fallback is translated.
+        setError(cause instanceof Error ? cause.message : t('signUp.location.attachFailed'));
+        return;
+      }
+    }
+
+    updateForm({ ward_kata: wardKata, street_mtaa: streetMtaa });
+    setSaving(false);
 
     // The pin is whatever the device reported, which may be somewhere the user
     // happens to be rather than the address collections should go to, so make
@@ -49,7 +98,7 @@ export default function LocationScreen() {
       ),
       [
         { text: t('common.cancel'), style: 'cancel' },
-        { text: t('common.ok'), onPress: goToPhoto },
+        { text: t('common.ok'), onPress: () => router.push(nextRoute) },
       ]
     );
   };
@@ -57,7 +106,13 @@ export default function LocationScreen() {
   return (
     <Screen
       footer={
-        <Button label={t('common.continue')} onPress={handleContinue} fullWidth size="lg" />
+        <Button
+          label={t('common.continue')}
+          onPress={handleContinue}
+          loading={saving}
+          fullWidth
+          size="lg"
+        />
       }>
       <StepHeader
         title={t('signUp.location.title')}

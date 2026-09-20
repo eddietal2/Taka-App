@@ -37,6 +37,8 @@ function summaryRows(
       { label: t('signUp.review.business'), value: form.business_name || '—' },
       { label: t('signUp.details.ward'), value: form.ward_kata || '—' },
       { label: t('signUp.details.street'), value: form.street_mtaa || '—' },
+      { label: t('signUp.review.luku'), value: form.luku_meter || '—' },
+      { label: t('signUp.review.lukuOwner'), value: form.luku_owner_name || '—' },
       {
         label: t('signUp.details.wasteTier'),
         value: form.waste_tier ? t(WASTE_TIER_LABEL_KEYS[form.waste_tier]) : '—',
@@ -62,6 +64,7 @@ function summaryRows(
       { label: t('signUp.details.street'), value: form.street_mtaa || '—' },
       { label: t('signUp.review.unit'), value: form.unit_number || '—' },
       { label: t('signUp.review.luku'), value: form.luku_meter || '—' },
+      { label: t('signUp.review.lukuOwner'), value: form.luku_owner_name || '—' },
       { label: t('signUp.review.location'), value: formatLocation(form.location) }
     );
   }
