@@ -181,6 +181,10 @@ const en = {
   'signUp.review.termsError': 'Please accept the terms to continue.',
   'signUp.review.submit': 'Create account',
   'signUp.review.failed': 'Registration failed. Please try again.',
+  'signUp.review.duplicateTitle': 'That number already has an account',
+  'signUp.review.duplicateBody':
+    'Each phone number can only have one Taka account. Log in to continue, or go back and use a different number.',
+  'signUp.review.duplicateAction': 'Log in instead',
 
   'signUp.success.pendingTitle': 'Almost there',
   'signUp.success.title': 'You are all set',
@@ -380,6 +384,10 @@ const sw: Record<TranslationKey, string> = {
   'signUp.review.termsError': 'Tafadhali kubali masharti ili kuendelea.',
   'signUp.review.submit': 'Fungua akaunti',
   'signUp.review.failed': 'Usajili umeshindwa. Tafadhali jaribu tena.',
+  'signUp.review.duplicateTitle': 'Namba hii tayari ina akaunti',
+  'signUp.review.duplicateBody':
+    'Kila namba ya simu inaweza kuwa na akaunti moja ya Taka. Ingia ili kuendelea, au rudi nyuma na tumia namba nyingine.',
+  'signUp.review.duplicateAction': 'Ingia badala yake',
 
   'signUp.success.pendingTitle': 'Karibu kumaliza',
   'signUp.success.title': 'Umekamilisha',

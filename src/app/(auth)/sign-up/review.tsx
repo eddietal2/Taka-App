@@ -120,6 +120,9 @@ export default function ReviewScreen() {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+  // Set when the API rejects the number as already registered. There is no field
+  // to correct here — the only way on is to log in.
+  const [duplicatePhone, setDuplicatePhone] = useState(false);
 
   if (!intent || !phoneVerified) {
     return <Redirect href="/sign-up" />;
@@ -168,6 +171,14 @@ export default function ReviewScreen() {
         params: { pending: response.token ? '0' : '1' },
       });
     } catch (cause) {
+      // A number that already has an account is not a typo to fix in a field, so
+      // it gets its own actionable state instead of a red message under the
+      // summary card, which left the user with no way forward.
+      if (cause instanceof ApiError && cause.fieldErrors?.phone) {
+        setDuplicatePhone(true);
+        return;
+      }
+
       if (cause instanceof ApiError && cause.fieldErrors) {
         setErrors(cause.fieldErrors);
       } else {
@@ -187,7 +198,9 @@ export default function ReviewScreen() {
           label={t('signUp.review.submit')}
           onPress={handleSubmit}
           loading={submitting}
-          disabled={!acceptedTerms}
+          // Resubmitting cannot help while the number is taken, so the Log in
+          // action below becomes the only way forward.
+          disabled={!acceptedTerms || duplicatePhone}
           fullWidth
           size="lg"
           color={theme.primary}
@@ -210,6 +223,28 @@ export default function ReviewScreen() {
           </View>
         ))}
       </View>
+
+      {duplicatePhone ? (
+        <View
+          style={[
+            styles.duplicateBox,
+            { borderColor: theme.primary, backgroundColor: theme.surface },
+          ]}>
+          <Text style={[styles.duplicateTitle, { color: theme.text }]}>
+            {t('signUp.review.duplicateTitle')}
+          </Text>
+          <Text style={[styles.duplicateBody, { color: theme.textMuted }]}>
+            {t('signUp.review.duplicateBody')}
+          </Text>
+          <Button
+            label={t('signUp.review.duplicateAction')}
+            // The number is carried across so the login screen does not ask for
+            // something the app just told the user it already knew.
+            onPress={() => router.replace({ pathname: '/login', params: { phone } })}
+            fullWidth
+          />
+        </View>
+      ) : null}
 
       <Checkbox checked={acceptedTerms} onChange={setAcceptedTerms} error={errors.terms}>
         <Text>{t('signUp.review.termsPrefix')}</Text>
@@ -281,6 +316,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: radius.md,
     gap: spacing.xs,
+  },
+  duplicateBox: {
+    padding: spacing.md,
+    borderWidth: 1,
+    borderRadius: radius.md,
+    gap: spacing.sm,
+  },
+  duplicateTitle: {
+    fontSize: fontSize.md,
+    fontWeight: '700',
+  },
+  duplicateBody: {
+    fontSize: fontSize.sm,
   },
   termsLink: {
     fontWeight: '600',

@@ -29,9 +29,12 @@ export default function LoginScreen() {
   const { language, setLanguage, t } = useI18n();
   // Home sets this when it signs the user out, so the confirmation only appears
   // in that case rather than on every visit to this screen.
-  const params = useLocalSearchParams<{ loggedOut?: string }>();
+  const params = useLocalSearchParams<{ loggedOut?: string; phone?: string }>();
   const [toastDismissed, setToastDismissed] = useState(false);
-  const [phone, setPhone] = useState('');
+  // Pre-filled when sign-up hands the user here because the number already has an
+  // account, so they do not retype what the app has just told them. The field
+  // carries the national part only — the country code is a prefix.
+  const [phone, setPhone] = useState(() => (params.phone ?? '').replace(/^\+?255/, ''));
   const [errors, setErrors] = useState<FieldErrors>({});
   const [error, setError] = useState<string | undefined>();
   const [submitting, setSubmitting] = useState(false);
