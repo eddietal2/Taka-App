@@ -3,7 +3,7 @@ import { Link } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
 
-import { Button, Screen, SegmentedControl, TextField } from '@/components';
+import { Button, Screen, SegmentedControl, TextField, ThemeToggle } from '@/components';
 import { isValidTanzanianNumber, TANZANIA_COUNTRY_CODE } from '@/constants/phone';
 import { fontSize, getPalette, spacing } from '@/constants/theme';
 import { useI18n } from '@/features/i18n/context';
@@ -44,13 +44,14 @@ export default function LoginScreen() {
   return (
     <Screen>
       {/* Pinned above the centred block so it reads as a page-level control. */}
-      <View style={styles.languageRow}>
+      <View style={styles.controlsRow}>
         <SegmentedControl
           options={LANGUAGE_OPTIONS}
           value={language}
           onChange={setLanguage}
           accessibilityLabel={t('login.languageLabel')}
         />
+        <ThemeToggle />
       </View>
 
       <View style={styles.main}>
@@ -102,8 +103,11 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  languageRow: {
-    alignItems: 'flex-end',
+  controlsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: spacing.sm,
   },
   /**
    * Grows into the free space so the header and form stay vertically centred
