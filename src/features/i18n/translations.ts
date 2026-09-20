@@ -137,7 +137,7 @@ const en = {
   'signUp.photo.change': 'Change photo',
   'signUp.photo.take': 'Take photo',
   'signUp.photo.remove': 'Remove',
-  'signUp.photo.noImage': 'No image',
+  'signUp.photo.skip': 'Skip',
   'signUp.photo.cameraPermission':
     'Camera access is required. Enable it in Settings and try again.',
   'signUp.photo.libraryPermission':
@@ -287,7 +287,7 @@ const sw: Record<TranslationKey, string> = {
   'signUp.photo.change': 'Badilisha picha',
   'signUp.photo.take': 'Piga picha',
   'signUp.photo.remove': 'Ondoa',
-  'signUp.photo.noImage': 'Hakuna picha',
+  'signUp.photo.skip': 'Ruka',
   'signUp.photo.cameraPermission':
     'Ruhusa ya kamera inahitajika. Iwashe kwenye Mipangilio na ujaribu tena.',
   'signUp.photo.libraryPermission':

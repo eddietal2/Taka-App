@@ -81,7 +81,6 @@ export default function PhotoScreen() {
             error={error}
           />
         )}
-
       </View>
     </Screen>
   );
