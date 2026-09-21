@@ -231,6 +231,11 @@ const en = {
   'tabs.home': 'Home',
   'tabs.recycle': 'Recycle',
   'tabs.profile': 'Profile',
+
+  'profile.appearanceLabel': 'Appearance',
+  'profile.themeLight': 'Light',
+  'profile.themeDark': 'Dark',
+  'profile.languageLabel': 'Language',
 } as const;
 
 export type TranslationKey = keyof typeof en;
@@ -449,6 +454,11 @@ const sw: Record<TranslationKey, string> = {
   'tabs.home': 'Nyumbani',
   'tabs.recycle': 'Kuchakata',
   'tabs.profile': 'Wasifu',
+
+  'profile.appearanceLabel': 'Muonekano',
+  'profile.themeLight': 'Nuru',
+  'profile.themeDark': 'Giza',
+  'profile.languageLabel': 'Lugha',
 };
 
 export const TRANSLATIONS: Record<Language, Record<TranslationKey, string>> = { en, sw };

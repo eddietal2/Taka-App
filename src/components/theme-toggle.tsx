@@ -1,17 +1,8 @@
-import { Appearance, Platform, Pressable, StyleSheet, Text, useColorScheme } from 'react-native';
+import { Pressable, StyleSheet, Text, useColorScheme } from 'react-native';
 
 import { fontSize, getPalette, radius, spacing } from '@/constants/theme';
 import { useI18n } from '@/features/i18n/context';
-
-/**
- * Force a colour scheme and `useColorScheme()` reports it from then on, so every
- * `getPalette(useColorScheme())` in the app repaints without any further wiring.
- *
- * react-native-web implements only `getColorScheme`/`addChangeListener`, not the
- * setter, so there is nothing to bind to in the browser and the control is
- * hidden rather than shown as a dead button.
- */
-const CAN_FORCE_SCHEME = Platform.OS !== 'web';
+import { applyColorScheme, CAN_FORCE_SCHEME } from '@/features/theme/color-scheme';
 
 /**
  * Compact light/dark switch. The glyph shows the scheme you would switch *to*,
@@ -28,7 +19,7 @@ export function ThemeToggle() {
 
   return (
     <Pressable
-      onPress={() => Appearance.setColorScheme(isDark ? 'light' : 'dark')}
+      onPress={() => applyColorScheme(isDark ? 'light' : 'dark')}
       accessibilityRole="button"
       accessibilityLabel={isDark ? t('login.themeLight') : t('login.themeDark')}
       hitSlop={spacing.xs}
