@@ -227,6 +227,10 @@ const en = {
   'home.logout': 'Log out',
   'home.logoutTitle': 'Log out?',
   'home.logoutMessage': 'You will need your phone number and a new code to sign back in.',
+
+  'tabs.home': 'Home',
+  'tabs.recycle': 'Recycle',
+  'tabs.profile': 'Profile',
 } as const;
 
 export type TranslationKey = keyof typeof en;
@@ -441,6 +445,10 @@ const sw: Record<TranslationKey, string> = {
   'home.logoutTitle': 'Toka kwenye akaunti?',
   'home.logoutMessage':
     'Utahitaji namba yako ya simu na msimbo mpya ili kuingia tena.',
+
+  'tabs.home': 'Nyumbani',
+  'tabs.recycle': 'Kuchakata',
+  'tabs.profile': 'Wasifu',
 };
 
 export const TRANSLATIONS: Record<Language, Record<TranslationKey, string>> = { en, sw };

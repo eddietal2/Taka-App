@@ -2,9 +2,11 @@ import { Image } from 'expo-image';
 import { Redirect, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { SessionUser } from '@/api/auth';
 import { Button, Screen } from '@/components';
+import { TAB_BAR_CLEARANCE } from '@/constants/tabs';
 import { fontSize, getPalette, spacing } from '@/constants/theme';
 import { clearSession, getSessionUser, getToken } from '@/features/auth/session';
 import { useI18n } from '@/features/i18n/context';
@@ -12,12 +14,14 @@ import { useI18n } from '@/features/i18n/context';
 const AVATAR_SIZE = 96;
 
 /**
- * Landing screen for a signed-in user: their picture and a greeting. Everything
- * past this point is still to be built.
+ * The account tab: picture, greeting and sign out. Settings, the language
+ * switcher and the upgrade path to a resident or commercial account hang off
+ * this screen rather than crowding the tab bar.
  */
-export default function HomeScreen() {
+export default function ProfileScreen() {
   const router = useRouter();
   const theme = getPalette(useColorScheme());
+  const insets = useSafeAreaInsets();
   const { t } = useI18n();
   const [session, setSession] = useState<{
     token: string | null;
@@ -61,7 +65,10 @@ export default function HomeScreen() {
   };
 
   return (
-    <Screen centered>
+    <Screen
+      centered
+      // The tab bar floats over the page, so the content has to clear it.
+      contentContainerStyle={{ paddingBottom: insets.bottom + TAB_BAR_CLEARANCE }}>
       {user ? (
         <View style={styles.content}>
           {user.picture_url ? (
