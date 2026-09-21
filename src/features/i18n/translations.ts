@@ -22,6 +22,7 @@ export const LANGUAGE_LABELS: Record<Language, string> = {
 const en = {
   'common.continue': 'Continue',
   'common.done': 'Done',
+  'common.save': 'Save',
   'common.uploaded': 'Uploaded',
   'common.select': 'Select',
   'common.selectPlaceholder': 'Select…',
@@ -239,6 +240,13 @@ const en = {
   'profile.photoSaveFailed': 'Could not save the new picture. Try again.',
   'profile.settingsSaveFailed':
     'Saved on this device, but not on your account. Check your connection.',
+  'profile.nameLabel': 'Name',
+  'profile.businessNameLabel': 'Business name',
+
+  'editName.firstName': 'First name',
+  'editName.lastName': 'Last name',
+  'editName.nameError': 'Enter at least two characters.',
+  'editName.saveFailed': 'Could not save your name. Try again.',
 } as const;
 
 export type TranslationKey = keyof typeof en;
@@ -246,6 +254,7 @@ export type TranslationKey = keyof typeof en;
 const sw: Record<TranslationKey, string> = {
   'common.continue': 'Endelea',
   'common.done': 'Maliza',
+  'common.save': 'Hifadhi',
   'common.uploaded': 'Imepakiwa',
   'common.select': 'Chagua',
   'common.selectPlaceholder': 'Chagua…',
@@ -465,6 +474,13 @@ const sw: Record<TranslationKey, string> = {
   'profile.photoSaveFailed': 'Imeshindwa kuhifadhi picha mpya. Jaribu tena.',
   'profile.settingsSaveFailed':
     'Imehifadhiwa kwenye kifaa hiki, lakini si kwenye akaunti yako. Angalia muunganisho wako.',
+  'profile.nameLabel': 'Jina',
+  'profile.businessNameLabel': 'Jina la biashara',
+
+  'editName.firstName': 'Jina la kwanza',
+  'editName.lastName': 'Jina la mwisho',
+  'editName.nameError': 'Weka herufi mbili au zaidi.',
+  'editName.saveFailed': 'Imeshindwa kuhifadhi jina lako. Jaribu tena.',
 };
 
 export const TRANSLATIONS: Record<Language, Record<TranslationKey, string>> = { en, sw };

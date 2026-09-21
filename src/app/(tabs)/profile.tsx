@@ -98,6 +98,7 @@ export default function ProfileScreen() {
   }
 
   const user = session?.user;
+  const isCommercial = user?.intent === 'COMMERCIAL';
   // Commercial accounts are greeted by their business, everyone else by name.
   const name = user?.business_name ?? user?.first_name ?? '';
 
@@ -185,6 +186,25 @@ export default function ProfileScreen() {
               style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
               <Text style={[styles.rowLabel, { color: theme.text }]}>
                 {t(INTENT_COPY[user.intent].imageLabelKey)}
+              </Text>
+              <Ionicons name="chevron-forward" size={ROW_ICON_SIZE} color={theme.textMuted} />
+            </Pressable>
+
+            {/* A person's name or a business's, matching whichever the edit
+                screen behind it will offer to change. */}
+            <Pressable
+              onPress={() => router.push('/edit-name')}
+              accessibilityRole="button"
+              accessibilityLabel={t(
+                isCommercial ? 'profile.businessNameLabel' : 'profile.nameLabel'
+              )}
+              style={({ pressed }) => [
+                styles.row,
+                { borderTopWidth: 1, borderTopColor: theme.border },
+                pressed && styles.pressed,
+              ]}>
+              <Text style={[styles.rowLabel, { color: theme.text }]}>
+                {t(isCommercial ? 'profile.businessNameLabel' : 'profile.nameLabel')}
               </Text>
               <Ionicons name="chevron-forward" size={ROW_ICON_SIZE} color={theme.textMuted} />
             </Pressable>

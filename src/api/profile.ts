@@ -16,6 +16,11 @@ export type AccountPatch = {
   picture_url?: string;
   language?: Language;
   theme_preference?: ColorSchemePreference;
+  /** Personal name, for a resident or reporter. */
+  first_name?: string;
+  last_name?: string;
+  /** Business name. The server accepts this only for a commercial account. */
+  business_name?: string;
 };
 
 /**
