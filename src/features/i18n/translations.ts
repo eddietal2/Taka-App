@@ -236,6 +236,7 @@ const en = {
   'profile.themeLight': 'Light',
   'profile.themeDark': 'Dark',
   'profile.languageLabel': 'Language',
+  'profile.photoSaveFailed': 'Could not save the new picture. Try again.',
 } as const;
 
 export type TranslationKey = keyof typeof en;
@@ -459,6 +460,7 @@ const sw: Record<TranslationKey, string> = {
   'profile.themeLight': 'Nuru',
   'profile.themeDark': 'Giza',
   'profile.languageLabel': 'Lugha',
+  'profile.photoSaveFailed': 'Imeshindwa kuhifadhi picha mpya. Jaribu tena.',
 };
 
 export const TRANSLATIONS: Record<Language, Record<TranslationKey, string>> = { en, sw };

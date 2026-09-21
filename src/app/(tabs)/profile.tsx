@@ -1,12 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import { Redirect, useRouter } from 'expo-router';
-import { useEffect, useState, type ReactNode } from 'react';
+import { Redirect, useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState, type ReactNode } from 'react';
 import { Alert, Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { SessionUser } from '@/api/auth';
 import { Screen, SegmentedControl } from '@/components';
+import { INTENT_COPY } from '@/constants/registration';
 import { TAB_BAR_CLEARANCE } from '@/constants/tabs';
 import { fontSize, getPalette, radius, spacing } from '@/constants/theme';
 import { clearSession, getSessionUser, getToken } from '@/features/auth/session';
@@ -69,17 +70,24 @@ export default function ProfileScreen() {
     user: SessionUser | null;
   } | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
+  /**
+   * Re-reads on every focus rather than only on mount: the picture is replaced
+   * on another screen, and a tab that stayed mounted would otherwise go on
+   * showing the old one.
+   */
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
 
-    void Promise.all([getToken(), getSessionUser()]).then(([token, user]) => {
-      if (!cancelled) setSession({ token, user });
-    });
+      void Promise.all([getToken(), getSessionUser()]).then(([token, user]) => {
+        if (!cancelled) setSession({ token, user });
+      });
 
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+      return () => {
+        cancelled = true;
+      };
+    }, [])
+  );
 
   // Nothing stored, or the session was cleared: back to sign in.
   if (session && (!session.token || !session.user)) {
@@ -137,10 +145,22 @@ export default function ProfileScreen() {
           </View>
 
           <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-            {/* Absent on the web build, where the scheme cannot be forced. The
-                language row then becomes the first row and drops its divider. */}
+            {/* Leads the card, so it carries no divider. The label follows the
+                account type: a profile picture or a business logo. */}
+            <Pressable
+              onPress={() => router.push('/edit-photo')}
+              accessibilityRole="button"
+              accessibilityLabel={t(INTENT_COPY[user.intent].imageLabelKey)}
+              style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
+              <Text style={[styles.rowLabel, { color: theme.text }]}>
+                {t(INTENT_COPY[user.intent].imageLabelKey)}
+              </Text>
+              <Ionicons name="chevron-forward" size={ROW_ICON_SIZE} color={theme.textMuted} />
+            </Pressable>
+
+            {/* Absent on the web build, where the scheme cannot be forced. */}
             {CAN_FORCE_SCHEME ? (
-              <SettingsRow label={t('profile.appearanceLabel')}>
+              <SettingsRow label={t('profile.appearanceLabel')} divider>
                 <SegmentedControl
                   options={themeOptions}
                   value={schemeValue}
@@ -150,7 +170,7 @@ export default function ProfileScreen() {
               </SettingsRow>
             ) : null}
 
-            <SettingsRow label={t('profile.languageLabel')} divider={CAN_FORCE_SCHEME}>
+            <SettingsRow label={t('profile.languageLabel')} divider>
               <SegmentedControl
                 options={LANGUAGE_OPTIONS}
                 value={language}

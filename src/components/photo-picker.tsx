@@ -10,6 +10,7 @@ import {
   Text,
   View,
   useColorScheme,
+  type DimensionValue,
 } from 'react-native';
 
 import { uploadImage, type UploadPurpose } from '@/api/uploads';
@@ -51,6 +52,11 @@ export type PhotoPickerProps = {
   token?: string | null;
   error?: string;
   /**
+   * Width of the preview square. Defaults to filling the parent; pass something
+   * narrower on a screen where the image is a thumbnail rather than the point.
+   */
+  previewWidth?: DimensionValue;
+  /**
    * Stand-in shown while nothing is chosen, and the value stored when the user
    * skips. A bundled asset (`require(...)`) is uploaded on skip so the stored
    * value is a URL; a string URI is used as-is. Defaults to the bundled avatar.
@@ -67,7 +73,8 @@ export type PhotoPickerProps = {
 /**
  * Picks or captures an image, hands it to the OS editor to be cropped square,
  * then compresses it, uploads to S3 and reports the public URL. The preview sits
- * on its own row at the full width of the parent, square so it matches the crop.
+ * on its own row — full width by default, or `previewWidth` — square so it
+ * matches the crop.
  */
 export function PhotoPicker({
   label,
@@ -76,6 +83,7 @@ export function PhotoPicker({
   purpose,
   token,
   error,
+  previewWidth = '100%',
   fallback,
   onSkip,
   ref,
@@ -176,8 +184,7 @@ export function PhotoPicker({
     <View style={styles.container}>
       <Text style={[styles.label, { color: theme.text }]}>{label}</Text>
 
-      <View
-        style={[styles.preview, { borderColor: theme.border, backgroundColor: theme.surface }]}>
+      <View style={[styles.preview, { backgroundColor: theme.surface, width: previewWidth }]}>
         {value ? (
           <Image source={{ uri: value }} style={styles.image} contentFit="cover" />
         ) : (
@@ -232,7 +239,10 @@ export function PhotoPicker({
               {t('signUp.photo.remove')}
             </Text>
           </Pressable>
-        ) : (
+        ) : onSkip ? (
+          // Only offered when there is somewhere to skip ahead to. A screen that
+          // edits an existing picture passes no `onSkip`, because settling for the
+          // stand-in image is not a way out of it.
           <Pressable
             onPress={confirmSkip}
             disabled={busy}
@@ -242,7 +252,7 @@ export function PhotoPicker({
               {t('signUp.photo.skip')}
             </Text>
           </Pressable>
-        )}
+        ) : null}
       </View>
 
       {message ? <Text style={[styles.helper, { color: theme.danger }]}>{message}</Text> : null}
@@ -258,11 +268,15 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     fontWeight: '600',
   },
-  /** Own row, edge to edge, square to match the 1:1 crop the editor applies. */
+  /**
+   * Own row, square to match the 1:1 crop the editor applies. Deliberately
+   * borderless so the image runs to the rounded corners — the `radius` is what
+   * keeps the crop looking intentional, not an outline. `alignSelf` only has a
+   * visible effect once `previewWidth` is narrower than the parent.
+   */
   preview: {
-    width: '100%',
+    alignSelf: 'center',
     aspectRatio: 1,
-    borderWidth: 1,
     borderRadius: radius.md,
     overflow: 'hidden',
     alignItems: 'center',
