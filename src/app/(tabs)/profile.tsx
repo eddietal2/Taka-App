@@ -6,13 +6,14 @@ import { Alert, Pressable, StyleSheet, Text, useColorScheme, View } from 'react-
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { SessionUser } from '@/api/auth';
+import { updateAccount, type AccountPatch } from '@/api/profile';
 import { Screen, SegmentedControl } from '@/components';
 import { INTENT_COPY } from '@/constants/registration';
 import { TAB_BAR_CLEARANCE } from '@/constants/tabs';
 import { fontSize, getPalette, radius, spacing } from '@/constants/theme';
 import { clearSession, getSessionUser, getToken } from '@/features/auth/session';
 import { useI18n } from '@/features/i18n/context';
-import { LANGUAGE_LABELS, LANGUAGES } from '@/features/i18n/translations';
+import { LANGUAGE_LABELS, LANGUAGES, type Language } from '@/features/i18n/translations';
 import {
   applyColorScheme,
   CAN_FORCE_SCHEME,
@@ -69,6 +70,8 @@ export default function ProfileScreen() {
     token: string | null;
     user: SessionUser | null;
   } | null>(null);
+  /** Set when a preference reached this device but not the account. */
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   /**
    * Re-reads on every focus rather than only on mount: the picture is replaced
@@ -111,6 +114,34 @@ export default function ProfileScreen() {
       { text: t('common.cancel'), style: 'cancel' },
       { text: t('home.logout'), onPress: () => void handleLogout() },
     ]);
+  };
+
+  /**
+   * Mirrors a preference onto the account, so it follows the user to another
+   * device. Best-effort by design: the local change has already taken effect, so
+   * a failure is reported without undoing what was just chosen.
+   */
+  const pushPreference = async (patch: AccountPatch) => {
+    const token = session?.token;
+    if (!token) return;
+
+    setSaveError(null);
+    try {
+      await updateAccount(patch, token);
+    } catch {
+      setSaveError(t('profile.settingsSaveFailed'));
+    }
+  };
+
+  const handleSchemeChange = (next: ColorSchemePreference) => {
+    // Also records the choice on this device, so it survives a reload.
+    applyColorScheme(next);
+    void pushPreference({ theme_preference: next });
+  };
+
+  const handleLanguageChange = (next: Language) => {
+    setLanguage(next);
+    void pushPreference({ language: next });
   };
 
   const themeOptions = [
@@ -164,7 +195,7 @@ export default function ProfileScreen() {
                 <SegmentedControl
                   options={themeOptions}
                   value={schemeValue}
-                  onChange={applyColorScheme}
+                  onChange={handleSchemeChange}
                   accessibilityLabel={t('profile.appearanceLabel')}
                 />
               </SettingsRow>
@@ -174,7 +205,7 @@ export default function ProfileScreen() {
               <SegmentedControl
                 options={LANGUAGE_OPTIONS}
                 value={language}
-                onChange={setLanguage}
+                onChange={handleLanguageChange}
                 accessibilityLabel={t('profile.languageLabel')}
               />
             </SettingsRow>
@@ -194,6 +225,10 @@ export default function ProfileScreen() {
               <Ionicons name="log-out-outline" size={ROW_ICON_SIZE} color={theme.danger} />
             </Pressable>
           </View>
+
+          {saveError ? (
+            <Text style={[styles.saveError, { color: theme.danger }]}>{saveError}</Text>
+          ) : null}
         </View>
       ) : null}
     </Screen>
@@ -247,5 +282,9 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.6,
+  },
+  saveError: {
+    fontSize: fontSize.sm,
+    textAlign: 'center',
   },
 });

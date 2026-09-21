@@ -1,6 +1,8 @@
 import { apiRequest } from '@/api/client';
 import type { CommercialPayload, ReporterPayload, ResidentPayload } from '@/api/schemas';
 import type { UserIntent } from '@/constants/registration';
+import type { Language } from '@/features/i18n/translations';
+import type { ColorSchemePreference } from '@/features/theme/color-scheme';
 
 /** OTP endpoints served by taka-server-resident under `/api/v1`. */
 const OTP_REQUEST_PATH = '/api/v1/auth/otp/request';
@@ -27,7 +29,7 @@ export type OtpVerifyResponse = {
 export type RegisterResponse = {
   token?: string;
   status?: string;
-  user?: unknown;
+  user?: SessionUser;
 };
 
 export function requestOtp(phone: string) {
@@ -76,6 +78,10 @@ export type SessionUser = {
   business_name?: string;
   /** Profile picture for residents and reporters, logo for commercial accounts. */
   picture_url?: string;
+  /** Chosen app language. Absent until the account picks one. */
+  language?: Language;
+  /** Chosen appearance. Absent until the account picks one. */
+  theme_preference?: ColorSchemePreference;
 };
 
 export type LoginResponse = {

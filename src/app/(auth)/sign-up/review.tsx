@@ -8,8 +8,9 @@ import type { GeoPoint } from '@/api/schemas';
 import { Button, Checkbox, Screen, StepHeader } from '@/components';
 import { INTENT_COPY, WASTE_TIER_LABEL_KEYS, type UserIntent } from '@/constants/registration';
 import { fontSize, getPalette, radius, spacing } from '@/constants/theme';
-import { saveToken } from '@/features/auth/session';
+import { saveSessionUser, saveToken } from '@/features/auth/session';
 import { useI18n, type Translator } from '@/features/i18n/context';
+import { useAdoptAccountPreferences } from '@/features/preferences/use-adopt-preferences';
 import { buildRegisterPayload } from '@/features/signup/build-payload';
 import { useSignUp } from '@/features/signup/context';
 import { SIGN_UP_STEPS, signUpProgress } from '@/features/signup/steps';
@@ -116,6 +117,7 @@ export default function ReviewScreen() {
   const router = useRouter();
   const theme = getPalette(useColorScheme());
   const { t } = useI18n();
+  const adoptAccountPreferences = useAdoptAccountPreferences();
   const { intent, phone, phoneVerified, verificationToken, form } = useSignUp();
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -164,6 +166,13 @@ export default function ReviewScreen() {
 
       if (response.token) {
         await saveToken(response.token);
+
+        if (response.user) {
+          await saveSessionUser(response.user);
+          // A brand-new account has nothing stored, so this seeds the account
+          // from whatever the user chose on this device during sign-up.
+          await adoptAccountPreferences(response.user, response.token);
+        }
       }
 
       router.replace({

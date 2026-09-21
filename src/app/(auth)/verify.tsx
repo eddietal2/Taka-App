@@ -8,6 +8,7 @@ import { Button, Screen, TextField } from '@/components';
 import { fontSize, getPalette, spacing } from '@/constants/theme';
 import { saveSessionUser, saveToken } from '@/features/auth/session';
 import { useI18n } from '@/features/i18n/context';
+import { useAdoptAccountPreferences } from '@/features/preferences/use-adopt-preferences';
 
 const CODE_LENGTH = 6;
 
@@ -20,6 +21,7 @@ export default function LoginVerifyScreen() {
   const router = useRouter();
   const theme = getPalette(useColorScheme());
   const { t } = useI18n();
+  const adoptAccountPreferences = useAdoptAccountPreferences();
   const params = useLocalSearchParams<{ phone?: string }>();
   const phone = typeof params.phone === 'string' ? params.phone : undefined;
 
@@ -62,6 +64,9 @@ export default function LoginVerifyScreen() {
       await saveToken(session.token);
       if (session.user) {
         await saveSessionUser(session.user);
+        // The account's stored preferences win; an account that has none adopts
+        // whatever this device was already showing.
+        await adoptAccountPreferences(session.user, session.token);
       }
 
       router.replace('/home');

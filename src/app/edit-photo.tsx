@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, useColorScheme } from 'react-native';
 
 import type { SessionUser } from '@/api/auth';
-import { updateProfileImage } from '@/api/profile';
+import { updateAccount } from '@/api/profile';
 import { Button, PhotoPicker, Screen } from '@/components';
 import { INTENT_COPY } from '@/constants/registration';
 import { fontSize, getPalette, spacing } from '@/constants/theme';
@@ -91,7 +91,7 @@ export default function EditPhotoScreen() {
 
     setSaving(true);
     try {
-      const response = await updateProfileImage(url, token);
+      const response = await updateAccount({ picture_url: url }, token);
       persist(response.user ?? { ...user, picture_url: url });
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : t('profile.photoSaveFailed'));

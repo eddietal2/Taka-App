@@ -1,6 +1,18 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
 
 import { TRANSLATIONS, type Language, type TranslationKey } from '@/features/i18n/translations';
+import {
+  loadLanguagePreference,
+  saveLanguagePreference,
+} from '@/features/preferences/storage';
 
 /** Values substituted into `{placeholder}` tokens in a translation. */
 export type TranslationParams = Record<string, string | number>;
@@ -15,6 +27,9 @@ type I18nContextValue = {
 };
 
 const I18nContext = createContext<I18nContextValue | null>(null);
+
+/** Swahili, because the app is aimed at Tanzanian households. */
+const DEFAULT_LANGUAGE: Language = 'sw';
 
 const PLACEHOLDER = /\{(\w+)\}/g;
 
@@ -31,15 +46,36 @@ function interpolate(template: string, params?: TranslationParams): string {
 /**
  * Holds the active language for the whole app.
  *
- * Swahili is the default because the app is aimed at Tanzanian households; the
- * login screen offers a switcher for anyone who prefers English.
- *
- * The choice lives in memory only, so it resets to Swahili on a reload;
- * persisting it alongside the auth token would be the next step if it needs to
- * stick.
+ * The choice is remembered on this device so it survives a reload, and mirrored
+ * onto the account so it follows the user to another one — see
+ * `useAdoptAccountPreferences` for which wins. The device read is asynchronous,
+ * so the first paint is always Swahili; blocking the tree on it would delay the
+ * whole app to avoid a single frame of the default.
  */
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<Language>('sw');
+  const [language, setLanguageState] = useState<Language>(DEFAULT_LANGUAGE);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void loadLanguagePreference().then((stored) => {
+      if (!cancelled && stored) setLanguageState(stored);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  /**
+   * Applies the choice immediately and remembers it here. The account's copy is
+   * written by the screen the user made the choice on, which is the side that
+   * holds the session token.
+   */
+  const setLanguage = useCallback((next: Language) => {
+    setLanguageState(next);
+    void saveLanguagePreference(next);
+  }, []);
 
   const t = useCallback(
     (key: TranslationKey, params?: TranslationParams) =>
@@ -47,7 +83,11 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     [language]
   );
 
-  const value = useMemo<I18nContextValue>(() => ({ language, setLanguage, t }), [language, t]);
+  const value = useMemo<I18nContextValue>(() => ({ language, setLanguage, t }), [
+    language,
+    setLanguage,
+    t,
+  ]);
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
