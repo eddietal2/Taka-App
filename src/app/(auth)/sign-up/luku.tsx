@@ -61,14 +61,25 @@ export default function LukuScreen() {
       // is left for the resident to type — a geocoded street name is often wrong.
       updateForm({
         luku_owner_name: result.owner_name,
-        location: result.location ?? form.location,
+        luku_claim: result.state,
+        location: result.saved_address?.location ?? form.location,
         ward_kata:
-          result.ward_kata && form.ward_kata.trim().length === 0 ? result.ward_kata : form.ward_kata,
+          result.saved_address?.ward_kata && form.ward_kata.trim().length === 0
+            ? result.saved_address.ward_kata
+            : form.ward_kata,
       });
 
       if (result.status === 'rejected') {
         setResolved(false);
         setError(t('signUp.luku.notFound'));
+        return;
+      }
+
+      if (result.state === 'claimed') {
+        // The meter sits on a live account, so registration would refuse it.
+        // Stop here rather than let the user fill in the remaining steps for a
+        // registration that cannot succeed.
+        setResolved(false);
         return;
       }
 
@@ -99,6 +110,7 @@ export default function LukuScreen() {
   };
 
   const owner = form.luku_owner_name;
+  const isClaimed = form.luku_claim === 'claimed';
 
   return (
     <Screen
@@ -107,6 +119,9 @@ export default function LukuScreen() {
           label={resolved ? t('common.continue') : t('signUp.luku.lookup')}
           onPress={handleContinue}
           loading={submitting}
+          // A claimed meter cannot move on, so the only way forward is to edit
+          // the number — which clears the claim and re-enables this.
+          disabled={isClaimed}
           fullWidth
           size="lg"
         />
@@ -132,6 +147,7 @@ export default function LukuScreen() {
             updateForm({
               luku_meter: value.replace(/\D/g, ''),
               luku_owner_name: null,
+              luku_claim: 'new',
               location: null,
               ward_kata: '',
               street_mtaa: '',
@@ -158,6 +174,22 @@ export default function LukuScreen() {
               {t('signUp.luku.owner')}
             </Text>
             <Text style={[styles.resultValue, { color: theme.onPrimary }]}>{owner}</Text>
+          </View>
+        ) : null}
+
+        {isClaimed ? (
+          // Blocking, not informational: the meter is on someone else's account.
+          <View
+            style={[
+              styles.claimed,
+              { borderColor: theme.danger, backgroundColor: theme.surface },
+            ]}>
+            <Text style={[styles.claimedTitle, { color: theme.danger }]}>
+              {t('signUp.luku.claimedTitle')}
+            </Text>
+            <Text style={[styles.claimedBody, { color: theme.textMuted }]}>
+              {t('signUp.luku.claimedBody', { meter: form.luku_meter })}
+            </Text>
           </View>
         ) : null}
 
@@ -204,6 +236,19 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   notice: {
+    fontSize: fontSize.sm,
+  },
+  claimed: {
+    padding: spacing.md,
+    borderWidth: 1,
+    borderRadius: radius.md,
+    gap: spacing.xs,
+  },
+  claimedTitle: {
+    fontSize: fontSize.md,
+    fontWeight: '700',
+  },
+  claimedBody: {
     fontSize: fontSize.sm,
   },
 });

@@ -1,3 +1,4 @@
+import type { LukuClaim } from '@/api/luku';
 import type { GeoPoint } from '@/api/schemas';
 import type { WasteTier } from '@/constants/registration';
 
@@ -15,6 +16,8 @@ export type SignUpForm = {
   luku_meter: string;
   /** Registered owner returned by the meter lookup, shown for confirmation. */
   luku_owner_name: string | null;
+  /** What the database knew about the meter when it was looked up. */
+  luku_claim: LukuClaim;
   unit_number: string;
   waste_tier: WasteTier | '';
   tax_id: string;
@@ -33,6 +36,7 @@ export const EMPTY_SIGN_UP_FORM: SignUpForm = {
   street_mtaa: '',
   luku_meter: '',
   luku_owner_name: null,
+  luku_claim: 'new',
   unit_number: '',
   waste_tier: '',
   tax_id: '',

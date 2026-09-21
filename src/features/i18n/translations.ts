@@ -64,6 +64,10 @@ const en = {
   'signUp.phone.note': 'You can also start with 0, e.g. 0712345678.',
   'signUp.phone.submit': 'Send code',
   'signUp.phone.failed': 'Could not send the code. Try again.',
+  'signUp.phone.registeredTitle': 'This number is already registered',
+  'signUp.phone.registeredBody':
+    'There is already a Taka account for {phone}. Log in to continue, or change the number above.',
+  'signUp.phone.registeredAction': 'Log in instead',
 
   'signUp.verify.title': 'Enter your code',
   'signUp.verify.subtitle': 'We sent a {digits}-digit code to {phone}.',
@@ -119,6 +123,9 @@ const en = {
   'signUp.luku.unconfirmed':
     "We couldn't reach the utility to confirm this meter. You can continue and we'll verify it later.",
   'signUp.luku.failed': 'Could not check that meter. Try again.',
+  'signUp.luku.claimedTitle': 'This meter is already in use',
+  'signUp.luku.claimedBody':
+    'Meter {meter} is already linked to another Taka account, so it cannot be registered again. If it is your meter, log in to that account; otherwise check the number on the meter.',
 
   'signUp.location.title': 'Pin your location',
   'signUp.location.subtitleBusiness':
@@ -140,6 +147,9 @@ const en = {
     'Location access is required. Enable it in Settings and try again.',
   'signUp.location.failed': 'Could not get your location. Make sure GPS is on and try again.',
   'signUp.location.attachFailed': 'Could not save your location. Please try again.',
+  'signUp.location.onFileTitle': 'This meter is already on file',
+  'signUp.location.onFileBody':
+    'Meter {meter} is already registered at the location shown below. Move the pin if the meter has since changed address.',
   'signUp.location.mapTanzania': 'Map of Tanzania',
   'signUp.location.mapCentered': 'Map centred on {coordinates}',
   'signUp.location.mapUnavailable': 'The map is available in the mobile app.',
@@ -266,6 +276,10 @@ const sw: Record<TranslationKey, string> = {
   'signUp.phone.note': 'Unaweza pia kuanza na 0, mfano 0712345678.',
   'signUp.phone.submit': 'Tuma msimbo',
   'signUp.phone.failed': 'Imeshindwa kutuma msimbo. Jaribu tena.',
+  'signUp.phone.registeredTitle': 'Namba hii tayari imesajiliwa',
+  'signUp.phone.registeredBody':
+    'Tayari kuna akaunti ya Taka kwa {phone}. Ingia ili kuendelea, au badilisha namba hapo juu.',
+  'signUp.phone.registeredAction': 'Ingia badala yake',
 
   'signUp.verify.title': 'Ingiza msimbo wako',
   'signUp.verify.subtitle': 'Tumetuma msimbo wa tarakimu {digits} kwa {phone}.',
@@ -321,6 +335,9 @@ const sw: Record<TranslationKey, string> = {
   'signUp.luku.unconfirmed':
     'Hatukuweza kufikia mtoa huduma kuthibitisha mita hii. Unaweza kuendelea na tutaithibitisha baadaye.',
   'signUp.luku.failed': 'Imeshindwa kuangalia mita hiyo. Jaribu tena.',
+  'signUp.luku.claimedTitle': 'Mita hii tayari inatumika',
+  'signUp.luku.claimedBody':
+    'Mita {meter} tayari imeunganishwa na akaunti nyingine ya Taka, hivyo haiwezi kusajiliwa tena. Ikiwa ni mita yako, ingia kwenye akaunti hiyo; vinginevyo angalia namba iliyo kwenye mita.',
 
   'signUp.location.title': 'Weka eneo lako',
   'signUp.location.subtitleBusiness':
@@ -343,6 +360,9 @@ const sw: Record<TranslationKey, string> = {
   'signUp.location.failed':
     'Imeshindwa kupata eneo lako. Hakikisha GPS imewashwa na ujaribu tena.',
   'signUp.location.attachFailed': 'Imeshindwa kuhifadhi eneo lako. Tafadhali jaribu tena.',
+  'signUp.location.onFileTitle': 'Mita hii tayari ipo kwenye kumbukumbu',
+  'signUp.location.onFileBody':
+    'Mita {meter} tayari imesajiliwa katika eneo lililoonyeshwa hapa chini. Sogeza alama ikiwa mita imebadilisha eneo.',
   'signUp.location.mapTanzania': 'Ramani ya Tanzania',
   'signUp.location.mapCentered': 'Ramani imeelekea {coordinates}',
   'signUp.location.mapUnavailable': 'Ramani inapatikana kwenye app ya simu.',

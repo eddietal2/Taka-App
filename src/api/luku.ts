@@ -12,6 +12,23 @@ const LUKU_LOCATION_PATH = '/api/v1/luku/location';
  */
 export type LukuLookupStatus = 'active' | 'rejected' | 'unconfirmed';
 
+/**
+ * What the database already knew about a meter.
+ *
+ * - `claimed` — a live account holds it, so it cannot be registered again.
+ * - `mapped` — it is on file with an address but no account claims it: what is
+ *   left behind when a profile moves to a new meter or an account is deleted.
+ * - `new` — the database has never seen it.
+ */
+export type LukuClaim = 'new' | 'claimed' | 'mapped';
+
+/** An address already pinned to a meter. */
+export type SavedLukuAddress = {
+  location: GeoPoint;
+  ward_kata: string | null;
+  street_mtaa: string | null;
+};
+
 export type LukuLookupResponse = {
   luku_meter: string;
   utility_code?: string;
@@ -20,10 +37,10 @@ export type LukuLookupResponse = {
   active: boolean | null;
   /** Registered owner, or null when no confirmation was available. */
   owner_name: string | null;
-  /** Address already pinned to this meter, when one was captured before. */
-  ward_kata?: string | null;
-  street_mtaa?: string | null;
-  location?: GeoPoint | null;
+  /** What the database knew about this meter before the enquiry. */
+  state: LukuClaim;
+  /** Address on file, present exactly when `state` is `mapped`. */
+  saved_address: SavedLukuAddress | null;
   checked_at?: string;
 };
 

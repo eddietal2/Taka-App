@@ -1,11 +1,11 @@
 import { Redirect, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, Text, useColorScheme, View } from 'react-native';
 
 import { attachLukuLocation } from '@/api/luku';
 import { Button, LocationCapture, LocationMap, Screen, StepHeader } from '@/components';
 import { INTENT_COPY } from '@/constants/registration';
-import { spacing } from '@/constants/theme';
+import { fontSize, getPalette, radius, spacing } from '@/constants/theme';
 import { useI18n } from '@/features/i18n/context';
 import { useSignUp } from '@/features/signup/context';
 import { resolveWard } from '@/features/signup/geocode';
@@ -19,10 +19,16 @@ import { detailsRouteFor, SIGN_UP_STEPS, signUpProgress } from '@/features/signu
  * into the form, so the map opens on it and the resident only has to confirm
  * rather than stand at the premises to capture it again.
  *
+ * A meter the lookup found on file with an address — but on no account — is
+ * called out here, because the pin that opens on the map is that stored address
+ * rather than one captured just now. A meter on a live account never reaches
+ * this step; the meter step stops it. Both account types see the notice.
+ *
  * Reporters never pin a location, so this step is not part of their flow.
  */
 export default function LocationScreen() {
   const router = useRouter();
+  const theme = getPalette(useColorScheme());
   const { t } = useI18n();
   const { intent, phone, phoneVerified, verificationToken, form, updateForm } = useSignUp();
   const [error, setError] = useState<string | undefined>();
@@ -121,6 +127,24 @@ export default function LocationScreen() {
       />
 
       <View style={styles.form}>
+        {form.luku_claim === 'mapped' ? (
+          // The meter is on file with an address that no account claims, so say
+          // where it is instead of letting the user wonder why the map already
+          // has a pin. Shown for both account types.
+          <View
+            style={[
+              styles.notice,
+              { borderColor: theme.secondary, backgroundColor: theme.surface },
+            ]}>
+            <Text style={[styles.noticeTitle, { color: theme.text }]}>
+              {t('signUp.location.onFileTitle')}
+            </Text>
+            <Text style={[styles.noticeBody, { color: theme.textMuted }]}>
+              {t('signUp.location.onFileBody', { meter: form.luku_meter })}
+            </Text>
+          </View>
+        ) : null}
+
         <LocationMap value={form.location} error={Boolean(error)} style={styles.map} />
 
         <LocationCapture
@@ -140,6 +164,20 @@ const styles = StyleSheet.create({
   form: {
     flexGrow: 1,
     gap: spacing.lg,
+  },
+  notice: {
+    padding: spacing.md,
+    borderWidth: 1,
+    borderRadius: radius.md,
+    // Sits above the map, so it is the first thing read on the step.
+    gap: spacing.xs,
+  },
+  noticeTitle: {
+    fontSize: fontSize.md,
+    fontWeight: '700',
+  },
+  noticeBody: {
+    fontSize: fontSize.sm,
   },
   map: {
     // Takes the height the capture card leaves over, but never shrinks below

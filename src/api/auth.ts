@@ -11,6 +11,12 @@ export type OtpRequestResponse = {
   expires_in?: number;
   /** Seconds to wait before allowing a resend, when the API provides it. */
   resend_after?: number;
+  /**
+   * Whether the number already has an account. The code is still sent — this
+   * endpoint also serves sign-in — but sign-up stops here rather than collecting
+   * details for a registration that would be refused at the end.
+   */
+  registered?: boolean;
 };
 
 export type OtpVerifyResponse = {
