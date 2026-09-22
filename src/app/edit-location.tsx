@@ -127,7 +127,12 @@ export default function EditLocationScreen() {
   const claimed = lookup?.luku_meter === meter && lookup?.state === 'claimed';
   const hasSavedAddress =
     lookup?.luku_meter === meter && lookup?.state === 'mapped' && Boolean(lookup.saved_address);
-  const owner = lookup?.luku_meter === meter ? lookup?.owner_name : null;
+  // The owner comes from the enquiry when one was run, and from the account
+  // itself for the meter it is already on — which is never re-enquired, because
+  // it is valid by definition and the server would report it as claimed.
+  const lookupOwner = lookup?.luku_meter === meter ? lookup.owner_name : null;
+  const currentOwner = meter === currentMeter ? user?.luku_owner_name ?? null : null;
+  const owner = lookupOwner ?? currentOwner;
 
   const canSave =
     Boolean(location) &&
@@ -148,6 +153,11 @@ export default function EditLocationScreen() {
   const handleFind = async () => {
     const token = session?.token;
     if (!user || !token) return;
+
+    // The meter the account is already on needs no enquiry: it is valid by
+    // definition. The keyboard's Done key lands here too, so this also stops a
+    // pre-populated meter from being re-checked and reported as in use.
+    if (meter === currentMeter) return;
 
     if (!LUKU_METER_PATTERN.test(meter)) {
       setError(t('editLocation.meterFormat', { digits: LUKU_LENGTH }));
@@ -297,7 +307,7 @@ export default function EditLocationScreen() {
           />
         ) : null}
 
-        {resolvedMeter === meter && owner ? (
+        {owner ? (
           <View style={[styles.result, { backgroundColor: theme.primary }]}>
             <Text style={[styles.resultLabel, { color: theme.onPrimary }]}>
               {t('signUp.luku.owner')}
