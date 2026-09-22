@@ -1,5 +1,5 @@
 import { apiRequest } from '@/api/client';
-import type { CommercialPayload, ReporterPayload, ResidentPayload } from '@/api/schemas';
+import type { CommercialPayload, GeoPoint, ReporterPayload, ResidentPayload } from '@/api/schemas';
 import type { UserIntent } from '@/constants/registration';
 import type { Language } from '@/features/i18n/translations';
 import type { ColorSchemePreference } from '@/features/theme/color-scheme';
@@ -82,6 +82,14 @@ export type SessionUser = {
   language?: Language;
   /** Chosen appearance. Absent until the account picks one. */
   theme_preference?: ColorSchemePreference;
+  /** Service address, absent for reporters, who have none. */
+  ward_kata?: string;
+  street_mtaa?: string;
+  location?: GeoPoint;
+  /** LUKU meter on file, absent for an account without one. */
+  luku_meter?: string;
+  /** Registered owner of that meter, when the utility confirmed one. */
+  luku_owner_name?: string;
 };
 
 export type LoginResponse = {

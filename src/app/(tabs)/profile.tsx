@@ -6,12 +6,12 @@ import { Alert, Pressable, StyleSheet, Text, useColorScheme, View } from 'react-
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { SessionUser } from '@/api/auth';
-import { updateAccount, type AccountPatch } from '@/api/profile';
+import { fetchAccount, updateAccount, type AccountPatch } from '@/api/profile';
 import { Screen, SegmentedControl } from '@/components';
 import { INTENT_COPY } from '@/constants/registration';
 import { TAB_BAR_CLEARANCE } from '@/constants/tabs';
 import { fontSize, getPalette, radius, spacing } from '@/constants/theme';
-import { clearSession, getSessionUser, getToken } from '@/features/auth/session';
+import { clearSession, getSessionUser, getToken, saveSessionUser } from '@/features/auth/session';
 import { useI18n } from '@/features/i18n/context';
 import { LANGUAGE_LABELS, LANGUAGES, type Language } from '@/features/i18n/translations';
 import {
@@ -82,9 +82,24 @@ export default function ProfileScreen() {
     useCallback(() => {
       let cancelled = false;
 
-      void Promise.all([getToken(), getSessionUser()]).then(([token, user]) => {
-        if (!cancelled) setSession({ token, user });
-      });
+      void (async () => {
+        const [token, user] = await Promise.all([getToken(), getSessionUser()]);
+        if (cancelled) return;
+
+        setSession({ token, user });
+        if (!token) return;
+
+        // The address and meter are edited on another screen and are not part of
+        // what sign-in cached, so the server's copy is preferred when reachable.
+        try {
+          const fresh = await fetchAccount(token);
+          if (cancelled || !fresh.user) return;
+          await saveSessionUser(fresh.user);
+          setSession({ token, user: fresh.user });
+        } catch {
+          // Offline: the stored account still names the user, so keep it.
+        }
+      })();
 
       return () => {
         cancelled = true;
@@ -106,6 +121,9 @@ export default function ProfileScreen() {
   const nameValue = isCommercial
     ? user?.business_name ?? ''
     : [user?.first_name, user?.last_name].filter(Boolean).join(' ');
+
+  // One line for the address row: the ward and the meter it is billed through.
+  const siteSummary = [user?.ward_kata, user?.luku_meter].filter(Boolean).join(' · ');
 
   const handleLogout = async () => {
     await clearSession();
@@ -234,6 +252,28 @@ export default function ProfileScreen() {
               <Text style={[styles.rowValue, { color: theme.textMuted }]}>{user.phone}</Text>
               <Ionicons name="chevron-forward" size={ROW_ICON_SIZE} color={theme.textMuted} />
             </Pressable>
+
+            {/* Address and meter are one answer to where we collect, so the row
+                opens a single screen that edits both. Reporters have neither. */}
+            {INTENT_COPY[user.intent].needsLocation ? (
+              <Pressable
+                onPress={() => router.push('/edit-location')}
+                accessibilityRole="button"
+                accessibilityLabel={t('profile.addressLabel')}
+                style={({ pressed }) => [
+                  styles.row,
+                  { borderTopWidth: 1, borderTopColor: theme.border },
+                  pressed && styles.pressed,
+                ]}>
+                <Text style={[styles.rowLabel, { color: theme.text }]}>
+                  {t('profile.addressLabel')}
+                </Text>
+                <Text style={[styles.rowValue, { color: theme.textMuted }]} numberOfLines={1}>
+                  {siteSummary}
+                </Text>
+                <Ionicons name="chevron-forward" size={ROW_ICON_SIZE} color={theme.textMuted} />
+              </Pressable>
+            ) : null}
 
             {/* Absent on the web build, where the scheme cannot be forced. */}
             {CAN_FORCE_SCHEME ? (

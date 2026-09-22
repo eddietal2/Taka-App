@@ -1,5 +1,6 @@
 import type { SessionUser } from '@/api/auth';
 import { apiRequest } from '@/api/client';
+import type { GeoPoint } from '@/api/schemas';
 import type { Language } from '@/features/i18n/translations';
 import type { ColorSchemePreference } from '@/features/theme/color-scheme';
 
@@ -52,4 +53,42 @@ export function changePhone(phone: string, verificationToken: string, accessToke
     body: { phone, verification_token: verificationToken },
     token: accessToken,
   });
+}
+
+/** The service address fields of an account: its pin, its locality and its meter. */
+export type SitePatch = {
+  ward_kata: string;
+  street_mtaa: string;
+  location: GeoPoint;
+  /**
+   * The meter the account should end up on. Omit it to keep the current one; an
+   * empty string detaches the meter, which only a commercial account may do.
+   */
+  luku_meter?: string;
+};
+
+/**
+ * Updates the service address, the meter, or both in one call.
+ *
+ * They travel together because the server writes the address onto the meter
+ * record as well as the profile, which is what keeps a future sign-up for that
+ * meter seeded with the right address instead of a stale one.
+ */
+export function updateSite(site: SitePatch, token: string) {
+  return apiRequest<UpdateAccountResponse>('/api/v1/users/me/site', {
+    method: 'POST',
+    body: site,
+    token,
+  });
+}
+
+/**
+ * Reads the signed-in account from the server.
+ *
+ * The stored session is what the app signed in with; the address and meter are
+ * edited elsewhere and can move on without it, so a screen that shows them asks
+ * for the server's copy rather than trusting the cache.
+ */
+export function fetchAccount(token: string) {
+  return apiRequest<UpdateAccountResponse>('/api/v1/users/me', { token });
 }

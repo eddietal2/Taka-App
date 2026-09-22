@@ -243,6 +243,8 @@ const en = {
   'profile.nameLabel': 'Name',
   'profile.businessNameLabel': 'Business name',
   'profile.phoneLabel': 'Phone number',
+  'profile.addressLabel': 'Service address',
+  'profile.meterLabel': 'LUKU meter',
 
   'editName.firstName': 'First name',
   'editName.lastName': 'Last name',
@@ -269,6 +271,23 @@ const en = {
   'editPhone.resent': 'A new code is on its way.',
   'editPhone.resendFailed': 'Could not resend the code.',
   'editPhone.saveFailed': 'Could not update your phone number. Try again.',
+
+  'editLocation.title': 'Service address',
+  'editLocation.subtitle': "Where we collect from, and the meter it is billed through.",
+  'editLocation.meterLabel': 'LUKU meter number',
+  'editLocation.meterHint': '11 digits, printed on your meter.',
+  'editLocation.find': 'Find meter',
+  'editLocation.meterFormat': 'Enter the 11-digit number printed on your meter.',
+  'editLocation.meterNotFound': 'That meter was not found. Check the 11 digits and try again.',
+  'editLocation.meterFailed': 'Could not check that meter. Try again.',
+  'editLocation.resolveFirst': 'Find the meter before saving.',
+  'editLocation.saveFailed': 'Could not save your address. Try again.',
+  'editLocation.onFileTitle': 'This meter has an address on file',
+  'editLocation.onFileBody':
+    'Meter {meter} already has an address on file. Use it, or keep your own.',
+  'editLocation.useSaved': 'Use address on file',
+  'editLocation.keepMine': 'Keep my address',
+  'editLocation.addressChoiceLabel': 'Address for this meter',
 } as const;
 
 export type TranslationKey = keyof typeof en;
@@ -499,6 +518,8 @@ const sw: Record<TranslationKey, string> = {
   'profile.nameLabel': 'Jina',
   'profile.businessNameLabel': 'Jina la biashara',
   'profile.phoneLabel': 'Namba ya simu',
+  'profile.addressLabel': 'Anwani ya huduma',
+  'profile.meterLabel': 'Mita ya LUKU',
 
   'editName.firstName': 'Jina la kwanza',
   'editName.lastName': 'Jina la mwisho',
@@ -525,6 +546,23 @@ const sw: Record<TranslationKey, string> = {
   'editPhone.resent': 'Msimbo mpya unakuja.',
   'editPhone.resendFailed': 'Imeshindwa kutuma msimbo tena.',
   'editPhone.saveFailed': 'Imeshindwa kusasisha namba yako ya simu. Jaribu tena.',
+
+  'editLocation.title': 'Anwani ya huduma',
+  'editLocation.subtitle': 'Tunakusanyia wapi, na mita inayotumika kulipia.',
+  'editLocation.meterLabel': 'Namba ya mita ya LUKU',
+  'editLocation.meterHint': 'Tarakimu 11, zimeandikwa kwenye mita yako.',
+  'editLocation.find': 'Tafuta mita',
+  'editLocation.meterFormat': 'Ingiza namba ya tarakimu 11 iliyoandikwa kwenye mita yako.',
+  'editLocation.meterNotFound': 'Mita hiyo haijapatikana. Angalia tarakimu 11 na ujaribu tena.',
+  'editLocation.meterFailed': 'Imeshindwa kuangalia mita hiyo. Jaribu tena.',
+  'editLocation.resolveFirst': 'Tafuta mita kabla ya kuhifadhi.',
+  'editLocation.saveFailed': 'Imeshindwa kuhifadhi anwani yako. Jaribu tena.',
+  'editLocation.onFileTitle': 'Mita hii ina anwani iliyopo',
+  'editLocation.onFileBody':
+    'Mita {meter} tayari ina anwani iliyopo. Itumie, au hifadhi yako.',
+  'editLocation.useSaved': 'Tumia anwani iliyopo',
+  'editLocation.keepMine': 'Hifadhi yangu',
+  'editLocation.addressChoiceLabel': 'Anwani ya mita hii',
 };
 
 export const TRANSLATIONS: Record<Language, Record<TranslationKey, string>> = { en, sw };
