@@ -2,12 +2,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { Redirect, useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState, type ReactNode } from 'react';
-import { Alert, Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { Alert, Modal, Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { SessionUser } from '@/api/auth';
-import { fetchAccount, updateAccount, type AccountPatch } from '@/api/profile';
-import { Screen, SegmentedControl } from '@/components';
+import { deleteAccount, fetchAccount, updateAccount, type AccountPatch } from '@/api/profile';
+import { Button, Screen, SegmentedControl, TextField } from '@/components';
 import { INTENT_COPY } from '@/constants/registration';
 import { TAB_BAR_CLEARANCE } from '@/constants/tabs';
 import { fontSize, getPalette, radius, spacing } from '@/constants/theme';
@@ -22,6 +22,13 @@ import {
 
 const AVATAR_SIZE = 96;
 const ROW_ICON_SIZE = 18;
+
+/**
+ * Word typed to confirm deletion. Deliberately a fixed literal rather than a
+ * translated one: it is a speed bump, and a token the interface does not keyword
+ * is harder to produce by reflex than tapping through.
+ */
+const DELETE_PHRASE = 'DELETE';
 
 /** Rendered as endonyms, so neither label needs translating itself. */
 const LANGUAGE_OPTIONS = LANGUAGES.map((value) => ({ value, label: LANGUAGE_LABELS[value] }));
@@ -53,8 +60,8 @@ function SettingsRow({
 }
 
 /**
- * The resident's account tab: their picture and greeting above a settings card
- * holding appearance, language and sign out.
+ * The resident's account tab: their picture above a settings card holding their
+ * details, appearance, language, sign out and deletion.
  *
  * The two preferences are applied immediately rather than behind a save button,
  * because both change the whole app on the spot and the result is its own
@@ -72,6 +79,14 @@ export default function ProfileScreen() {
   } | null>(null);
   /** Set when a preference reached this device but not the account. */
   const [saveError, setSaveError] = useState<string | null>(null);
+  /** Which step of the delete dialog is showing, if any. */
+  const [deleteStep, setDeleteStep] = useState<'closed' | 'confirm' | 'type'>('closed');
+  /** What has been typed into the confirmation field. */
+  const [deleteInput, setDeleteInput] = useState('');
+  /** Shown inside the dialog, so a failure keeps it open for a retry. */
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  /** Blocks the delete actions while the account is being removed. */
+  const [deleting, setDeleting] = useState(false);
 
   /**
    * Re-reads on every focus rather than only on mount: the picture is replaced
@@ -114,10 +129,8 @@ export default function ProfileScreen() {
 
   const user = session?.user;
   const isCommercial = user?.intent === 'COMMERCIAL';
-  // Commercial accounts are greeted by their business, everyone else by name.
-  const name = user?.business_name ?? user?.first_name ?? '';
-  // The greeting uses a first name, but the row beside the label names the whole
-  // account: a business name, or a person's first and last name together.
+  // The row beside the label names the whole account: a business name, or a
+  // person's first and last name together.
   const nameValue = isCommercial
     ? user?.business_name ?? ''
     : [user?.first_name, user?.last_name].filter(Boolean).join(' ');
@@ -138,6 +151,58 @@ export default function ProfileScreen() {
       { text: t('common.cancel'), style: 'cancel' },
       { text: t('home.logout'), onPress: () => void handleLogout() },
     ]);
+  };
+
+  /**
+   * Removes the account for good, then clears the local session so the app cannot
+   * go on holding a token for an account that no longer exists. The server texts
+   * the number on the account once it is gone.
+   */
+  const handleDelete = async () => {
+    const token = session?.token;
+    if (!token) return;
+
+    setDeleteError(null);
+    setDeleting(true);
+    try {
+      await deleteAccount(token);
+      await clearSession();
+      setDeleteStep('closed');
+      router.replace({ pathname: '/login', params: { deleted: '1' } });
+    } catch (cause) {
+      // Reported in the dialog, which stays open so the attempt can be repeated.
+      setDeleteError(cause instanceof Error ? cause.message : t('profile.deleteFailed'));
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const openDelete = () => {
+    setDeleteInput('');
+    setDeleteError(null);
+    setDeleteStep('confirm');
+  };
+
+  /** Closing is refused mid-request, when there is nothing meaningful to cancel. */
+  const closeDelete = () => {
+    if (deleting) return;
+    setDeleteInput('');
+    setDeleteError(null);
+    setDeleteStep('closed');
+  };
+
+  /**
+   * Second step: the typed word is checked here rather than trusted to the
+   * button's enabled state, so a stray tap on its own cannot delete an account.
+   */
+  const confirmPhraseDelete = () => {
+    if (deleteInput.trim().toUpperCase() !== DELETE_PHRASE) {
+      setDeleteError(t('profile.deleteMismatch', { phrase: DELETE_PHRASE }));
+      return;
+    }
+
+    setDeleteError(null);
+    void handleDelete();
   };
 
   /**
@@ -193,10 +258,6 @@ export default function ProfileScreen() {
                 contentFit="cover"
               />
             ) : null}
-
-            <Text style={[styles.greeting, { color: theme.text }]}>
-              {t('home.greeting', { name })}
-            </Text>
           </View>
 
           <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
@@ -307,8 +368,26 @@ export default function ProfileScreen() {
                 { borderTopWidth: 1, borderTopColor: theme.border },
                 pressed && styles.pressed,
               ]}>
-              <Text style={[styles.rowLabel, { color: theme.danger }]}>{t('home.logout')}</Text>
-              <Ionicons name="log-out-outline" size={ROW_ICON_SIZE} color={theme.danger} />
+              <Text style={[styles.rowLabel, { color: theme.text }]}>{t('home.logout')}</Text>
+              <Ionicons name="log-out-outline" size={ROW_ICON_SIZE} color={theme.text} />
+            </Pressable>
+
+            {/* Last, and the most destructive: it removes the account outright
+                rather than ending a session. */}
+            <Pressable
+              onPress={openDelete}
+              disabled={deleting}
+              accessibilityRole="button"
+              accessibilityLabel={t('profile.deleteLabel')}
+              style={({ pressed }) => [
+                styles.row,
+                { borderTopWidth: 1, borderTopColor: theme.border },
+                pressed && styles.pressed,
+              ]}>
+              <Text style={[styles.rowLabel, { color: theme.danger }]}>
+                {deleting ? t('profile.deleting') : t('profile.deleteLabel')}
+              </Text>
+              <Ionicons name="trash-outline" size={ROW_ICON_SIZE} color={theme.danger} />
             </Pressable>
           </View>
 
@@ -317,6 +396,101 @@ export default function ProfileScreen() {
           ) : null}
         </View>
       ) : null}
+
+      {/* Two steps, because deletion is irreversible: the first says what will
+          happen and asks to continue, the second requires the word to be typed.
+          A plain Alert cannot collect that input, so this is a real modal. */}
+      <Modal
+        visible={deleteStep !== 'closed'}
+        transparent
+        animationType="fade"
+        onRequestClose={closeDelete}>
+        <View style={styles.modalBackdrop}>
+          <View
+            style={[
+              styles.modalCard,
+              { backgroundColor: theme.background, borderColor: theme.border },
+            ]}>
+            {deleteStep === 'confirm' ? (
+              <>
+                <Text style={[styles.modalTitle, { color: theme.text }]}>
+                  {t('profile.deleteTitle')}
+                </Text>
+                <Text style={[styles.modalBody, { color: theme.textMuted }]}>
+                  {t('profile.deleteMessage')}
+                </Text>
+                <View style={styles.modalActions}>
+                  <Button
+                    label={t('common.cancel')}
+                    onPress={closeDelete}
+                    variant="outline"
+                    color={theme.textMuted}
+                    style={styles.modalAction}
+                  />
+                  <Button
+                    label={t('profile.deleteNext')}
+                    onPress={() => {
+                      setDeleteInput('');
+                      setDeleteError(null);
+                      setDeleteStep('type');
+                    }}
+                    color={theme.danger}
+                    textColor={theme.onPrimary}
+                    style={styles.modalAction}
+                  />
+                </View>
+              </>
+            ) : (
+              <>
+                <Text style={[styles.modalTitle, { color: theme.text }]}>
+                  {t('profile.deleteConfirmTitle')}
+                </Text>
+                <Text style={[styles.modalBody, { color: theme.textMuted }]}>
+                  {t('profile.deleteConfirmMessage', {
+                    phrase: DELETE_PHRASE,
+                    phone: user?.phone ?? '',
+                  })}
+                </Text>
+                <TextField
+                  label={t('profile.deleteConfirmLabel')}
+                  value={deleteInput}
+                  onChangeText={(next) => {
+                    setDeleteError(null);
+                    setDeleteInput(next);
+                  }}
+                  placeholder={DELETE_PHRASE}
+                  autoCapitalize="characters"
+                  autoCorrect={false}
+                  returnKeyType="done"
+                  onSubmitEditing={confirmPhraseDelete}
+                  error={deleteError ?? undefined}
+                />
+                <View style={styles.modalActions}>
+                  <Button
+                    label={t('common.back')}
+                    onPress={() => {
+                      setDeleteError(null);
+                      setDeleteStep('confirm');
+                    }}
+                    variant="outline"
+                    color={theme.textMuted}
+                    style={styles.modalAction}
+                  />
+                  <Button
+                    label={t('profile.deleteLabel')}
+                    onPress={confirmPhraseDelete}
+                    loading={deleting}
+                    disabled={deleting}
+                    color={theme.danger}
+                    textColor={theme.onPrimary}
+                    style={styles.modalAction}
+                  />
+                </View>
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
     </Screen>
   );
 }
@@ -340,11 +514,6 @@ const styles = StyleSheet.create({
     height: AVATAR_SIZE,
     borderRadius: AVATAR_SIZE / 2,
     borderWidth: 1,
-  },
-  greeting: {
-    fontSize: fontSize.xxl,
-    fontWeight: '700',
-    textAlign: 'center',
   },
   card: {
     alignSelf: 'stretch',
@@ -377,5 +546,34 @@ const styles = StyleSheet.create({
   saveError: {
     fontSize: fontSize.sm,
     textAlign: 'center',
+  },
+  modalBackdrop: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.lg,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 420,
+    borderWidth: 1,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    gap: spacing.md,
+  },
+  modalTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: '700',
+  },
+  modalBody: {
+    fontSize: fontSize.sm,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  modalAction: {
+    flex: 1,
   },
 });

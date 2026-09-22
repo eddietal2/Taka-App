@@ -92,3 +92,22 @@ export function updateSite(site: SitePatch, token: string) {
 export function fetchAccount(token: string) {
   return apiRequest<UpdateAccountResponse>('/api/v1/users/me', { token });
 }
+
+export type DeleteAccountResponse = {
+  deleted?: boolean;
+};
+
+/**
+ * Deletes the signed-in account.
+ *
+ * The server removes the account and everything the profile owns. The LUKU meter
+ * number is released rather than deleted: it stays on file with its address, so
+ * it can be registered again by a new account. The caller is expected to clear
+ * the local session afterwards.
+ */
+export function deleteAccount(token: string) {
+  return apiRequest<DeleteAccountResponse>('/api/v1/users/me', {
+    method: 'DELETE',
+    token,
+  });
+}

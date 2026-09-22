@@ -223,8 +223,8 @@ const en = {
   'login.notRegistered': 'No account found for this number. Sign up instead.',
   'login.pendingApproval': 'Your account is awaiting approval.',
   'login.loggedOut': 'Successfully logged out',
+  'login.accountDeleted': 'Your profile has been deleted',
 
-  'home.greeting': 'Hello, {name}',
   'home.logout': 'Log out',
   'home.logoutTitle': 'Log out?',
   'home.logoutMessage': 'You will need your phone number and a new code to sign back in.',
@@ -245,6 +245,18 @@ const en = {
   'profile.phoneLabel': 'Phone number',
   'profile.addressLabel': 'Service address',
   'profile.meterLabel': 'LUKU meter',
+  'profile.deleteLabel': 'Delete profile',
+  'profile.deleting': 'Deleting…',
+  'profile.deleteTitle': 'Delete your profile?',
+  'profile.deleteMessage':
+    'This cannot be undone. You will be asked to confirm on the next step, and we will text the number on the account once it is deleted.',
+  'profile.deleteNext': 'Next',
+  'profile.deleteConfirmTitle': 'Confirm deletion',
+  'profile.deleteConfirmMessage':
+    'Type {phrase} to delete your profile. Your account, your picture and your saved address are removed. Your LUKU meter number and its location stay on file so the meter can be registered again. We will text {phone} to confirm.',
+  'profile.deleteConfirmLabel': 'Confirmation',
+  'profile.deleteMismatch': 'Type {phrase} exactly to delete your profile.',
+  'profile.deleteFailed': 'Could not delete your profile. Try again.',
 
   'editName.firstName': 'First name',
   'editName.lastName': 'Last name',
@@ -497,8 +509,8 @@ const sw: Record<TranslationKey, string> = {
   'login.notRegistered': 'Hakuna akaunti kwa namba hii. Jisajili badala yake.',
   'login.pendingApproval': 'Akaunti yako inasubiri kuidhinishwa.',
   'login.loggedOut': 'Umetoka kwa mafanikio',
+  'login.accountDeleted': 'Wasifu wako umefutwa',
 
-  'home.greeting': 'Habari, {name}',
   'home.logout': 'Toka',
   'home.logoutTitle': 'Toka kwenye akaunti?',
   'home.logoutMessage':
@@ -520,6 +532,18 @@ const sw: Record<TranslationKey, string> = {
   'profile.phoneLabel': 'Namba ya simu',
   'profile.addressLabel': 'Anwani ya huduma',
   'profile.meterLabel': 'Mita ya LUKU',
+  'profile.deleteLabel': 'Futa wasifu',
+  'profile.deleting': 'Inafuta…',
+  'profile.deleteTitle': 'Futa wasifu wako?',
+  'profile.deleteMessage':
+    'Haya hayawezi kurudishwa. Utaulizwa kuthibitisha katika hatua inayofuata, na tutakutumia ujumbe kwa namba iliyo kwenye akaunti mara utakapofutwa.',
+  'profile.deleteNext': 'Endelea',
+  'profile.deleteConfirmTitle': 'Thibitisha kufuta',
+  'profile.deleteConfirmMessage':
+    'Andika {phrase} ili kufuta wasifu wako. Akaunti yako, picha yako na anwani yako iliyohifadhiwa vinaondolewa. Namba yako ya mita ya LUKU na anwani yake vinabaki kwenye kumbukumbu ili mita iweze kusajiliwa tena. Tutakutumia ujumbe kwa {phone}.',
+  'profile.deleteConfirmLabel': 'Uthibitisho',
+  'profile.deleteMismatch': 'Andika {phrase} kwa usahihi ili kufuta wasifu wako.',
+  'profile.deleteFailed': 'Imeshindwa kufuta wasifu wako. Jaribu tena.',
 
   'editName.firstName': 'Jina la kwanza',
   'editName.lastName': 'Jina la mwisho',

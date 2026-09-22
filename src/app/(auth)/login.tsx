@@ -29,7 +29,7 @@ export default function LoginScreen() {
   const { language, setLanguage, t } = useI18n();
   // Home sets this when it signs the user out, so the confirmation only appears
   // in that case rather than on every visit to this screen.
-  const params = useLocalSearchParams<{ loggedOut?: string; phone?: string }>();
+  const params = useLocalSearchParams<{ deleted?: string; loggedOut?: string; phone?: string }>();
   const [toastDismissed, setToastDismissed] = useState(false);
   // Pre-filled when sign-up hands the user here because the number already has an
   // account, so they do not retype what the app has just told them. The field
@@ -70,7 +70,14 @@ export default function LoginScreen() {
     }
   };
 
-  const showLoggedOut = params.loggedOut === '1' && !toastDismissed;
+  // Either a sign-out or a deletion can land here, and the toast says which.
+  const flashMessage =
+    params.deleted === '1'
+      ? t('login.accountDeleted')
+      : params.loggedOut === '1'
+        ? t('login.loggedOut')
+        : null;
+  const showFlash = flashMessage !== null && !toastDismissed;
 
   return (
     <View style={styles.root}>
@@ -141,9 +148,9 @@ export default function LoginScreen() {
 
       {/* After the page shell, which is opaque and fills the viewport: siblings
           later in the tree are painted on top of earlier ones. */}
-      {showLoggedOut ? (
+      {showFlash ? (
         <Toast
-          message={t('login.loggedOut')}
+          message={flashMessage ?? ''}
           onDismiss={() => setToastDismissed(true)}
           variant="success"
         />
