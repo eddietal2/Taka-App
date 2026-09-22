@@ -242,11 +242,33 @@ const en = {
     'Saved on this device, but not on your account. Check your connection.',
   'profile.nameLabel': 'Name',
   'profile.businessNameLabel': 'Business name',
+  'profile.phoneLabel': 'Phone number',
 
   'editName.firstName': 'First name',
   'editName.lastName': 'Last name',
   'editName.nameError': 'Enter at least two characters.',
   'editName.saveFailed': 'Could not save your name. Try again.',
+
+  'editPhone.title': 'Change your phone number',
+  'editPhone.subtitle': "We'll text a code to your new number to verify it.",
+  'editPhone.phoneLabel': 'New phone number',
+  'editPhone.currentLabel': 'Current number',
+  'editPhone.send': 'Send code',
+  'editPhone.sendFailed': 'Could not send the code. Try again.',
+  'editPhone.sameNumber': 'That is already your phone number.',
+  'editPhone.registeredBody':
+    'There is already a Taka account for {phone}. Use a different number.',
+  'editPhone.codeTitle': 'Enter your code',
+  'editPhone.codeSubtitle': 'We sent a {digits}-digit code to {phone}.',
+  'editPhone.codeLabel': 'Verification code',
+  'editPhone.verify': 'Verify and save',
+  'editPhone.codeLength': 'Enter the {digits}-digit code.',
+  'editPhone.codeRejected': 'That code did not work. Try again.',
+  'editPhone.resend': 'Resend code',
+  'editPhone.resending': 'Sending…',
+  'editPhone.resent': 'A new code is on its way.',
+  'editPhone.resendFailed': 'Could not resend the code.',
+  'editPhone.saveFailed': 'Could not update your phone number. Try again.',
 } as const;
 
 export type TranslationKey = keyof typeof en;
@@ -476,11 +498,33 @@ const sw: Record<TranslationKey, string> = {
     'Imehifadhiwa kwenye kifaa hiki, lakini si kwenye akaunti yako. Angalia muunganisho wako.',
   'profile.nameLabel': 'Jina',
   'profile.businessNameLabel': 'Jina la biashara',
+  'profile.phoneLabel': 'Namba ya simu',
 
   'editName.firstName': 'Jina la kwanza',
   'editName.lastName': 'Jina la mwisho',
   'editName.nameError': 'Weka herufi mbili au zaidi.',
   'editName.saveFailed': 'Imeshindwa kuhifadhi jina lako. Jaribu tena.',
+
+  'editPhone.title': 'Badilisha namba yako ya simu',
+  'editPhone.subtitle': 'Tutakutumia msimbo kwenye namba yako mpya ili kuithibitisha.',
+  'editPhone.phoneLabel': 'Namba mpya ya simu',
+  'editPhone.currentLabel': 'Namba ya sasa',
+  'editPhone.send': 'Tuma msimbo',
+  'editPhone.sendFailed': 'Imeshindwa kutuma msimbo. Jaribu tena.',
+  'editPhone.sameNumber': 'Hiyo tayari ni namba yako ya simu.',
+  'editPhone.registeredBody':
+    'Tayari kuna akaunti ya Taka kwa {phone}. Tumia namba nyingine.',
+  'editPhone.codeTitle': 'Ingiza msimbo wako',
+  'editPhone.codeSubtitle': 'Tumetuma msimbo wa tarakimu {digits} kwa {phone}.',
+  'editPhone.codeLabel': 'Msimbo wa uthibitisho',
+  'editPhone.verify': 'Thibitisha na uhifadhi',
+  'editPhone.codeLength': 'Ingiza msimbo wa tarakimu {digits}.',
+  'editPhone.codeRejected': 'Msimbo huo haukufanya kazi. Jaribu tena.',
+  'editPhone.resend': 'Tuma msimbo tena',
+  'editPhone.resending': 'Inatuma…',
+  'editPhone.resent': 'Msimbo mpya unakuja.',
+  'editPhone.resendFailed': 'Imeshindwa kutuma msimbo tena.',
+  'editPhone.saveFailed': 'Imeshindwa kusasisha namba yako ya simu. Jaribu tena.',
 };
 
 export const TRANSLATIONS: Record<Language, Record<TranslationKey, string>> = { en, sw };

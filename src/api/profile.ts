@@ -37,3 +37,19 @@ export function updateAccount(patch: AccountPatch, token: string) {
     token,
   });
 }
+
+/**
+ * Moves the account onto a different phone number.
+ *
+ * The new number must already have been verified: `verificationToken` is the
+ * one-time proof `otp/verify` issued for it, and the server reads the number
+ * from that token rather than trusting the one sent alongside it. The access
+ * token stays the caller's, because this acts on the account behind it.
+ */
+export function changePhone(phone: string, verificationToken: string, accessToken: string) {
+  return apiRequest<UpdateAccountResponse>('/api/v1/users/me/phone', {
+    method: 'POST',
+    body: { phone, verification_token: verificationToken },
+    token: accessToken,
+  });
+}

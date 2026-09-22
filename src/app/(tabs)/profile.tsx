@@ -209,6 +209,26 @@ export default function ProfileScreen() {
               <Ionicons name="chevron-forward" size={ROW_ICON_SIZE} color={theme.textMuted} />
             </Pressable>
 
+            {/* The number the account signs in with. Shown in full so it is
+                recognisable at a glance; changing it sends a code to the new
+                number first, because a number may only join an account once it
+                is proven reachable. */}
+            <Pressable
+              onPress={() => router.push('/edit-phone')}
+              accessibilityRole="button"
+              accessibilityLabel={t('profile.phoneLabel')}
+              style={({ pressed }) => [
+                styles.row,
+                { borderTopWidth: 1, borderTopColor: theme.border },
+                pressed && styles.pressed,
+              ]}>
+              <Text style={[styles.rowLabel, { color: theme.text }]}>
+                {t('profile.phoneLabel')}
+              </Text>
+              <Text style={[styles.rowValue, { color: theme.textMuted }]}>{user.phone}</Text>
+              <Ionicons name="chevron-forward" size={ROW_ICON_SIZE} color={theme.textMuted} />
+            </Pressable>
+
             {/* Absent on the web build, where the scheme cannot be forced. */}
             {CAN_FORCE_SCHEME ? (
               <SettingsRow label={t('profile.appearanceLabel')} divider>
@@ -298,6 +318,11 @@ const styles = StyleSheet.create({
   },
   rowLabel: {
     flex: 1,
+    fontSize: fontSize.md,
+  },
+  /** The setting's current value, shown before the row's chevron. */
+  rowValue: {
+    flexShrink: 1,
     fontSize: fontSize.md,
   },
   pressed: {
