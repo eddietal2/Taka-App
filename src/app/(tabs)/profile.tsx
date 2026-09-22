@@ -101,6 +101,11 @@ export default function ProfileScreen() {
   const isCommercial = user?.intent === 'COMMERCIAL';
   // Commercial accounts are greeted by their business, everyone else by name.
   const name = user?.business_name ?? user?.first_name ?? '';
+  // The greeting uses a first name, but the row beside the label names the whole
+  // account: a business name, or a person's first and last name together.
+  const nameValue = isCommercial
+    ? user?.business_name ?? ''
+    : [user?.first_name, user?.last_name].filter(Boolean).join(' ');
 
   const handleLogout = async () => {
     await clearSession();
@@ -206,6 +211,7 @@ export default function ProfileScreen() {
               <Text style={[styles.rowLabel, { color: theme.text }]}>
                 {t(isCommercial ? 'profile.businessNameLabel' : 'profile.nameLabel')}
               </Text>
+              <Text style={[styles.rowValue, { color: theme.textMuted }]}>{nameValue}</Text>
               <Ionicons name="chevron-forward" size={ROW_ICON_SIZE} color={theme.textMuted} />
             </Pressable>
 
