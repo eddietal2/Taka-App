@@ -294,6 +294,29 @@ export default function ProfileScreen() {
               <Ionicons name="chevron-forward" size={ROW_ICON_SIZE} color={theme.textMuted} />
             </Pressable>
 
+            {/* A business is invoiced under a TIN, so this row exists only for a
+                commercial account. It opens a screen of its own because the
+                number is held to the same pattern sign-up validates against. */}
+            {isCommercial ? (
+              <Pressable
+                onPress={() => router.push('/edit-tax-id')}
+                accessibilityRole="button"
+                accessibilityLabel={t('profile.taxIdLabel')}
+                style={({ pressed }) => [
+                  styles.row,
+                  { borderTopWidth: 1, borderTopColor: theme.border },
+                  pressed && styles.pressed,
+                ]}>
+                <Text style={[styles.rowLabel, { color: theme.text }]}>
+                  {t('profile.taxIdLabel')}
+                </Text>
+                <Text style={[styles.rowValue, { color: theme.textMuted }]} numberOfLines={1}>
+                  {user.tax_id || t('profile.notSet')}
+                </Text>
+                <Ionicons name="chevron-forward" size={ROW_ICON_SIZE} color={theme.textMuted} />
+              </Pressable>
+            ) : null}
+
             {/* The number the account signs in with. Shown in full so it is
                 recognisable at a glance; changing it sends a code to the new
                 number first, because a number may only join an account once it

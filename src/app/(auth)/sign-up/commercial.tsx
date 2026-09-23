@@ -5,6 +5,7 @@ import { StyleSheet, View } from 'react-native';
 import { TAX_ID_PATTERN } from '@/api/schemas';
 import { Button, Screen, SelectField, StepHeader, TextField } from '@/components';
 import { WASTE_TIER_LABEL_KEYS, WASTE_TIERS } from '@/constants/registration';
+import { formatTaxId, TAX_ID_MAX_LENGTH } from '@/constants/tax-id';
 import { spacing } from '@/constants/theme';
 import { useI18n } from '@/features/i18n/context';
 import { useSignUp } from '@/features/signup/context';
@@ -13,26 +14,6 @@ import { postDetailsRouteFor, SIGN_UP_STEPS, signUpProgress } from '@/features/s
 type Errors = Partial<
   Record<'business_name' | 'ward_kata' | 'street_mtaa' | 'waste_tier' | 'tax_id', string>
 >;
-
-const TAX_ID_DIGITS = 9;
-/** 9 digits plus the two separators. */
-const TAX_ID_MAX_LENGTH = TAX_ID_DIGITS + 2;
-
-/**
- * Formats digits into the TIN pattern as they are typed, e.g. `100234567`
- * becomes `100-234-567`.
- *
- * The dashes are added for the user because the field opens a numeric keypad,
- * which has no dash key — typing the separators by hand was impossible, so the
- * pattern could never be satisfied.
- */
-function formatTaxId(input: string): string {
-  const digits = input.replace(/\D/g, '').slice(0, TAX_ID_DIGITS);
-
-  return [digits.slice(0, 3), digits.slice(3, 6), digits.slice(6, 9)]
-    .filter((part) => part.length > 0)
-    .join('-');
-}
 
 export default function CommercialDetailsScreen() {
   const router = useRouter();

@@ -76,6 +76,8 @@ export type SessionUser = {
   first_name?: string;
   last_name?: string;
   business_name?: string;
+  /** Commercial only: the TIN the business is invoiced under, e.g. 100-234-567. */
+  tax_id?: string;
   /** Profile picture for residents and reporters, logo for commercial accounts. */
   picture_url?: string;
   /** Chosen app language. Absent until the account picks one. */

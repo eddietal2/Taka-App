@@ -22,6 +22,8 @@ export type AccountPatch = {
   last_name?: string;
   /** Business name. The server accepts this only for a commercial account. */
   business_name?: string;
+  /** TIN in the 123-456-789 form. Also accepted only for a commercial account. */
+  tax_id?: string;
 };
 
 /**

@@ -252,6 +252,9 @@ const en = {
   'profile.phoneLabel': 'Phone number',
   'profile.addressLabel': 'Service address',
   'profile.meterLabel': 'LUKU meter',
+  'profile.taxIdLabel': 'TIN / Tax ID',
+  /** Shown wherever the account has not given a value the screen asks about. */
+  'profile.notSet': 'Not set',
   'profile.deleteLabel': 'Delete profile',
   'profile.deleting': 'Deleting…',
   'profile.deleteTitle': 'Delete your profile?',
@@ -269,6 +272,10 @@ const en = {
   'editName.lastName': 'Last name',
   'editName.nameError': 'Enter at least two characters.',
   'editName.saveFailed': 'Could not save your name. Try again.',
+
+  'editTaxId.title': 'Your TIN',
+  'editTaxId.subtitle': 'The tax number this business is invoiced under.',
+  'editTaxId.saveFailed': 'Could not save your TIN. Try again.',
 
   'editPhone.title': 'Change your phone number',
   'editPhone.subtitle': "We'll text a code to your new number to verify it.",
@@ -553,6 +560,8 @@ const sw: Record<TranslationKey, string> = {
   'profile.phoneLabel': 'Namba ya simu',
   'profile.addressLabel': 'Anwani ya huduma',
   'profile.meterLabel': 'Mita ya LUKU',
+  'profile.taxIdLabel': 'TIN / Namba ya kodi',
+  'profile.notSet': 'Haijawekwa',
   'profile.deleteLabel': 'Futa wasifu',
   'profile.deleting': 'Inafuta…',
   'profile.deleteTitle': 'Futa wasifu wako?',
@@ -570,6 +579,10 @@ const sw: Record<TranslationKey, string> = {
   'editName.lastName': 'Jina la mwisho',
   'editName.nameError': 'Weka herufi mbili au zaidi.',
   'editName.saveFailed': 'Imeshindwa kuhifadhi jina lako. Jaribu tena.',
+
+  'editTaxId.title': 'TIN yako',
+  'editTaxId.subtitle': 'Namba ya kodi ambayo biashara hii inatozwa.',
+  'editTaxId.saveFailed': 'Imeshindwa kuhifadhi TIN yako. Jaribu tena.',
 
   'editPhone.title': 'Badilisha namba yako ya simu',
   'editPhone.subtitle': 'Tutakutumia msimbo kwenye namba yako mpya ili kuithibitisha.',
