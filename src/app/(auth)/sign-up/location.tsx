@@ -46,6 +46,18 @@ export default function LocationScreen() {
   const isCommercial = intent === 'COMMERCIAL';
   const nextRoute = detailsRouteFor(intent);
 
+  // A meter the lookup found on file seeds the map with its stored address, so
+  // the resident confirms a pin instead of capturing one. The instruction to
+  // stand at the premises only helps when there is nothing to open the map on.
+  const hasStoredLocation = form.luku_claim === 'mapped';
+  const subtitleKey = hasStoredLocation
+    ? isCommercial
+      ? 'signUp.location.subtitleBusinessOnFile'
+      : 'signUp.location.subtitleHomeOnFile'
+    : isCommercial
+      ? 'signUp.location.subtitleBusiness'
+      : 'signUp.location.subtitleHome';
+
   const handleContinue = async () => {
     if (!form.location) {
       setError(t('signUp.location.missing'));
@@ -116,11 +128,7 @@ export default function LocationScreen() {
       }>
       <StepHeader
         title={t('signUp.location.title')}
-        subtitle={
-          isCommercial
-            ? t('signUp.location.subtitleBusiness')
-            : t('signUp.location.subtitleHome')
-        }
+        subtitle={t(subtitleKey)}
         step={progress.step}
         totalSteps={progress.totalSteps}
         onBack={() => router.back()}

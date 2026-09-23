@@ -130,8 +130,15 @@ const en = {
 
   'signUp.location.title': 'Pin your location',
   'signUp.location.subtitleBusiness':
-    'Drop a pin on your premises so we know where to collect.',
-  'signUp.location.subtitleHome': 'Drop a pin on your address so we know where to collect.',
+    'Stand at your premises and drop a pin there, so we can pinpoint exactly where to collect.',
+  'signUp.location.subtitleHome':
+    'Stand at your home and drop a pin there, so we can pinpoint exactly where to collect.',
+  // Shown instead when the meter lookup already returned a stored address, so
+  // the resident is not told to walk to premises the pin is already on.
+  'signUp.location.subtitleBusinessOnFile':
+    "We already have this meter's location — check the pin and confirm it is your premises.",
+  'signUp.location.subtitleHomeOnFile':
+    "We already have this meter's location — check the pin and confirm it is your home.",
   'signUp.location.missing': 'Add your location to continue.',
   'signUp.location.confirmTitleHome': 'Confirm your pickup address',
   'signUp.location.confirmMessageHome':
@@ -415,8 +422,13 @@ const sw: Record<TranslationKey, string> = {
 
   'signUp.location.title': 'Weka eneo lako',
   'signUp.location.subtitleBusiness':
-    'Weka alama kwenye eneo lako ili tujue wapi pa kukusanya.',
-  'signUp.location.subtitleHome': 'Weka alama kwenye anwani yako ili tujue wapi pa kukusanya.',
+    'Simama kwenye eneo la biashara yako kisha weka alama hapo, ili tuweze kubaini mahali pa kukusanya taka kwa usahihi.',
+  'signUp.location.subtitleHome':
+    'Simama kwenye nyumba yako kisha weka alama hapo, ili tuweze kubaini mahali pa kukusanya taka kwa usahihi.',
+  'signUp.location.subtitleBusinessOnFile':
+    'Tayari tuna eneo la mita hii — angalia alama na uthibitishe kuwa ni eneo la biashara yako.',
+  'signUp.location.subtitleHomeOnFile':
+    'Tayari tuna eneo la mita hii — angalia alama na uthibitishe kuwa ni nyumba yako.',
   'signUp.location.missing': 'Ongeza eneo lako ili kuendelea.',
   'signUp.location.confirmTitleHome': 'Thibitisha anwani yako ya ukusanyaji',
   'signUp.location.confirmMessageHome':
