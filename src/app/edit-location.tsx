@@ -1,43 +1,55 @@
-import { Redirect, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { Redirect, useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
 
 import type { SessionUser } from '@/api/auth';
-import { lookupLuku, type LukuLookupResponse } from '@/api/luku';
-import { fetchAccount, updateSite, type SitePatch } from '@/api/profile';
-import { LUKU_METER_PATTERN, type GeoPoint } from '@/api/schemas';
-import {
-  Button,
-  LocationCapture,
-  LocationMap,
-  Screen,
-  SegmentedControl,
-  TextField,
-} from '@/components';
+import { fetchAccount } from '@/api/profile';
+import { Button, LocationMap, Screen } from '@/components';
 import { INTENT_COPY } from '@/constants/registration';
 import { fontSize, getPalette, radius, spacing } from '@/constants/theme';
 import { getSessionUser, getToken, saveSessionUser } from '@/features/auth/session';
 import { useI18n } from '@/features/i18n/context';
 
-const LUKU_LENGTH = 11;
 const MAP_HEIGHT = 220;
 
-/** Which address to keep when a new meter already has one on file. */
-type AddressChoice = 'mine' | 'saved';
+/**
+ * One line of the address card: a small caption above its value.
+ *
+ * Stacked rather than set side by side, because these values are the long ones —
+ * a utility's registered owner, a pair of coordinates. Sharing a row with its
+ * label leaves a value only part of the width, where it wraps into a narrow,
+ * right-aligned column that reads as a block. Given the full width it wraps at
+ * its words instead, and however far it runs the label stays legible above it.
+ */
+function SummaryRow({
+  label,
+  value,
+  divider = false,
+}: {
+  label: string;
+  value: string;
+  divider?: boolean;
+}) {
+  const theme = getPalette(useColorScheme());
+
+  return (
+    <View style={[styles.row, divider && { borderTopWidth: 1, borderTopColor: theme.border }]}>
+      <Text style={[styles.rowLabel, { color: theme.textMuted }]}>{label}</Text>
+      <Text style={[styles.rowValue, { color: theme.text }]}>{value}</Text>
+    </View>
+  );
+}
 
 /**
- * Edits the account's service address: its pin, its ward and street, and the
- * meter it is billed through.
+ * The account's service address, read-only: the pin on a map, then the ward, the
+ * street and the meter it is billed through.
  *
- * These are one answer to "where do we collect from", so they are edited and
- * saved together. The meter is the coupling: a meter carries an address on the
- * server, and a later sign-up for it is seeded from that address. Keeping a
- * single form means the profile and the meter can never disagree about where the
- * account is.
- *
- * Changing the meter runs the same enquiry as sign-up — the server now accepts
- * the session token for it — and a meter that already has an address asks which
- * address to keep rather than guessing.
+ * It is a summary rather than the editor because these four are one answer to
+ * "where do we collect from", and changing any of them means re-pinning the
+ * address — which is a page of its own. `Update location` opens that page with
+ * an empty form, so the address is entered there afresh instead of edited in
+ * place, and this screen re-reads the account on focus so the change shows the
+ * moment it is saved.
  *
  * Sits outside the `(tabs)` group like the name and phone screens, so it opens
  * over the tab bar and returns to the profile when done.
@@ -50,61 +62,40 @@ export default function EditLocationScreen() {
     token: string | null;
     user: SessionUser | null;
   } | null>(null);
-  const [location, setLocation] = useState<GeoPoint | null>(null);
-  const [ward, setWard] = useState('');
-  const [street, setStreet] = useState('');
-  const [meter, setMeter] = useState('');
-  /** The meter the account is on now, so a change can be told apart. */
-  const [currentMeter, setCurrentMeter] = useState('');
-  /** The meter that last came back from a successful enquiry. */
-  const [resolvedMeter, setResolvedMeter] = useState<string | null>(null);
-  const [lookup, setLookup] = useState<LukuLookupResponse | null>(null);
-  const [addressChoice, setAddressChoice] = useState<AddressChoice>('mine');
-  const [notice, setNotice] = useState<string | null>(null);
-  const [error, setError] = useState<string | undefined>();
-  const [finding, setFinding] = useState(false);
-  const [saving, setSaving] = useState(false);
 
-  /** Seeds the form from an account, so the fields start on the stored values. */
-  const seed = (user: SessionUser) => {
-    setLocation(user.location ?? null);
-    setWard(user.ward_kata ?? '');
-    setStreet(user.street_mtaa ?? '');
-    setMeter(user.luku_meter ?? '');
-    setCurrentMeter(user.luku_meter ?? '');
-    // The meter already on the account is valid by definition, so it does not
-    // need an enquiry before it can be saved again.
-    setResolvedMeter(user.luku_meter ?? null);
-  };
+  /**
+   * Re-reads on every focus rather than only on mount: the address is saved on
+   * the update screen, and a summary that stayed mounted would otherwise go on
+   * showing the pin it replaced.
+   */
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
 
-  useEffect(() => {
-    let cancelled = false;
+      void (async () => {
+        const [token, user] = await Promise.all([getToken(), getSessionUser()]);
+        if (cancelled) return;
 
-    void (async () => {
-      const [token, user] = await Promise.all([getToken(), getSessionUser()]);
-      if (cancelled) return;
+        setSession({ token, user });
+        if (!token) return;
 
-      setSession({ token, user });
-      if (user) seed(user);
-      if (!token) return;
+        // The stored account is what sign-in returned; the address may have
+        // moved on since, so the server's copy is preferred when reachable.
+        try {
+          const fresh = await fetchAccount(token);
+          if (cancelled || !fresh.user) return;
+          await saveSessionUser(fresh.user);
+          setSession({ token, user: fresh.user });
+        } catch {
+          // Offline: the cached account is still a reasonable thing to show.
+        }
+      })();
 
-      // The stored account is what sign-in returned; the address may have moved
-      // on since, so the server's copy is preferred when it can be reached.
-      try {
-        const fresh = await fetchAccount(token);
-        if (cancelled || !fresh.user) return;
-        await saveSessionUser(fresh.user);
-        setSession({ token, user: fresh.user });
-        seed(fresh.user);
-      } catch {
-        // Offline: the cached account is still a reasonable seed.
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+      return () => {
+        cancelled = true;
+      };
+    }, [])
+  );
 
   // Nothing stored, or the session was cleared: back to sign in.
   if (session && (!session.token || !session.user)) {
@@ -112,155 +103,26 @@ export default function EditLocationScreen() {
   }
 
   const user = session?.user;
-  const isCommercial = user?.intent === 'COMMERCIAL';
 
   // Reporters pin nothing and hold no meter, so this screen is not for them.
   if (user && !INTENT_COPY[user.intent].needsLocation) {
     return <Redirect href="/profile" />;
   }
 
-  const meterChanged = meter !== currentMeter;
-  const meterRemoved = meter === '';
-  // A changed meter must be confirmed with the utility before it can be saved;
-  // removing one needs no confirmation.
-  const needsResolution = meterChanged && !meterRemoved;
-  const claimed = lookup?.luku_meter === meter && lookup?.state === 'claimed';
-  const hasSavedAddress =
-    lookup?.luku_meter === meter && lookup?.state === 'mapped' && Boolean(lookup.saved_address);
-  // The owner comes from the enquiry when one was run, and from the account
-  // itself for the meter it is already on — which is never re-enquired, because
-  // it is valid by definition and the server would report it as claimed.
-  const lookupOwner = lookup?.luku_meter === meter ? lookup.owner_name : null;
-  const currentOwner = meter === currentMeter ? user?.luku_owner_name ?? null : null;
-  const owner = lookupOwner ?? currentOwner;
-
-  const canSave =
-    Boolean(location) &&
-    ward.trim().length >= 2 &&
-    (isCommercial || !meterRemoved) &&
-    (!needsResolution || (resolvedMeter === meter && !claimed));
-
-  const handleMeterChange = (next: string) => {
-    const digits = next.replace(/\D/g, '');
-    setError(undefined);
-    setNotice(null);
-    setLookup(null);
-    setAddressChoice('mine');
-    setMeter(digits);
-    setResolvedMeter(digits === currentMeter ? currentMeter : null);
-  };
-
-  const handleFind = async () => {
-    const token = session?.token;
-    if (!user || !token) return;
-
-    // The meter the account is already on needs no enquiry: it is valid by
-    // definition. The keyboard's Done key lands here too, so this also stops a
-    // pre-populated meter from being re-checked and reported as in use.
-    if (meter === currentMeter) return;
-
-    if (!LUKU_METER_PATTERN.test(meter)) {
-      setError(t('editLocation.meterFormat', { digits: LUKU_LENGTH }));
-      return;
-    }
-
-    setError(undefined);
-    setNotice(null);
-    setFinding(true);
-
-    try {
-      const result = await lookupLuku({ phone: user.phone, luku_meter: meter }, token);
-      setLookup(result);
-
-      if (result.status === 'rejected') {
-        setResolvedMeter(null);
-        setError(t('editLocation.meterNotFound'));
-        return;
-      }
-
-      if (result.state === 'claimed') {
-        // On someone else's account, so the change cannot be saved.
-        setResolvedMeter(null);
-        return;
-      }
-
-      setResolvedMeter(meter);
-      setAddressChoice('mine');
-
-      // The utility not answering is a normal outcome, so it does not block.
-      if (result.status === 'unconfirmed') setNotice(t('signUp.luku.unconfirmed'));
-    } catch (cause) {
-      setResolvedMeter(null);
-      setError(cause instanceof Error ? cause.message : t('editLocation.meterFailed'));
-    } finally {
-      setFinding(false);
-    }
-  };
-
-  /**
-   * Applying the address on file is a client-side prefill: the choice decides
-   * what this form sends, and the server stores whatever it is given.
-   */
-  const handleAddressChoice = (choice: AddressChoice) => {
-    setAddressChoice(choice);
-
-    const saved = lookup?.saved_address;
-    if (choice === 'saved' && saved) {
-      setLocation(saved.location);
-      if (saved.ward_kata) setWard(saved.ward_kata);
-      if (saved.street_mtaa) setStreet(saved.street_mtaa);
-    }
-  };
-
-  const handleSave = async () => {
-    const token = session?.token;
-    if (!token || !location) return;
-
-    if (ward.trim().length < 2) {
-      setError(t('signUp.details.wardError'));
-      return;
-    }
-
-    if (needsResolution && (resolvedMeter !== meter || claimed)) {
-      setError(t('editLocation.resolveFirst'));
-      return;
-    }
-
-    setError(undefined);
-    setSaving(true);
-
-    try {
-      const site: SitePatch = {
-        ward_kata: ward.trim(),
-        street_mtaa: street.trim(),
-        location,
-      };
-      // Omitted when unchanged, which tells the server to keep the current one.
-      if (meterChanged) site.luku_meter = meter;
-
-      const response = await updateSite(site, token);
-      if (response.user) await saveSessionUser(response.user);
-      router.back();
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : t('editLocation.saveFailed'));
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const addressChoices = [
-    { value: 'mine' as const, label: t('editLocation.keepMine') },
-    { value: 'saved' as const, label: t('editLocation.useSaved') },
-  ];
+  // A business may never have had a meter, so every value has a fallback rather
+  // than leaving a blank line.
+  const notSet = t('editLocation.notSet');
+  const location = user?.location ?? null;
+  const coordinates = location
+    ? `${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}`
+    : null;
 
   return (
     <Screen
       footer={
         <Button
-          label={t('common.save')}
-          onPress={handleSave}
-          loading={saving}
-          disabled={!canSave}
+          label={t('editLocation.update')}
+          onPress={() => router.push('/edit-location/update')}
           fullWidth
           size="lg"
         />
@@ -281,115 +143,42 @@ export default function EditLocationScreen() {
         </Text>
       </View>
 
-      <View style={styles.form}>
-        {/* Leads the form because the meter decides the address: it is what a
-            lookup is run against, and what the address-on-file choice rewrites. */}
-        <TextField
-          label={t('editLocation.meterLabel')}
-          value={meter}
-          onChangeText={handleMeterChange}
-          placeholder="14100000000"
-          keyboardType="number-pad"
-          maxLength={LUKU_LENGTH}
-          hint={t('editLocation.meterHint')}
-          returnKeyType="done"
-          onSubmitEditing={() => void handleFind()}
-        />
-
-        {needsResolution ? (
-          <Button
-            label={t('editLocation.find')}
-            onPress={handleFind}
-            loading={finding}
-            variant="outline"
-            color={theme.primary}
-            fullWidth
-          />
-        ) : null}
-
-        {owner ? (
-          <View style={[styles.result, { backgroundColor: theme.primary }]}>
-            <Text style={[styles.resultLabel, { color: theme.onPrimary }]}>
-              {t('signUp.luku.owner')}
+      {user ? (
+        <View style={styles.body}>
+          {/* The pin leads, because it is the answer everything below qualifies. */}
+          {location ? (
+            <LocationMap value={location} height={MAP_HEIGHT} />
+          ) : (
+            <Text style={[styles.empty, { color: theme.textMuted }]}>
+              {t('editLocation.noPin')}
             </Text>
-            <Text style={[styles.resultValue, { color: theme.onPrimary }]}>{owner}</Text>
-          </View>
-        ) : null}
+          )}
 
-        {claimed ? (
+          {/* User Location & LUKU Information */}
           <View
-            style={[styles.noticeBox, { borderColor: theme.danger, backgroundColor: theme.surface }]}>
-            <Text style={[styles.noticeTitle, { color: theme.danger }]}>
-              {t('signUp.luku.claimedTitle')}
-            </Text>
-            <Text style={[styles.noticeBody, { color: theme.textMuted }]}>
-              {t('signUp.luku.claimedBody', { meter })}
-            </Text>
+            style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+            <SummaryRow label={t('signUp.details.ward')} value={user.ward_kata || notSet} />
+
+            <SummaryRow label={t('signUp.details.street')} value={user.street_mtaa || notSet} divider />
+
+            <SummaryRow label={t('editLocation.meterLabel')} value={user.luku_meter || notSet} divider />
+
+            {/* Only shown when the utility named an owner, so a resident is not
+                left wondering who else is on their meter. */}
+            {user.luku_owner_name ? (
+              <SummaryRow
+                label={t('signUp.review.lukuOwner')}
+                value={user.luku_owner_name}
+                divider
+              />
+            ) : null}
+
+            {coordinates ? (
+              <SummaryRow label={t('editLocation.locationLabel')} value={coordinates} divider />
+            ) : null}
           </View>
-        ) : null}
-
-        {hasSavedAddress ? (
-          <View
-            style={[
-              styles.noticeBox,
-              { borderColor: theme.secondary, backgroundColor: theme.surface },
-            ]}>
-            <Text style={[styles.noticeTitle, { color: theme.text }]}>
-              {t('editLocation.onFileTitle')}
-            </Text>
-            <Text style={[styles.noticeBody, { color: theme.textMuted }]}>
-              {t('editLocation.onFileBody', { meter })}
-            </Text>
-            <SegmentedControl
-              options={addressChoices}
-              value={addressChoice}
-              onChange={handleAddressChoice}
-              accessibilityLabel={t('editLocation.addressChoiceLabel')}
-              style={styles.choice}
-            />
-          </View>
-        ) : null}
-
-        <LocationMap value={location} error={Boolean(error)} height={MAP_HEIGHT} />
-
-        <LocationCapture
-          value={location}
-          onChange={(next) => {
-            setError(undefined);
-            // Editing the pin is a choice to keep this address, not the one on
-            // file for the meter.
-            setAddressChoice('mine');
-            setLocation(next);
-          }}
-          error={error}
-        />
-
-        <TextField
-          label={t('signUp.details.ward')}
-          value={ward}
-          onChangeText={(next) => {
-            setError(undefined);
-            setWard(next);
-          }}
-          placeholder="Ihumwa"
-          returnKeyType="next"
-        />
-
-        <TextField
-          label={t('signUp.details.street')}
-          value={street}
-          onChangeText={setStreet}
-          placeholder="Mlimani"
-          hint={t('signUp.details.streetHint')}
-          returnKeyType="next"
-        />
-
-        {notice ? (
-          <Text style={[styles.noticeText, { color: theme.textMuted }]}>{notice}</Text>
-        ) : null}
-
-        {error ? <Text style={[styles.errorText, { color: theme.danger }]}>{error}</Text> : null}
-      </View>
+        </View>
+      ) : null}
     </Screen>
   );
 }
@@ -411,46 +200,40 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: fontSize.sm,
+    lineHeight: 20,
   },
-  form: {
+  body: {
     gap: spacing.md,
   },
-  result: {
-    padding: spacing.md,
-    borderRadius: radius.md,
-    gap: spacing.xs,
+  empty: {
+    fontSize: fontSize.sm,
+    lineHeight: 20,
   },
-  resultLabel: {
+  card: {
+    alignSelf: 'stretch',
+    borderWidth: 1,
+    borderRadius: radius.lg,
+    // Clips the first and last row's corners to the card's radius.
+    overflow: 'hidden',
+  },
+  row: {
+    gap: spacing.xs,
+    // Keeps a one-line value in the same 52pt band as the rest of the card.
+    minHeight: 52,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  rowLabel: {
     fontSize: fontSize.xs,
     fontWeight: '600',
+    lineHeight: 16,
     letterSpacing: 0.5,
     textTransform: 'uppercase',
-    opacity: 0.85,
   },
-  resultValue: {
-    fontSize: fontSize.lg,
-    fontWeight: '700',
-  },
-  noticeBox: {
-    padding: spacing.md,
-    borderWidth: 1,
-    borderRadius: radius.md,
-    gap: spacing.sm,
-  },
-  noticeTitle: {
+  /** The stored value, given the whole width so a long one wraps at its words. */
+  rowValue: {
     fontSize: fontSize.md,
-    fontWeight: '700',
-  },
-  noticeBody: {
-    fontSize: fontSize.sm,
-  },
-  choice: {
-    alignSelf: 'stretch',
-  },
-  noticeText: {
-    fontSize: fontSize.sm,
-  },
-  errorText: {
-    fontSize: fontSize.sm,
+    lineHeight: 22,
   },
 });

@@ -294,7 +294,8 @@ const en = {
   'editLocation.title': 'Service address',
   'editLocation.subtitle': "Where we collect from, and the meter it is billed through.",
   'editLocation.meterLabel': 'LUKU meter number',
-  'editLocation.meterHint': '11 digits, printed on your meter.',
+  'editLocation.meterHint':
+    '11 digits, printed on your meter. Leave blank to keep the meter you are on.',
   'editLocation.find': 'Find meter',
   'editLocation.meterFormat': 'Enter the 11-digit number printed on your meter.',
   'editLocation.meterNotFound': 'That meter was not found. Check the 11 digits and try again.',
@@ -307,6 +308,14 @@ const en = {
   'editLocation.useSaved': 'Use address on file',
   'editLocation.keepMine': 'Keep my address',
   'editLocation.addressChoiceLabel': 'Address for this meter',
+  // The read-only summary and the editor it opens, which are two screens now.
+  'editLocation.update': 'Update location',
+  'editLocation.updateTitle': 'Update your location',
+  'editLocation.updateSubtitle':
+    'Pin where we should collect, and enter a new meter number only if it has changed.',
+  'editLocation.locationLabel': 'Pinned location',
+  'editLocation.notSet': 'Not set',
+  'editLocation.noPin': 'No location is pinned yet. Add one so we know where to collect.',
 } as const;
 
 export type TranslationKey = keyof typeof en;
@@ -586,7 +595,8 @@ const sw: Record<TranslationKey, string> = {
   'editLocation.title': 'Anwani ya huduma',
   'editLocation.subtitle': 'Tunakusanyia wapi, na mita inayotumika kulipia.',
   'editLocation.meterLabel': 'Namba ya mita ya LUKU',
-  'editLocation.meterHint': 'Tarakimu 11, zimeandikwa kwenye mita yako.',
+  'editLocation.meterHint':
+    'Tarakimu 11, zimeandikwa kwenye mita yako. Acha wazi ili kubaki kwenye mita uliyonayo.',
   'editLocation.find': 'Tafuta mita',
   'editLocation.meterFormat': 'Ingiza namba ya tarakimu 11 iliyoandikwa kwenye mita yako.',
   'editLocation.meterNotFound': 'Mita hiyo haijapatikana. Angalia tarakimu 11 na ujaribu tena.',
@@ -599,6 +609,13 @@ const sw: Record<TranslationKey, string> = {
   'editLocation.useSaved': 'Tumia anwani iliyopo',
   'editLocation.keepMine': 'Hifadhi yangu',
   'editLocation.addressChoiceLabel': 'Anwani ya mita hii',
+  'editLocation.update': 'Sasisha eneo',
+  'editLocation.updateTitle': 'Sasisha eneo lako',
+  'editLocation.updateSubtitle':
+    'Weka alama mahali tunapaswa kukusanya, na ingiza namba mpya ya mita ikiwa imebadilika.',
+  'editLocation.locationLabel': 'Eneo lililowekwa alama',
+  'editLocation.notSet': 'Haijawekwa',
+  'editLocation.noPin': 'Hakuna eneo lililowekwa alama bado. Ongeza ili tujue wapi pa kukusanya.',
 };
 
 export const TRANSLATIONS: Record<Language, Record<TranslationKey, string>> = { en, sw };
