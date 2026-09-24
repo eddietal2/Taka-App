@@ -88,8 +88,6 @@ export default function ProfileScreen() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   /** Blocks the delete actions while the account is being removed. */
   const [deleting, setDeleting] = useState(false);
-  /** The role a switch is in flight to, so its row can show progress. */
-  const [switching, setSwitching] = useState<UserIntent | null>(null);
 
   /**
    * Re-reads on every focus rather than only on mount: the picture is replaced
@@ -242,31 +240,15 @@ export default function ProfileScreen() {
   };
 
   /**
-   * Makes another role the active one.
+   * Opens the screen that switches the active role.
    *
-   * The server refuses a role the account does not hold, so this can only select
-   * between profiles that already exist. The whole account comes back shaped for
-   * the new role — its picture included — and is stored, which is what the other
-   * screens read when they pick their fields.
+   * The work happens there rather than here so changing over is a moment of its
+   * own — the app's icon and a line saying what is happening — instead of a row
+   * that quietly turns into something else. That screen also owns the failure, so
+   * a switch that cannot complete can be retried without losing the attempt.
    */
-  const handleSwitchRole = async (intent: UserIntent) => {
-    const token = session?.token;
-    if (!token) return;
-
-    setSwitching(intent);
-    setSaveError(null);
-    try {
-      const response = await updateAccount({ intent }, token);
-      const next = response.user;
-      if (next) {
-        await saveSessionUser(next);
-        setSession({ token, user: next });
-      }
-    } catch {
-      setSaveError(t('profile.roleSwitchFailed'));
-    } finally {
-      setSwitching(null);
-    }
+  const openSwitch = (intent: UserIntent) => {
+    router.push({ pathname: '/switching-role', params: { intent } });
   };
 
   const themeOptions = [
@@ -325,8 +307,7 @@ export default function ProfileScreen() {
               ) : (
                 <Pressable
                   key={role}
-                  onPress={() => void handleSwitchRole(role)}
-                  disabled={switching !== null}
+                  onPress={() => openSwitch(role)}
                   accessibilityRole="button"
                   accessibilityLabel={t(ROLE_SWITCH_LABEL_KEYS[role])}
                   style={({ pressed }) => [
@@ -334,13 +315,16 @@ export default function ProfileScreen() {
                     { borderTopWidth: 1, borderTopColor: theme.border },
                     pressed && styles.pressed,
                   ]}>
+                  {/* Neutral, not the brand colour "Active" uses: this row is the
+                      action of changing over, so it reads like the other action
+                      rows rather than as a second state. */}
                   <Text style={[styles.rowLabel, { color: theme.text }]}>
                     {t(INTENT_COPY[role].titleKey)}
                   </Text>
-                  <Text style={[styles.rowValue, { color: theme.primary }]}>
-                    {switching === role ? t('profile.switching') : t('profile.switch')}
+                  <Text style={[styles.rowValue, { color: theme.text }]}>
+                    {t('profile.switch')}
                   </Text>
-                  <Ionicons name="swap-horizontal" size={ROW_ICON_SIZE} color={theme.primary} />
+                  <Ionicons name="swap-horizontal" size={ROW_ICON_SIZE} color={theme.text} />
                 </Pressable>
               )
             )}
