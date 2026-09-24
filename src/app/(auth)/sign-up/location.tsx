@@ -30,7 +30,7 @@ export default function LocationScreen() {
   const router = useRouter();
   const theme = getPalette(useColorScheme());
   const { t } = useI18n();
-  const { intent, phone, phoneVerified, verificationToken, form, updateForm } = useSignUp();
+  const { intent, phone, phoneVerified, verificationToken, form, updateForm, mode } = useSignUp();
   const [error, setError] = useState<string | undefined>();
   const [saving, setSaving] = useState(false);
 
@@ -42,7 +42,7 @@ export default function LocationScreen() {
     return <Redirect href="/sign-up/photo" />;
   }
 
-  const progress = signUpProgress(intent, SIGN_UP_STEPS.location);
+  const progress = signUpProgress(intent, SIGN_UP_STEPS.location, { addRole: mode === 'addRole' });
   const isCommercial = intent === 'COMMERCIAL';
   const nextRoute = detailsRouteFor(intent);
 

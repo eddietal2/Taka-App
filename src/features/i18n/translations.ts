@@ -263,10 +263,29 @@ const en = {
   'profile.deleteNext': 'Next',
   'profile.deleteConfirmTitle': 'Confirm deletion',
   'profile.deleteConfirmMessage':
-    'Type {phrase} to delete your profile. Your account, your picture and your saved address are removed. Your LUKU meter number and its location stay on file so the meter can be registered again. We will text {phone} to confirm.',
+    'Type {phrase} to delete your profile. The account and every role it holds are removed, pictures and saved address included. Your LUKU meter number and its location stay on file so the meter can be registered again. We will text {phone} to confirm.',
   'profile.deleteConfirmLabel': 'Confirmation',
   'profile.deleteMismatch': 'Type {phrase} exactly to delete your profile.',
   'profile.deleteFailed': 'Could not delete your profile. Try again.',
+
+  'profile.rolesLabel': 'Account roles',
+  'profile.roleActive': 'Active',
+  'profile.switch': 'Switch',
+  'profile.switching': 'Switching…',
+  'profile.switchToResident': 'Switch to Resident',
+  'profile.switchToReporter': 'Switch to Reporter',
+  'profile.switchToCommercial': 'Switch to Commercial',
+  'profile.addResident': 'Add Resident account',
+  'profile.addReporter': 'Add Reporter account',
+  'profile.addCommercial': 'Add Commercial account',
+  'profile.roleSwitchFailed': 'Could not switch role. Check your connection and try again.',
+
+  'addRole.sessionExpired': 'Your session has expired. Sign in again to add this role.',
+  'addRole.failed': 'Could not add this role. Try again.',
+  'addRole.submit': 'Add this role',
+  'addRole.reviewTitle': 'Add your {role} account',
+  'addRole.reviewSubtitle':
+    'These details are added to your existing account, which keeps its number, name and preferences.',
 
   'editName.firstName': 'First name',
   'editName.lastName': 'Last name',
@@ -570,10 +589,30 @@ const sw: Record<TranslationKey, string> = {
   'profile.deleteNext': 'Endelea',
   'profile.deleteConfirmTitle': 'Thibitisha kufuta',
   'profile.deleteConfirmMessage':
-    'Andika {phrase} ili kufuta wasifu wako. Akaunti yako, picha yako na anwani yako iliyohifadhiwa vinaondolewa. Namba yako ya mita ya LUKU na anwani yake vinabaki kwenye kumbukumbu ili mita iweze kusajiliwa tena. Tutakutumia ujumbe kwa {phone}.',
+    'Andika {phrase} ili kufuta wasifu wako. Akaunti na nafasi zote zilizomo vinaondolewa, pamoja na picha na anwani iliyohifadhiwa. Namba yako ya mita ya LUKU na anwani yake vinabaki kwenye kumbukumbu ili mita iweze kusajiliwa tena. Tutakutumia ujumbe kwa {phone}.',
   'profile.deleteConfirmLabel': 'Uthibitisho',
   'profile.deleteMismatch': 'Andika {phrase} kwa usahihi ili kufuta wasifu wako.',
   'profile.deleteFailed': 'Imeshindwa kufuta wasifu wako. Jaribu tena.',
+
+  'profile.rolesLabel': 'Nafasi za akaunti',
+  'profile.roleActive': 'Inatumika',
+  'profile.switch': 'Badilisha',
+  'profile.switching': 'Inabadilisha…',
+  'profile.switchToResident': 'Badilisha kwenda Mkazi',
+  'profile.switchToReporter': 'Badilisha kwenda Mripoti',
+  'profile.switchToCommercial': 'Badilisha kwenda Biashara',
+  'profile.addResident': 'Ongeza akaunti ya Mkazi',
+  'profile.addReporter': 'Ongeza akaunti ya Mripoti',
+  'profile.addCommercial': 'Ongeza akaunti ya Biashara',
+  'profile.roleSwitchFailed':
+    'Imeshindwa kubadilisha nafasi. Angalia muunganisho wako na ujaribu tena.',
+
+  'addRole.sessionExpired': 'Kipindi chako kimeisha. Ingia tena ili kuongeza nafasi hii.',
+  'addRole.failed': 'Imeshindwa kuongeza nafasi hii. Jaribu tena.',
+  'addRole.submit': 'Ongeza nafasi hii',
+  'addRole.reviewTitle': 'Ongeza akaunti yako ya {role}',
+  'addRole.reviewSubtitle':
+    'Taarifa hizi zinaongezwa kwenye akaunti yako iliyopo, ambayo inabaki na namba, jina na mapendeleo yake.',
 
   'editName.firstName': 'Jina la kwanza',
   'editName.lastName': 'Jina la mwisho',

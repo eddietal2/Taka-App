@@ -1,10 +1,11 @@
 import { Redirect, useRouter } from 'expo-router';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Button, PhotoPicker, Screen, StepHeader, type PhotoPickerHandle } from '@/components';
 import { INTENT_COPY } from '@/constants/registration';
 import { spacing } from '@/constants/theme';
+import { getToken } from '@/features/auth/session';
 import { useI18n } from '@/features/i18n/context';
 import { businessInitialsLogo } from '@/features/signup/business-logo';
 import { useSignUp } from '@/features/signup/context';
@@ -13,8 +14,25 @@ import { SIGN_UP_STEPS, signUpProgress } from '@/features/signup/steps';
 export default function PhotoScreen() {
   const router = useRouter();
   const { t } = useI18n();
-  const { intent, phoneVerified, verificationToken, form, updateForm } = useSignUp();
+  const { intent, phoneVerified, verificationToken, form, updateForm, mode } = useSignUp();
   const picker = useRef<PhotoPickerHandle>(null);
+  /**
+   * An add-role run has no verification token — the number was verified when the
+   * account was created. The upload is authorised by the session's access token
+   * instead, so it is read here and stands in for one.
+   */
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (mode !== 'addRole') return;
+    let cancelled = false;
+    void getToken().then((token) => {
+      if (!cancelled) setAccessToken(token);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [mode]);
 
   if (!intent || !phoneVerified) {
     return <Redirect href="/sign-up" />;
@@ -22,7 +40,8 @@ export default function PhotoScreen() {
 
   const copy = INTENT_COPY[intent];
   const isCommercial = intent === 'COMMERCIAL';
-  const progress = signUpProgress(intent, SIGN_UP_STEPS.photo);
+  const progress = signUpProgress(intent, SIGN_UP_STEPS.photo, { addRole: mode === 'addRole' });
+  const uploadToken = mode === 'addRole' ? accessToken : verificationToken;
 
   const goToReview = () => router.push('/sign-up/review');
 
@@ -65,7 +84,7 @@ export default function PhotoScreen() {
             value={form.business_logo}
             onChange={(url) => updateForm({ business_logo: url })}
             purpose="business_logo"
-            token={verificationToken}
+            token={uploadToken}
             fallback={businessInitialsLogo(form.business_name)}
             onSkip={goToReview}
           />
@@ -76,7 +95,7 @@ export default function PhotoScreen() {
             value={form.profile_picture}
             onChange={(url) => updateForm({ profile_picture: url })}
             purpose="profile_picture"
-            token={verificationToken}
+            token={uploadToken}
             onSkip={goToReview}
           />
         )}

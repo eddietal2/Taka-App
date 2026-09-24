@@ -8,9 +8,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { SessionUser } from '@/api/auth';
 import { deleteAccount, fetchAccount, updateAccount, type AccountPatch } from '@/api/profile';
 import { Button, Screen, SegmentedControl, TextField } from '@/components';
-import { INTENT_COPY } from '@/constants/registration';
+import { INTENT_COPY, type UserIntent } from '@/constants/registration';
 import { TAB_BAR_CLEARANCE } from '@/constants/tabs';
 import { fontSize, getPalette, radius, spacing } from '@/constants/theme';
+import { addableRoles, ROLE_ADD_LABEL_KEYS, ROLE_SWITCH_LABEL_KEYS, rolesOf } from '@/features/auth/roles';
 import { clearSession, getSessionUser, getToken, saveSessionUser } from '@/features/auth/session';
 import { useI18n } from '@/features/i18n/context';
 import { LANGUAGE_LABELS, LANGUAGES, type Language } from '@/features/i18n/translations';
@@ -87,6 +88,8 @@ export default function ProfileScreen() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   /** Blocks the delete actions while the account is being removed. */
   const [deleting, setDeleting] = useState(false);
+  /** The role a switch is in flight to, so its row can show progress. */
+  const [switching, setSwitching] = useState<UserIntent | null>(null);
 
   /**
    * Re-reads on every focus rather than only on mount: the picture is replaced
@@ -137,6 +140,11 @@ export default function ProfileScreen() {
 
   // One line for the address row: the ward and the meter it is billed through.
   const siteSummary = [user?.ward_kata, user?.luku_meter].filter(Boolean).join(' · ');
+
+  // The account's roles, and the ones it could still take on. Both fall back to
+  // the active intent alone for a session cached before roles were returned.
+  const roles = rolesOf(user);
+  const addable = addableRoles(user);
 
   const handleLogout = async () => {
     await clearSession();
@@ -233,6 +241,34 @@ export default function ProfileScreen() {
     void pushPreference({ language: next });
   };
 
+  /**
+   * Makes another role the active one.
+   *
+   * The server refuses a role the account does not hold, so this can only select
+   * between profiles that already exist. The whole account comes back shaped for
+   * the new role — its picture included — and is stored, which is what the other
+   * screens read when they pick their fields.
+   */
+  const handleSwitchRole = async (intent: UserIntent) => {
+    const token = session?.token;
+    if (!token) return;
+
+    setSwitching(intent);
+    setSaveError(null);
+    try {
+      const response = await updateAccount({ intent }, token);
+      const next = response.user;
+      if (next) {
+        await saveSessionUser(next);
+        setSession({ token, user: next });
+      }
+    } catch {
+      setSaveError(t('profile.roleSwitchFailed'));
+    } finally {
+      setSwitching(null);
+    }
+  };
+
   const themeOptions = [
     { value: 'light' as const, label: t('profile.themeLight') },
     { value: 'dark' as const, label: t('profile.themeDark') },
@@ -258,6 +294,74 @@ export default function ProfileScreen() {
                 contentFit="cover"
               />
             ) : null}
+          </View>
+
+          {/* The account's roles, ahead of the settings card because switching
+              one changes what that card describes. The active role is marked, a
+              role already held is a row to switch to, and one not held is a row
+              that starts the wizard to add it. */}
+          <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+            <View style={styles.row}>
+              <Text style={[styles.rowLabel, { color: theme.text }]}>
+                {t('profile.rolesLabel')}
+              </Text>
+              <Text style={[styles.rowValue, { color: theme.textMuted }]}>
+                {t(INTENT_COPY[user.intent].titleKey)}
+              </Text>
+            </View>
+
+            {roles.map((role) =>
+              role === user.intent ? (
+                <View
+                  key={role}
+                  style={[styles.row, { borderTopWidth: 1, borderTopColor: theme.border }]}>
+                  <Text style={[styles.rowLabel, { color: theme.text }]}>
+                    {t(INTENT_COPY[role].titleKey)}
+                  </Text>
+                  <Text style={[styles.rowValue, { color: theme.primary }]}>
+                    {t('profile.roleActive')}
+                  </Text>
+                </View>
+              ) : (
+                <Pressable
+                  key={role}
+                  onPress={() => void handleSwitchRole(role)}
+                  disabled={switching !== null}
+                  accessibilityRole="button"
+                  accessibilityLabel={t(ROLE_SWITCH_LABEL_KEYS[role])}
+                  style={({ pressed }) => [
+                    styles.row,
+                    { borderTopWidth: 1, borderTopColor: theme.border },
+                    pressed && styles.pressed,
+                  ]}>
+                  <Text style={[styles.rowLabel, { color: theme.text }]}>
+                    {t(INTENT_COPY[role].titleKey)}
+                  </Text>
+                  <Text style={[styles.rowValue, { color: theme.primary }]}>
+                    {switching === role ? t('profile.switching') : t('profile.switch')}
+                  </Text>
+                  <Ionicons name="swap-horizontal" size={ROW_ICON_SIZE} color={theme.primary} />
+                </Pressable>
+              )
+            )}
+
+            {addable.map((role) => (
+              <Pressable
+                key={role}
+                onPress={() => router.push({ pathname: '/sign-up/add', params: { intent: role } })}
+                accessibilityRole="button"
+                accessibilityLabel={t(ROLE_ADD_LABEL_KEYS[role])}
+                style={({ pressed }) => [
+                  styles.row,
+                  { borderTopWidth: 1, borderTopColor: theme.border },
+                  pressed && styles.pressed,
+                ]}>
+                <Text style={[styles.rowLabel, { color: theme.primary }]}>
+                  {t(ROLE_ADD_LABEL_KEYS[role])}
+                </Text>
+                <Ionicons name="add" size={ROW_ICON_SIZE} color={theme.primary} />
+              </Pressable>
+            ))}
           </View>
 
           <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>

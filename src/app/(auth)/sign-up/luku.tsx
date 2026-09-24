@@ -27,7 +27,7 @@ export default function LukuScreen() {
   const router = useRouter();
   const theme = getPalette(useColorScheme());
   const { t } = useI18n();
-  const { intent, phone, phoneVerified, verificationToken, form, updateForm } = useSignUp();
+  const { intent, phone, phoneVerified, verificationToken, form, updateForm, mode } = useSignUp();
   const [error, setError] = useState<string | undefined>();
   const [notice, setNotice] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -38,7 +38,7 @@ export default function LukuScreen() {
     return <Redirect href="/sign-up" />;
   }
 
-  const progress = signUpProgress(intent, SIGN_UP_STEPS.luku);
+  const progress = signUpProgress(intent, SIGN_UP_STEPS.luku, { addRole: mode === 'addRole' });
 
   const handleFind = async () => {
     if (!LUKU_METER_PATTERN.test(form.luku_meter)) {

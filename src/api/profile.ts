@@ -1,6 +1,7 @@
 import type { SessionUser } from '@/api/auth';
 import { apiRequest } from '@/api/client';
-import type { GeoPoint } from '@/api/schemas';
+import type { AddIntentPayload, GeoPoint } from '@/api/schemas';
+import type { UserIntent } from '@/constants/registration';
 import type { Language } from '@/features/i18n/translations';
 import type { ColorSchemePreference } from '@/features/theme/color-scheme';
 
@@ -17,6 +18,11 @@ export type AccountPatch = {
   picture_url?: string;
   language?: Language;
   theme_preference?: ColorSchemePreference;
+  /**
+   * The role to make active. The server refuses one the account does not hold,
+   * so this is a change of view rather than a registration.
+   */
+  intent?: UserIntent;
   /** Personal name, for a resident or reporter. */
   first_name?: string;
   last_name?: string;
@@ -37,6 +43,22 @@ export function updateAccount(patch: AccountPatch, token: string) {
   return apiRequest<UpdateAccountResponse>('/api/v1/users/me', {
     method: 'PATCH',
     body: patch,
+    token,
+  });
+}
+
+/**
+ * Attaches a second role to the signed-in account.
+ *
+ * The account is identified by the access token, so the payload carries only the
+ * new role's profile — never a phone number. The response is the whole updated
+ * account, with the new role already active, so the app can store what the
+ * server now holds.
+ */
+export function addIntent(payload: AddIntentPayload, token: string) {
+  return apiRequest<UpdateAccountResponse>('/api/v1/users/me/intents', {
+    method: 'POST',
+    body: payload,
     token,
   });
 }

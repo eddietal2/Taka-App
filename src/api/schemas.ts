@@ -72,3 +72,22 @@ export type ResidentPayload = z.infer<typeof residentPayloadSchema>;
 export type ReporterPayload = z.infer<typeof reporterPayloadSchema>;
 export type CommercialPayload = z.infer<typeof commercialPayloadSchema>;
 export type RegisterPayload = z.infer<typeof registerPayloadSchema>;
+
+/**
+ * Mirrors the server's `addIntentPayloadSchema` in
+ * taka-server-resident/src/schemas/auth.ts: the profile registration collects,
+ * minus `phone`, because the account attaching a second role is identified by its
+ * access token rather than by a number the payload could lie about. Commercial
+ * joins this union when the app offers a business role alongside a personal one.
+ */
+export const residentProfileSchema = residentPayloadSchema.omit({ phone: true });
+export const reporterProfileSchema = reporterPayloadSchema.omit({ phone: true });
+
+export const addIntentPayloadSchema = z.discriminatedUnion('intent', [
+  residentProfileSchema,
+  reporterProfileSchema,
+]);
+
+export type ResidentProfilePayload = z.infer<typeof residentProfileSchema>;
+export type ReporterProfilePayload = z.infer<typeof reporterProfileSchema>;
+export type AddIntentPayload = z.infer<typeof addIntentPayloadSchema>;

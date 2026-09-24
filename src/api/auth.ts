@@ -71,8 +71,15 @@ export function registerCommercial(payload: CommercialPayload, token?: string | 
 export type SessionUser = {
   id: string;
   phone: string;
+  /** The role the account is currently used in. */
   intent: UserIntent;
   status: string;
+  /**
+   * Every role the account holds; always includes the active `intent`. Absent
+   * from sessions cached before the field existed, so role readers fall back to
+   * `[intent]` — which is what such an account necessarily had.
+   */
+  roles?: UserIntent[];
   first_name?: string;
   last_name?: string;
   business_name?: string;

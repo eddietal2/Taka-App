@@ -13,14 +13,14 @@ type Errors = Partial<Record<'first_name' | 'last_name' | 'ward_kata' | 'street_
 export default function ResidentDetailsScreen() {
   const router = useRouter();
   const { t } = useI18n();
-  const { intent, phoneVerified, form, updateForm } = useSignUp();
+  const { intent, phoneVerified, form, updateForm, mode } = useSignUp();
   const [errors, setErrors] = useState<Errors>({});
 
   if (intent !== 'RESIDENT' || !phoneVerified) {
     return <Redirect href="/sign-up" />;
   }
 
-  const progress = signUpProgress(intent, SIGN_UP_STEPS.details);
+  const progress = signUpProgress(intent, SIGN_UP_STEPS.details, { addRole: mode === 'addRole' });
   // The location step runs before this one, so the ward is usually already
   // filled in from the pin; the hint explains where it came from. The street is
   // never pre-filled — a reverse-geocoded street name is often wrong.

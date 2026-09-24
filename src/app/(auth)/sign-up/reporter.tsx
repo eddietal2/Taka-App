@@ -13,14 +13,14 @@ type Errors = Partial<Record<'first_name' | 'last_name', string>>;
 export default function ReporterDetailsScreen() {
   const router = useRouter();
   const { t } = useI18n();
-  const { intent, phoneVerified, form, updateForm } = useSignUp();
+  const { intent, phoneVerified, form, updateForm, mode } = useSignUp();
   const [errors, setErrors] = useState<Errors>({});
 
   if (intent !== 'REPORTER' || !phoneVerified) {
     return <Redirect href="/sign-up" />;
   }
 
-  const progress = signUpProgress(intent, SIGN_UP_STEPS.details);
+  const progress = signUpProgress(intent, SIGN_UP_STEPS.details, { addRole: mode === 'addRole' });
 
   const handleContinue = () => {
     const next: Errors = {};

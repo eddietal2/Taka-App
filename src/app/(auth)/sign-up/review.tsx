@@ -4,14 +4,15 @@ import { StyleSheet, Text, View, useColorScheme } from 'react-native';
 
 import { registerCommercial, registerReporter, registerResident } from '@/api/auth';
 import { ApiError } from '@/api/client';
+import { addIntent } from '@/api/profile';
 import type { GeoPoint } from '@/api/schemas';
 import { Button, Checkbox, Screen, StepHeader } from '@/components';
 import { INTENT_COPY, WASTE_TIER_LABEL_KEYS, type UserIntent } from '@/constants/registration';
 import { fontSize, getPalette, radius, spacing } from '@/constants/theme';
-import { saveSessionUser, saveToken } from '@/features/auth/session';
+import { getToken, saveSessionUser, saveToken } from '@/features/auth/session';
 import { useI18n, type Translator } from '@/features/i18n/context';
 import { useAdoptAccountPreferences } from '@/features/preferences/use-adopt-preferences';
-import { buildRegisterPayload } from '@/features/signup/build-payload';
+import { buildAddIntentPayload, buildRegisterPayload } from '@/features/signup/build-payload';
 import { useSignUp } from '@/features/signup/context';
 import { SIGN_UP_STEPS, signUpProgress } from '@/features/signup/steps';
 import type { SignUpForm } from '@/features/signup/types';
@@ -118,7 +119,7 @@ export default function ReviewScreen() {
   const theme = getPalette(useColorScheme());
   const { t } = useI18n();
   const adoptAccountPreferences = useAdoptAccountPreferences();
-  const { intent, phone, phoneVerified, verificationToken, form } = useSignUp();
+  const { intent, phone, phoneVerified, verificationToken, form, mode } = useSignUp();
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -130,7 +131,7 @@ export default function ReviewScreen() {
     return <Redirect href="/sign-up" />;
   }
 
-  const progress = signUpProgress(intent, SIGN_UP_STEPS.review);
+  const progress = signUpProgress(intent, SIGN_UP_STEPS.review, { addRole: mode === 'addRole' });
   const rows = summaryRows(intent, form, phone, t);
 
   // `form` and `terms` are rendered in their own places. Everything else is a
@@ -142,6 +143,45 @@ export default function ReviewScreen() {
   );
 
   const handleSubmit = async () => {
+    // Attaching a role to the signed-in account is the same wizard with a
+    // different ending: the phone is already the account's, so the profile is
+    // posted against the access token and the account is returned complete.
+    if (mode === 'addRole') {
+      const addResult = buildAddIntentPayload(intent, form);
+      if (!addResult.ok) {
+        setErrors(addResult.errors);
+        return;
+      }
+
+      if (!acceptedTerms) {
+        setErrors({ terms: t('signUp.review.termsError') });
+        return;
+      }
+
+      setErrors({});
+      setSubmitting(true);
+      try {
+        const token = await getToken();
+        if (!token) {
+          setErrors({ form: t('addRole.sessionExpired') });
+          return;
+        }
+
+        const added = await addIntent(addResult.payload, token);
+        if (added.user) await saveSessionUser(added.user);
+        router.replace('/profile');
+      } catch (cause) {
+        if (cause instanceof ApiError && cause.fieldErrors) {
+          setErrors(cause.fieldErrors);
+        } else {
+          setErrors({ form: cause instanceof Error ? cause.message : t('addRole.failed') });
+        }
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    }
+
     const result = buildRegisterPayload(intent, phone, form);
     if (!result.ok) {
       setErrors(result.errors);
@@ -204,7 +244,7 @@ export default function ReviewScreen() {
     <Screen
       footer={
         <Button
-          label={t('signUp.review.submit')}
+          label={mode === 'addRole' ? t('addRole.submit') : t('signUp.review.submit')}
           onPress={handleSubmit}
           loading={submitting}
           // Resubmitting cannot help while the number is taken, so the Log in
@@ -217,8 +257,12 @@ export default function ReviewScreen() {
         />
       }>
       <StepHeader
-        title={t('signUp.review.title')}
-        subtitle={t('signUp.review.subtitle')}
+        title={
+          mode === 'addRole'
+            ? t('addRole.reviewTitle', { role: t(INTENT_COPY[intent].titleKey) })
+            : t('signUp.review.title')
+        }
+        subtitle={mode === 'addRole' ? t('addRole.reviewSubtitle') : t('signUp.review.subtitle')}
         step={progress.step}
         totalSteps={progress.totalSteps}
         onBack={() => router.back()}
