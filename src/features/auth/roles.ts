@@ -31,6 +31,10 @@ export function hasRole(user: SessionUser | null | undefined, intent: UserIntent
 
 /** Roles the account does not hold yet, in the order the app offers them. */
 export function addableRoles(user: SessionUser | null | undefined): AddableIntent[] {
+  // No account means nothing to attach a role to. Without this guard every role
+  // would look addable, since none is held.
+  if (!user) return [];
+
   const held = rolesOf(user);
   return ADDABLE_INTENTS.filter((intent) => !held.includes(intent));
 }

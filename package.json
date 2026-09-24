@@ -38,7 +38,14 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@jest/globals": "^30.5.2",
+    "@playwright/test": "^1.63.0",
+    "@testing-library/react-native": "^14.0.1",
+    "@types/jest": "^30.0.0",
     "@types/react": "~19.2.2",
+    "jest": "^30.5.2",
+    "jest-expo": "^57.0.5",
+    "react-test-renderer": "^19.3.0",
     "typescript": "~6.0.3"
   },
   "scripts": {
@@ -48,7 +55,33 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "e2e": "playwright test",
+    "e2e:report": "playwright show-report"
+  },
+  "jest": {
+    "preset": "jest-expo",
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest.setup.ts"
+    ],
+    "testTimeout": 15000,
+    "moduleNameMapper": {
+      "^@/assets/(.*)$": "<rootDir>/assets/$1",
+      "^@/(.*)$": "<rootDir>/src/$1"
+    },
+    "testMatch": [
+      "<rootDir>/tests/**/*.test.ts",
+      "<rootDir>/tests/**/*.test.tsx"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.{ts,tsx}",
+      "!src/**/*.d.ts",
+      "!src/app/_layout.tsx",
+      "!src/app/**/_layout.tsx"
+    ]
   },
   "private": true,
   "packageManager": "pnpm@10.22.0"
